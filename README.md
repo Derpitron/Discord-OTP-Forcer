@@ -18,7 +18,7 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
 - Depends on HTML element class names/english localized strings in order to detect failure/success
 
 # Credits
-- TheGamer456YT for their [frick-discord-2fa](https://github.com/TheGamer456YT/frick-discord-2fa) script, which gave me the base for the codegen.py and textcolor.py libraries. 
+- [TheGamer456YT](https://github.com/TheGamer456YT) for their [frick-discord-2fa](https://github.com/TheGamer456YT/frick-discord-2fa) script, which gave me the base for the codegen.py and textcolor.py libraries. 
 
 # Disclaimer
 `THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.` 
