@@ -1,5 +1,5 @@
 # Discord-OTP-Forcer
-This is a Selenium and Python based Discord TOTP forcer. 
+This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 digit TOTP codes, of which there are 10^6 (1000000) possible codes, with a random delay between each attempt.
 
 # Features
 - Brute forces 6 digit TOTP codes
