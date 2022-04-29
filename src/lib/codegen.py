@@ -17,7 +17,7 @@ def formatgc(arr: list) -> str:
 	return ''.join(map(str, arr))
 
 def genRndmDigit(num: int = 0, gty: str = "0123456789") -> Union[str, None]:
-	"""A function that is used in the generator class to generate random digits. Uses the random module.
+	"""A function that is used in the generator class to generate random digits. Uses the secrets module for true randomness..
 	
 	Args:
 
