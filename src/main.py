@@ -165,7 +165,7 @@ def reset(gen):
 					# Close the browser.
 					driver.close()
 					time.sleep(1)
-					reset()
+					reset(gen)
 				# The entered TOTP code is invalid. Wait 10-20 seconds, then try again.
 				else:
 					sleepy = secrets.choice(range(10, 20))
