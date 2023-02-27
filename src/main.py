@@ -120,11 +120,8 @@ def totp(gen):
 
 
 def reset(gen):
-	# Get the Chromium web driver and make it headless
-	options = Options()
-	options.add_argument('--headless')
-	options.add_argument('--disable-gpu')
-	driver = webdriver.Chrome(ChromeDriverManager().install(), options = options)
+	# Get the Chromium web driver.
+	driver = webdriver.Chrome(ChromeDriverManager().install())
 	#Blocking cloudflare, sentry.io and discord science URLS (analytics and monitoring URLS)
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
 		"urls": [
@@ -211,7 +208,7 @@ def reset(gen):
 						loginTOTP.send_keys(Keys.BACKSPACE)
 
 					print("Code: " + toColor(totp, "blue") + " did not work, delay: " + toColor(sleepy, "blue"))
-					
+
 		# If the TOTP login field is not found (e.g the user hasn't supplied new password) then try again.
 		except (NoSuchElementException):
 			pass
