@@ -13,6 +13,7 @@ from selenium.common.exceptions import NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
 # Load in the credentials from .env
 load_dotenv()
@@ -25,7 +26,7 @@ newpassword = os.getenv('NEWPASSWORD')
 
 def totp(gen):
 	# Get the Chromium web driver
-	driver = webdriver.Chrome(ChromeDriverManager().install())
+	driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 	#Blocking cloudflare and discord science URLS so they don't phone home
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
 		"urls": [
@@ -121,7 +122,7 @@ def totp(gen):
 
 def reset(gen):
 	# Get the Chromium web driver.
-	driver = webdriver.Chrome(ChromeDriverManager().install())
+	driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 	#Blocking cloudflare, sentry.io and discord science URLS (analytics and monitoring URLS)
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
 		"urls": [
