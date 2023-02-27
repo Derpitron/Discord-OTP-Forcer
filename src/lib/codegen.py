@@ -16,6 +16,30 @@ def formatgc(arr: list) -> str:
 	"""
 	return ''.join(map(str, arr))
 
+def genRndmChr(num: int = 0, gty: str = "abcdefghijklmnopqrstuvwxyz0123456789") -> Union[str, None]:
+	"""A function that is used in the generator class to generate random characters. Uses the random module.
+	
+	Args:
+
+		num: The number of times to generate a random character. Default value: 0
+
+		gty: String to be used as random characters. Default value: gttypes['genTypeNorm'] =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".
+
+	Returns:
+		Formatted version of arr. Or None.
+	"""
+	arr = []
+	if num == 0:
+		print("Please enter the number of random characters you want!")
+		sleep(5)
+		quit()
+
+	for x in range(num):
+		arr.append(secrets.choice(gty))
+	return formatgc(arr)
+
+
 def genRndmDigit(num: int = 0, gty: str = "0123456789") -> Union[str, None]:
 	"""A function that is used in the generator class to generate random digits. Uses the secrets module for true randomness..
 	
@@ -38,6 +62,13 @@ def genRndmDigit(num: int = 0, gty: str = "0123456789") -> Union[str, None]:
 	for x in range(num):
 		arr.append(secrets.choice(gty))
 	return formatgc(arr)
+
+def genBackup(num: int): 
+	""""""
+	ar = []
+	for x in range(num):
+		ar.append(genRndmChr(4) + "-" + genRndmChr(4) + "\n")
+	return formatgc(ar)
 
 def genNormal(num: int): 
 	""""""
