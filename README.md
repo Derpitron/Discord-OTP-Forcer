@@ -35,12 +35,15 @@ python src/main.py
 
 # How to get your token
 1. Enter email for the account and click forgot password.
+
 ![plot](./src/assets/readme(1).png)
 
 2. Find the password reset email and click reset password.
+
 ![plot](./src/assets/readme(2).png)
 
 3. You token will be in the URL for the password reset page.
+
 ![plot](./src/assets/readme(3).png)
 
 # Why did I make this?
