@@ -249,40 +249,36 @@ if __name__ == "__main__":
 	# Set variable for code menu
 	Input = "What type of code would you like to generate?\n["+toColor("1","green")+"] - "+toColor("8","green")+" Digit Backup Code\n["+toColor("2","green")+"] - "+toColor("6","green")+" Digit Normal Code\n "
 	# Ask the user what mode they want to use
-	try:
-		menu = int(input("Are you trying a password reset?\n["+toColor("1","green")+"] - Yes\n["+toColor("2","green")+"] - No\n "))
-		match menu:
-			# Password reset mode
-			case 1:
-				t = int(input(Input))
-				match t:
-					# Code generation mode
-					case 1:
-						# 8 Digit Backup Code
-						code = [8, genBackup]
-					case 2:
-						# 6 Digit Normal Code
-						code = [6, genNormal]
-					case _:
-						print("Invalid option entered!")	
-				PR(code)			
-			# TOTP reset mode
-			case 2:
-				t = int(input(Input))
-				match t:
-					# Code generation mode
-					case 1:
-						# 8 Digit Backup Code
-						code = [8, genBackup]
-					case 2:
-						# 6 Digit Normal Code
-						code = [6, genNormal]
-					case _:
-						print("Invalid option entered!")
-				TOTP(code)	
-			case _:
-				print("Invalid option entered!")
-	# Close the program if exited or stop keybind pressed 			
-	except BaseException as ex:
-		if isinstance(ex, SystemExit) or isinstance(ex, KeyboardInterrupt):
-				quit()
+	menu = int(input("Are you trying a password reset?\n["+toColor("1","green")+"] - Yes\n["+toColor("2","green")+"] - No\n "))
+	match menu:
+		# Password reset mode
+		case 1:
+			t = int(input(Input))
+			match t:
+				# Code generation mode
+				case 1:
+					# 8 Digit Backup Code
+					code = [8, genBackup]
+				case 2:
+					# 6 Digit Normal Code
+					code = [6, genNormal]
+				case _:
+					print("Invalid option entered!")	
+			PR(code)			
+		# TOTP reset mode
+		case 2:
+			t = int(input(Input))
+			match t:
+				# Code generation mode
+				case 1:
+					# 8 Digit Backup Code
+					code = [8, genBackup]
+				case 2:
+					# 6 Digit Normal Code
+					code = [6, genNormal]
+				case _:
+					print("Invalid option entered!")
+			TOTP(code)	
+		case _:
+			print("Invalid option entered!")
+
