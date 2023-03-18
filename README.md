@@ -1,10 +1,12 @@
 # Discord-OTP-Forcer
-This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 digit TOTP codes, of which there are 10^6 (1000000) possible codes, with a random delay between each attempt.
+This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8 digit codes with a random delay between each attempt.
 
 # Features
 - Brute forces 6 digit TOTP codes
+- Brute forces 8 digit Backup codes
 - Ratelimit avoidance (Cooldown between every code attempt)
 - Color coded print logging
+- Can brute force password reset
 - Waits for you to complete the hCaptcha
 - Automatically closes when the hCaptcha ticket expires, and prints useful info (e.g No. of attempted codes, time taken, no. of ratelimits)
 - Blocks analytics URLs such as Cloudflare logging, Discord Science, and Sentry.io
@@ -30,6 +32,19 @@ python src/main.py
 ```
 5. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
 6. Wait for either a successful login, or a closed browser window (Failure to brute force codes)
+
+# How to get your token
+1. Enter email for the account and click forgot password.
+
+![plot](./src/assets/readme(1).png)
+
+2. Find the password reset email and click reset password.
+
+![plot](./src/assets/readme(2).png)
+
+3. You token will be in the URL for the password reset page.
+
+![plot](./src/assets/readme(3).png)
 
 # Why did I make this?
 In December 2021, I lost access to my passwords and OTP list due to a file syncing issue. I was able to recover most of the credentials, except for my Discord Alt. When I contacted Discord Support, they informed me that due to their security policy, they could not disable 2FA for that account, which while it is understandable, is unfortunate. As a proof-of-concept program, I hacked together this crude script which simply brute forces randomly generated 6 digit numbers to the Discord login's TOTP field.
