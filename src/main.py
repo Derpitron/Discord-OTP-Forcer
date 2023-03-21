@@ -272,7 +272,7 @@ if __name__ == "__main__":
 				# Code generation mode
 				case 1:
 					# 8 Digit Backup Code
-					code = [8, genBackup]
+					code = [9, genBackup]
 				case 2:
 					# 6 Digit Normal Code
 					code = [6, genNormal]
