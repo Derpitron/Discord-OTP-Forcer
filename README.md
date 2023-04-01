@@ -56,7 +56,7 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
 
 # Credits
 - [TheGamer456YT](https://github.com/TheGamer456YT) for their [frick-discord-2fa](https://github.com/TheGamer456YT/frick-discord-2fa) script, which gave me the base for the codegen.py and textcolor.py libraries. 
-- [LuXeZs](https://github.com/LuXeZs) for implementing 8-char Backup OTP code brute-forcing, and Password Reset OTP forcing.
+- [LuXeZs](https://github.com/LuXeZs) for implementing 8-char Backup OTP code brute-forcing, Password Reset OTP forcing, and various bug fixes.
 
 # Disclaimer
 `THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION. ` 
