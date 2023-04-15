@@ -2,8 +2,8 @@
 This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8 digit codes with a random delay between each attempt.
 
 # Features
-- Brute forces 6 digit TOTP codes
-- Brute forces 8 digit Backup codes
+- Brute forces 6 digit TOTP codes (1 million possible codes)
+- Brute forces 8 digit Backup codes (2.82 trillion possible codes)
 - Ratelimit avoidance (Cooldown between every code attempt)
 - Color coded print logging
 - Can brute force password reset
