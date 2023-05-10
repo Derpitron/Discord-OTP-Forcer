@@ -35,7 +35,7 @@ def TOTP(code):
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
 		"urls": [
 			"a.nel.cloudflare.com/report", 
-			"https://discord.com/api/v9/science",
+			"https://discord.com/api/v10/science",
 			"sentry.io"
 		]
 	})
@@ -156,7 +156,7 @@ def PR(code):
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
 		"urls": [
 			"a.nel.cloudflare.com/report", 
-			"https://discord.com/api/v9/science",
+			"https://discord.com/api/v10/science",
 			"sentry.io"
 		]
 	})
