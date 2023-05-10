@@ -42,7 +42,7 @@ python src/main.py
 
 ![plot](./src/assets/readme(2).png)
 
-3. You token will be in the URL for the password reset page.
+3. Your token will be in the URL for the password reset page.
 
 ![plot](./src/assets/readme(3).png)
 
