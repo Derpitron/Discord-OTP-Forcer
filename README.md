@@ -17,7 +17,7 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 - Python (https://www.python.org/downloads)
 - Google Chrome (https://www.google.com/chrome)
 
-# How to use
+# How to setup and use
 1. Clone/download the repository.
     - Download repository (https://github.com/Derpitron/Discord-OTP-Forcer/archive/refs/heads/main.zip)
     - ```
@@ -26,6 +26,26 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 2. Go to the location you installed the repository and run `setup.bat`.
 3. The requisite dependencies with install then the `.env` file will open, fill out the necessary credentials then save and close notepad. 
 4. Run `start.bat`, Follow the instructions in the command prompt. 
+5. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
+6. Wait for either a successful login, or a closed browser window (Failure to brute force codes)
+
+## Alternative setup (Recommended on non-windows based OS)
+1. Clone/download the repository, and go to it
+```
+git clone https://github.com/hydino2085143/Discord-OTP-Forcer.git
+```
+```
+cd Discord-OTP-Forcer
+```
+2. Install the requisite dependencies.
+```
+pip install -r requirements.txt
+```
+3. Fill out the necessary credentials in the `.env` file.
+4. Run the `main.py` file.
+```
+python src/main.py
+```
 5. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
 6. Wait for either a successful login, or a closed browser window (Failure to brute force codes)
 
