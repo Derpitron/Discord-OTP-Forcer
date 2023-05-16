@@ -52,15 +52,15 @@ python src/main.py
 # How to get your token
 1. Enter email for the account and click forgot password.
 
-![plot](./src/assets/readme(1).png)
+![](https://i.imgur.com/cqc6nY9.png)
 
 2. Find the password reset email and click reset password.
 
-![plot](./src/assets/readme(2).png)
+![](https://i.imgur.com/dr6mQXd.png)
 
 3. Your token will be in the URL for the password reset page.
 
-![plot](./src/assets/readme(3).png)
+![](https://i.imgur.com/dGUyIR1.png)
 
 # Why did I make this?
 In December 2021, I lost access to my passwords and OTP list due to a file syncing issue. I was able to recover most of the credentials, except for my Discord Alt. When I contacted Discord Support, they informed me that due to their security policy, they could not disable 2FA for that account, which while it is understandable, is unfortunate. As a proof-of-concept program, I hacked together this crude script which simply brute forces randomly generated 6 digit numbers to the Discord login's TOTP field.
