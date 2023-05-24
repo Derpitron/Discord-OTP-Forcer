@@ -6,7 +6,7 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 - Brute forces 8 digit Backup codes (2.82 trillion possible codes)
 - Ratelimit avoidance (Cooldown between every code attempt)
 - Color coded print logging
-- Can brute force password reset
+- Can brute force password reset's TOTP codes.
 - Waits for you to complete the hCaptcha
 - Automatically closes when the hCaptcha ticket expires, and prints useful info (e.g No. of attempted codes, time taken, no. of ratelimits)
 - Blocks analytics URLs such as Cloudflare logging, Discord Science, and Sentry.io
@@ -17,11 +17,15 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 - Python (https://www.python.org/downloads)
 - Google Chrome (https://www.google.com/chrome)
 
-# How to setup and use
+# How to setup and use (Windows)
 1. Clone/download the repository.
     - Download repository (https://github.com/Derpitron/Discord-OTP-Forcer/archive/refs/heads/main.zip)
-    - ```
-      git clone https://github.com/hydino2085143/Discord-OTP-Forcer.git
+
+    *Or,*
+    
+    - Clone with Git
+    ```
+      git clone https://github.com/Derpitron/Discord-OTP-Forcer.git
       ```
 2. Go to the location you installed the repository and run `setup.bat`.
 3. The requisite dependencies with install then the `.env` file will open, fill out the necessary credentials then save and close notepad. 
@@ -29,8 +33,8 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 5. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
 6. Wait for either a successful login, or a closed browser window (Failure to brute force codes)
 
-## Alternative setup (Recommended on non-windows based OS)
-1. Clone/download the repository, and go to it
+## Alternative setup (Mac OS, Linux, other Non Windows based OS)
+1. Clone/download the repository, and `cd` to it
 ```
 git clone https://github.com/hydino2085143/Discord-OTP-Forcer.git
 ```
@@ -69,6 +73,7 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
 - Attempted code is displayed with a delay
 - Depends on HTML element class names/english localized strings in order to detect failure/success
 - Script relies on the Chrome WebDriver, thus Google Chrome will have to be installed.
+- Requires **Python Version >= 3.10** to work. 
 
 # Credits
 - [SpaghettDev](https://github.com/SpaghettDev) for their [frick-discord-2fa](https://github.com/SpaghettDev/frick-discord-2fa) script, which gave me the base for the codegen.py and textcolor.py libraries ❤️
