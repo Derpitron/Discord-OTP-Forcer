@@ -67,7 +67,7 @@ def genBackup(num: int):
 	""""""
 	ar = []
 	for x in range(num):
-		ar.append(genRndmChr(8))
+		ar.append(genRndmChr(4) + "-" + genRndmChr(4) + "\n")
 	return formatgc(ar)
 
 def genNormal(num: int): 
