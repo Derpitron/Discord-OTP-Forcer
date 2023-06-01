@@ -1,1 +1,8 @@
-assets/
+# User-handled files
+.env
+usedcodes.txt
+
+# VSCode-generated files
+*.pyc
+.vscode
+.venv

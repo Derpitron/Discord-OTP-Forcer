@@ -41,10 +41,10 @@ cd Discord-OTP-Forcer
 ```
 pip install -r requirements.txt
 ```
-3. Fill out the necessary credentials in the `.env` file.
+3. Fill out the necessary credentials in the `user/cfg.yml` file.
 4. Run the `main.py` file.
 ```
-python src/main.py
+python main.py
 ```
 5. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
 6. Wait for either a successful login, or a closed browser window (Failure to brute force codes)
@@ -52,15 +52,15 @@ python src/main.py
 # How to get your token
 1. Enter email for the account and click forgot password.
 
-![plot](./src/assets/readme(1).png)
+![plot](./docs/assets/passreset-token-instructions/readme(1).png)
 
 2. Find the password reset email and click reset password.
 
-![plot](./src/assets/readme(2).png)
+![plot](./docs/assets/passreset-token-instructions/readme(2).png)
 
 3. Your token will be in the URL for the password reset page.
 
-![plot](./src/assets/readme(3).png)
+![plot](./docs/assets/passreset-token-instructions/readme(3).png)
 
 # Why did I make this?
 In December 2021, I lost access to my passwords and OTP list due to a file syncing issue. I was able to recover most of the credentials, except for my Discord Alt. When I contacted Discord Support, they informed me that due to their security policy, they could not disable 2FA for that account, which while it is understandable, is unfortunate. As a proof-of-concept program, I hacked together this crude script which simply brute forces randomly generated 6 digit numbers to the Discord login's TOTP field.
