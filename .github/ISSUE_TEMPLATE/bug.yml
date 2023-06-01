@@ -1,0 +1,52 @@
+name: Bug report
+description: Describe what your problem is.
+title: '[Bug]: '
+labels:
+  - bug
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: Describe your problem as **accurately** and **clearly** as you can.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Minimal Reproduction
+      description: >-
+        How did this bug/glitch happen? Type the **exact** steps of the error
+        here, or what you did to trigger it.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Error
+      description: >-
+        Provide text logs and/or screenshots of the error/bug/glitch. The more
+        context you provide, the better we can help you and fix the issue.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Operating System Version
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Python Version
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: 'Program Version '
+      description: Type in the commit hash of the program version which you are using.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Any other information or context?
+  - type: markdown
+    attributes:
+      value: >-
+        This template was generated with [Issue Forms
+        Creator](https://issue-forms-creator.netlify.app)
