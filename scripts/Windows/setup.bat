@@ -1,10 +1,10 @@
 @echo off
 echo Installing requirements...
-pip install -r requirements.txt
+pip install -r "%~dp0..\..\requirements.txt"
 echo Requirements installed!
 
-start notepad.exe .env
-echo Setup the .env file. 
+start notepad.exe "%~dp0..\..\user\cfg.yml"
+echo Setup the cfg.yml file. 
 
 :LOOP
 tasklist | find /i "notepad.exe" > nul
