@@ -36,7 +36,7 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 ## Alternative setup (Mac OS, Linux, other Non Windows based OS)
 1. Clone/download the repository, and `cd` to it
 ```
-git clone https://github.com/hydino2085143/Discord-OTP-Forcer.git
+git clone https://github.com/Derpitron/Discord-OTP-Forcer.git
 ```
 ```
 cd Discord-OTP-Forcer
