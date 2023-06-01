@@ -1,6 +1,5 @@
 # User-handled files
 .env
-user/*
 
 # VSCode-generated files
 *.pyc
