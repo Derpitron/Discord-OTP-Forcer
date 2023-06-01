@@ -27,9 +27,9 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
     ```
       git clone https://github.com/Derpitron/Discord-OTP-Forcer.git
       ```
-2. Go to the location you installed the repository and run `setup.bat`.
-3. The requisite dependencies with install then the `.env` file will open, fill out the necessary credentials then save and close notepad. 
-4. Run `start.bat`, Follow the instructions in the command prompt. 
+2. Go to the location you installed the repository and run `scripts/Windows/setup.bat`.
+3. The requisite dependencies with install then the `user/cfg.yml` file will open, fill out the necessary credentials then save and close notepad. 
+4. Run `scripts/Windows/start.bat`, Follow the instructions in the command prompt. 
 5. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
 6. Wait for either a successful login, or a closed browser window (Failure to brute force codes)
 
