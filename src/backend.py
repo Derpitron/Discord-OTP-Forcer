@@ -16,6 +16,13 @@ from selenium.webdriver.chrome.service import Service
 def browserBootstrap(
 	cfg: dict,
 ) -> webdriver.chrome.webdriver.WebDriver:
+	"""
+	browserBootstrap is a function that initializes and returns a WebDriver object of the Chrome browser. 
+	:param cfg: a dictionary object which holds the program mode as key-value pairs. 
+	:type cfg: dict
+	:return: a WebDriver object of the Chrome browser.
+	:rtype: webdriver.chrome.webdriver.WebDriver
+	"""
 	# Set Chromium options.
 	options = Options()
 	options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -54,6 +61,16 @@ def loginBootstrap(
 	driver: webdriver.chrome.webdriver.WebDriver,
 	cfg: dict,
 ):
+	"""
+	Login Bootstrap is a function that takes in two parameters:
+	1. driver: A web driver object of Chrome
+	2. cfg: A dictionary of configuration keys and values
+	The function locates the login input fields based on the `cfg` parameter's `programMode`. If `programMode` is 'login',
+	the email and password fields are located, and the values of the fields are filled using `cfg`. If `programMode` is 'reset',
+	only the password field is located and filled in with the `newPassword` key from `cfg`. The function then attempts to find
+	a TOTP login field, and if found, calls the `codeEntry()` function to enter the authentication code. If a `NoSuchElementException`
+	is caught while trying to find the TOTP login field, the function continues to run, assuming that the hCaptcha has been completed.
+	"""
 	# Find the login input fields
 	loginFields = {
 		'password': driver.find_element(by=By.NAME, value='password')
@@ -89,6 +106,17 @@ def codeEntry(
 	loginFields: dict,
 	     cfg: dict
 ):
+	"""
+	Enter OTP codes continuously until successful login, using the provided webdriver, 
+	loginFields dictionary, and configuration dictionary. Returns nothing. 
+
+	:param driver: A webdriver object.
+	:type driver: webdriver.chrome.webdriver.WebDriver
+	:param loginFields: A dictionary of login fields.
+	:type loginFields: dict
+	:param cfg: A dictionary of configuration values.
+	:type cfg: dict
+	"""
 	# Set up statistics counters
 	statistics = {
 		'attemptedCodeCount':   0,
@@ -176,12 +204,12 @@ def finalStatDisplay(
 	statistics: dict
 ):
 	"""
-	Displays the final statistics collected during the program process..
-	
-	:param haltReason: The error string representing the reason for halting the authentication process.
+	Displays statistics and the reason for program halt.
+
+	:param haltReason: A string representing the reason why the program halted.
 	:type haltReason: str
-	:param statistics: A dictionary containing statistics about the process.
-	:param statistics: dict
+	:param statistics: A dictionary containing statistical data.
+	:type statistics: dict
 	:return: This function does not return anything.
 	"""
 	haltReasons = {

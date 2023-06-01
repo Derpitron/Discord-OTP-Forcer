@@ -16,6 +16,14 @@ def list2str(list: list) -> str:
 	return ''.join(map(str, list))
 
 def genRandomChar(charSet: str) -> str:
+	"""
+	Generate a random character from the given character set.
+
+	:param charSet: a string containing the characters to choose from
+	:type charSet: str
+	:return: a single randomly selected character from the character set
+	:rtype: str
+	"""
 	yield randchoice(charSet)
 
 def genRandomCode(mode: str) -> str:

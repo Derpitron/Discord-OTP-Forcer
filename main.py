@@ -5,15 +5,27 @@ from src.lib.textcolor import color
 from src.backend import browserBootstrap, loginBootstrap
 
 def loadcfg(cfgfilename='user/cfg.yml') -> dict:
-	with open(cfgfilename, "r") as cfgfile:
-		return load(cfgfile)
+	"""
+	Loads a YAML configuration file and returns a dictionary.
+
+	:param cfgfilename: A string representing the path to the YAML configuration file to be loaded. Default is 'user/cfg.yml'.
+	:type cfgfilename: str
+	:return: A dictionary representing the loaded YAML configuration file.
+	:rtype: dict
+	"""
+	with open(cfgfilename, "r") as cfgfile: return load(cfgfile)
 
 def userFacing(cfg: dict):
 	"""
-	This is the business-logic code.\n
-	Asks the user for the program mode and code type(s) they want to generate. 
-	Validates the inputted program mode and code mode. 
-	Starts the simulated browser and runs it in an infinite loop.
+	Takes a configuration dictionary `cfg` as input and prompts the user to select a program mode and code type(s) they want to generate. Then, it checks whether the inputted program mode and code mode are valid or not. If the inputted modes are valid, it starts the simulated browser and runs it in an infinite loop.
+
+	:param cfg: A dictionary that contains the configuration for the function.
+	:type cfg: dict
+
+	:raises ValueError: If the inputted program mode or code mode is invalid.
+
+	:return: None
+	:rtype: None
 	"""
 	#To-do: move the below stuff to documentation.
 	# Ask the user what program mode they want to use
