@@ -97,6 +97,10 @@ def loginBootstrap(
 		# Attempt to find the TOTP login field
 		try:
 			loginFields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='6-digit authentication code/8-digit backup code']") #or driver.find_element(by=By.XPATH, value="//*[@aria-label='Enter Discord Auth/Backup Code']")
+			# Auto-triggers the password reset flow
+			if ('Please reset your password to log in.' in driver.page_source):
+				cfg['programMode'] = 'reset'
+				codeEntry(driver, loginFields, cfg)
 			codeEntry(driver, loginFields, cfg)
 		except NoSuchElementException: # This try-except block constantly checks whether the hCaptcha has been completed, and if so, it will continue to the next phase.
 			pass
@@ -138,7 +142,8 @@ def codeEntry(
 				print(f"{color(i, 'green')}: {statistics[i]}")
 			print(f"TOTP login field: {color('Found','green')}")
 			print(f"Forcer: {color('Starting','green')}")
-			print(f"")
+			print(f"Program Mode: {color(cfg['programMode'], 'green')}")
+			print(f"Code Mode: {color(cfg['codeMode'], 'green')}")
 
 		# Generate a new code and enter it into the TOTP field
 		totpCode = genRandomCode(cfg['codeMode'])
@@ -217,8 +222,8 @@ def finalStatDisplay(
 		'invalidPasswordResetToken': 'Invalid password reset token',
 			'passwordResetRequired': 
 									f"We need to reset the password!\n"\
-									f"Running {color('reset program mode')}!\n"\
-									f"{color('(This feature will only work if the TOKEN is filled in the .env file.)', 'yellow')}"
+									f"Running {color('reset program mode', 'green')}!\n"\
+									f"{color('(This feature will only work if the resetToken is filled in the .env file.)', 'yellow')}"
 	}
 	print(color(f"Halt reason:            {         haltReasons[haltReason]}", 'red' ))
 	print(color(f"Program mode:           {       statistics['programMode']}", 'blue'))
