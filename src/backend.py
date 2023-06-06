@@ -175,17 +175,19 @@ def codeEntry(
 			#Print this out as well as some statistics, and prompt the user to retry.
 			statistics['elapsedTime'] = time.time() - startTime
 			finalStatDisplay('invalidPasswordResetToken', statistics)
-			# Close the browser.
+			# Close the browser and stop the script.
 			driver.close()
-
+ 			break
+			
 		# This means that Discord has expired this login session, we must restart the process.
 		elif ('Invalid two-factor auth ticket' in driver.page_source):
 			#  Print this out as well as some statistics, and prompt the user to retry.
 			statistics['elapsedTime'] = time.time() - startTime
 			finalStatDisplay('invalidSessionTicket', statistics)
-			# Close the browser.
+			# Close the browser and stop the script.
 			driver.close()
-
+ 			break
+			
 		# The entered TOTP code is invalid. Wait a few seconds, then try again.
 		else:
 			sleepDuration = secrets.choice(range(6, 10))
