@@ -104,7 +104,8 @@ def loginBootstrap(
 			codeEntry(driver, loginFields, cfg)
 		except NoSuchElementException: # This try-except block constantly checks whether the hCaptcha has been completed, and if so, it will continue to the next phase.
 			pass
-
+		except InvalidSessionIdException: # If the browser window is closed stop looking for TOTP login field 
+			break
 def codeEntry(
 	     driver: webdriver.chrome.webdriver.WebDriver,
 	loginFields: dict,
