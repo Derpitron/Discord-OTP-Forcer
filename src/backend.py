@@ -164,6 +164,7 @@ def codeEntry(
 		loginFields['TOTP'].send_keys(totpCode)
 		loginFields['TOTP'].send_keys(Keys.RETURN)
 		statistics['attemptedCodeCount'] += 1
+		time.sleep(0.3) # Wait for page to update so we can detect changes such as rate limited.   
 
 		if ('The resource is being rate limited.' in driver.page_source):
 			sleepDuration = secrets.choice(range(7, 12))
