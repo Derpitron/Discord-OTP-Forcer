@@ -166,13 +166,13 @@ def codeEntry(
 		statistics['attemptedCodeCount'] += 1
 		time.sleep(0.3) # Wait for page to update so we can detect changes such as rate limited.   
 
-		if ('The resource is being rate limited.' in driver.page_source):
+		while ('The resource is being rate limited.' in driver.page_source):
 			sleepDuration = secrets.choice(range(7, 12))
 			statistics['ratelimitCount'] += 1
 			print(f"Code: {color(totpCode, 'blue')} was {color('Ratelimited', 'yellow')} will retry in {color(sleepDuration, 'blue')}")
 			time.sleep(sleepDuration)
 			loginFields['TOTP'].send_keys(Keys.RETURN)
-			sleepDuration = secrets.choice(range(6, 10))
+			time.sleep(0.3)
 
 		if ('Token has expired' in driver.page_source): 
 			#Print this out as well as some statistics, and prompt the user to retry.
