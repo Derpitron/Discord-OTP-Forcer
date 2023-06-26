@@ -45,6 +45,9 @@ def genRandomCode(mode: str) -> str:
 		case 'backup':
 			# Generates an 8-digit alphanumeric 'backup' code
 			return list2str( list( next(genRandomChar( letters + digits )) for _ in range(8)))
+		case 'backup_let':
+			# Generates an 8-digit alphabetical 'backup' code
+			return list2str( list( next(genRandomChar( letters )) for _ in range(8)))
 		case 'both':
 			# Generates a code with a random possibility of being 'normal' or 'backup' type
 			# We pack the two genRandomCode options into a list, pass as a single parameter to randchoice
