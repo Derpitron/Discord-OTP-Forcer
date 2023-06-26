@@ -53,6 +53,7 @@ def userFacing(cfg: dict):
 	validCodeModes: set = {
 		'normal',
 		'backup',
+		'backup_let',
 		'both'
 	}
 	if cfg['codeMode'] not in validCodeModes: raise ValueError('Invalid code-generation mode inputted!')
