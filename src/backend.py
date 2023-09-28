@@ -91,13 +91,24 @@ def loginBootstrap(
 	loginFields['password'].send_keys(Keys.RETURN)
 
 	# Start code entering
-
 	#loginTOTP = otp input field. TOTP stands for Timed One Time Password
 	# Constantly run the script.
 	while (True):
 		# Attempt to find the TOTP login field
 		try:
-			loginFields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='6-digit authentication code']") #or driver.find_element(by=By.XPATH, value="//*[@aria-label='Enter Discord Auth/Backup Code']")
+			
+			match cfg['codeMode']:
+				case 'normal':
+					loginFields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='6-digit authentication code']")
+
+				case 'backup':
+					time.sleep(0.5)
+					driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/form/div[3]/button[1]").click() # These will need to be cleaned up at some point but they work
+					time.sleep(0.5)
+					driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/div[2]/div[2]").click() # These will need to be cleaned up at some point but they work
+					time.sleep(0.5)
+					loginFields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='8-digit backup code']")
+					
 			# Auto-triggers the password reset flow
 			if ('Please reset your password to log in.' in driver.page_source):
 				cfg['programMode'] = 'reset'
