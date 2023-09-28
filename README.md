@@ -1,3 +1,5 @@
+# Due to the changes Discord have made to the recovery page only the 6 Digit code works at the moment. Look here for updates #78
+
 # Discord-OTP-Forcer
 This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8 digit codes with a random delay between each attempt.
 
