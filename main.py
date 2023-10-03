@@ -47,7 +47,7 @@ def userFacing(cfg: dict):
 		'login',
 		'reset'
 	}
-	if cfg['programMode'] not in validProgramModes: raise ValueError("Invalid program mode inputted!")
+	if cfg['programMode'].lower() not in validProgramModes: raise ValueError("Invalid program mode inputted!")
 
 	# Check whether the inputted code mode is valid
 	validCodeModes: set = {
@@ -56,7 +56,7 @@ def userFacing(cfg: dict):
 		'backup_let',
 		'both'
 	}
-	if cfg['codeMode'] not in validCodeModes: raise ValueError('Invalid code-generation mode inputted!')
+	if cfg['codeMode'].lower() not in validCodeModes: raise ValueError('Invalid code-generation mode inputted!')
 
 	# Start the simulated browser, and run it in an infinite loop.
 	while True:

@@ -47,7 +47,7 @@ def browserBootstrap(
 	driver.execute_cdp_cmd('Network.enable', {})
 
 	# Go to the appropriate starting page for the mode
-	match cfg['programMode']:
+	match cfg['programMode'].lower():
 		case 'login':
 			# Go to the discord login page
 			driver.get('https://www.discord.com/login')
@@ -76,7 +76,7 @@ def loginBootstrap(
 	loginFields = {
 		'password': driver.find_element(by=By.NAME, value='password')
 	}
-	match cfg['programMode']:
+	match cfg['programMode'].lower():
 		case 'login':
 			loginFields['email'] = driver.find_element(by=By.NAME, value='email')
 			# Enter the email and password. 
@@ -144,11 +144,11 @@ def codeEntry(
 				print(f"{color(i, 'green')}: {statistics[i]}")
 			print(f"TOTP login field: {color('Found','green')}")
 			print(f"Forcer: {color('Starting','green')}")
-			print(f"Program Mode: {color(cfg['programMode'], 'green')}")
-			print(f"Code Mode: {color(cfg['codeMode'], 'green')}")
+			print(f"Program Mode: {color(cfg['programMode'].lower(), 'green')}")
+			print(f"Code Mode: {color(cfg['codeMode'].lower(), 'green')}")
 
 		# Generate a new code and enter it into the TOTP field
-		totpCode = genRandomCode(cfg['codeMode'])
+		totpCode = genRandomCode(cfg['codeMode'].lower())
 		
 		# Use the 8-digit code only if it's not in the usedcodes.txt list
 		if len(totpCode) == 8:
