@@ -194,7 +194,8 @@ def codeEntry(
 			break
 			
 		# This means that Discord has expired this login session, we must restart the process.
-		elif ('Invalid two-factor auth ticket' in driver.page_source):
+		elif ('auth code' in driver.page_source):
+			#  Testing for a new localised message.
 			#  Print this out as well as some statistics, and prompt the user to retry.
 			statistics['elapsedTime'] = time.time() - startTime
 			finalStatDisplay('invalidSessionTicket', statistics)
