@@ -178,7 +178,7 @@ def codeEntry(
 		time.sleep(0.3) # Wait for page to update so we can detect changes such as rate limited.   
 
 		while ('rate limit.' in driver.page_source):
-			sleepDuration = secrets.choice(range(5, 8))
+			sleepDuration = secrets.choice(range(5, 7))
 			statistics['ratelimitCount'] += 1
 			print(f"Code: {color(totpCode, 'blue')} was {color('Ratelimited', 'yellow')} will retry in {color(sleepDuration, 'blue')}")
 			time.sleep(sleepDuration)
@@ -205,7 +205,6 @@ def codeEntry(
 
 		# The entered TOTP code is invalid. Wait a few seconds, then try again.
 		else:
-			sleepDuration = secrets.choice(range(2, 6))
 			sleepDuration = secrets.choice(range(2, 6))
 		#Testing if the main app UI renders.
 		try:
