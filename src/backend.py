@@ -177,8 +177,8 @@ def codeEntry(
 		statistics['attemptedCodeCount'] += 1
 		time.sleep(0.3) # Wait for page to update so we can detect changes such as rate limited.   
 
-		while ('The resource is being rate limited.' in driver.page_source):
-			sleepDuration = secrets.choice(range(7, 12))
+		while ('rate limit.' in driver.page_source):
+			sleepDuration = secrets.choice(range(5, 8))
 			statistics['ratelimitCount'] += 1
 			print(f"Code: {color(totpCode, 'blue')} was {color('Ratelimited', 'yellow')} will retry in {color(sleepDuration, 'blue')}")
 			time.sleep(sleepDuration)
@@ -205,13 +205,13 @@ def codeEntry(
 
 		# The entered TOTP code is invalid. Wait a few seconds, then try again.
 		else:
-			sleepDuration = secrets.choice(range(6, 10))
+			sleepDuration = secrets.choice(range(2, 6))
 		#Testing if the main app UI renders.
 		try:
 			# Wait 1 second, then check if the Discord App's HTML loaded by it's CSS class name. If loaded, then output it to the user.
 			time.sleep(1)
 			loginTest = driver.find_element(by=By.CLASS_NAME, value='app-2CXKsg')
-			print(color(f"Code {totpCode} worked!"))
+			print(color(f"Code {totpCode} worked!", 'green'))
 			break
 		except NoSuchElementException:
 			# This means that the login was unsuccessful so let's inform the user and wait.
