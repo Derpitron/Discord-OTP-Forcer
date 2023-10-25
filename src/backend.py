@@ -206,6 +206,7 @@ def codeEntry(
 		# The entered TOTP code is invalid. Wait a few seconds, then try again.
 		else:
 			sleepDuration = secrets.choice(range(2, 6))
+			sleepDuration = secrets.choice(range(2, 6))
 		#Testing if the main app UI renders.
 		try:
 			# Wait 1 second, then check if the Discord App's HTML loaded by it's CSS class name. If loaded, then output it to the user.
