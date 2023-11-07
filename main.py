@@ -2,25 +2,25 @@ from yaml import safe_load as load
 import sys
 
 from src.lib.textcolor import color
-from src.backend import browserBootstrap, loginBootstrap
+from src.backend import bootstrap_browser, bootstrap_login_page
 
-def loadcfg(cfgfilename='user/cfg.yml') -> dict:
+def load_configuration(configuration_file_path='user/cfg.yml') -> dict:
 	"""
-	Loads a YAML configuration file and returns a dictionary.
+	Loads a YAML configuration file and returns a dictionary of the configuration.
 
-	:param cfgfilename: A string representing the path to the YAML configuration file to be loaded. Default is 'user/cfg.yml'.
-	:type cfgfilename: str
+	:param configuration_file_path: A string representing the path to the YAML configuration file to be loaded. Default is 'user/cfg.yml'.
+	:type configuration_file_path: str
 	:return: A dictionary representing the loaded YAML configuration file.
 	:rtype: dict
 	"""
-	with open(cfgfilename, "r") as cfgfile: return load(cfgfile)
+	with open(configuration_file_path, "r") as configuration_file: return load(configuration_file)
 
-def userFacing(cfg: dict):
+def userFacing(configuration: dict):
 	"""
-	Takes a configuration dictionary `cfg` as input and prompts the user to select a program mode and code type(s) they want to generate. Then, it checks whether the inputted program mode and code mode are valid or not. If the inputted modes are valid, it starts the simulated browser and runs it in an infinite loop.
+	Takes a configuration dictionary `configuration` as input and prompts the user to select a program mode and code type(s) they want to generate. Then, it checks whether the inputted program mode and code mode are valid or not. If the inputted modes are valid, it starts the simulated browser and runs it in an infinite loop.
 
-	:param cfg: A dictionary that contains the configuration for the function.
-	:type cfg: dict
+	:param configuration: A dictionary that contains the configuration for the function.
+	:type configuration: dict
 
 	:raises ValueError: If the inputted program mode or code mode is invalid.
 
@@ -47,7 +47,7 @@ def userFacing(cfg: dict):
 		'login',
 		'reset'
 	}
-	if cfg['programMode'].lower() not in validProgramModes: raise ValueError("Invalid program mode inputted!")
+	if configuration['programMode'].lower() not in validProgramModes: raise ValueError("Invalid program mode inputted!")
 
 	# Check whether the inputted code mode is valid
 	validCodeModes: set = {
@@ -56,16 +56,16 @@ def userFacing(cfg: dict):
 		'backup_let',
 		'both'
 	}
-	if cfg['codeMode'].lower() not in validCodeModes: raise ValueError('Invalid code-generation mode inputted!')
+	if configuration['codeMode'].lower() not in validCodeModes: raise ValueError('Invalid code-generation mode inputted!')
 
 	# Start the simulated browser, and run it in an infinite loop.
 	while True:
-		driver = browserBootstrap(cfg)
-		loginBootstrap(driver, cfg)
+		driver = bootstrap_browser(configuration)
+		bootstrap_login_page(driver, configuration)
 
 if __name__ == '__main__':
 	try:
-		userFacing(loadcfg())
+		userFacing(load_configuration())
 	except KeyboardInterrupt:
 		# Exit procedure taken from: https://stackoverflow.com/a/21144662
 		print(f"\n{color('Halting Program on KeyboardInterrupt...!', 'red')}")
