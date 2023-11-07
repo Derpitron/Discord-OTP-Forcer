@@ -2,7 +2,7 @@ from string import digits, ascii_lowercase as letters
 from secrets import choice as randchoice
 
 # All the functions in the main file for simplicity's sake
-def list2str(list: list) -> str:
+def list_to_string(l: list) -> str:
 	"""
 	A simple function that turns a list into a string. Made this so i don't repeat myself...
 
@@ -13,20 +13,20 @@ def list2str(list: list) -> str:
 	Returns:
 		All list elements concatenated to one string
 	"""
-	return ''.join(map(str, list))
+	return ''.join(map(str, l))
 
-def genRandomChar(charSet: str) -> str:
+def generate_random_character(character_set: str) -> str:
 	"""
 	Generate a random character from the given character set.
 
-	:param charSet: a string containing the characters to choose from
-	:type charSet: str
+	:param character_set: a string containing the characters to choose from
+	:type character_set: str
 	:return: a single randomly selected character from the character set
 	:rtype: str
 	"""
-	yield randchoice(charSet)
+	yield randchoice(character_set)
 
-def genRandomCode(mode: str) -> str:
+def generate_random_code(mode: str) -> str:
 	"""
 	Generate a code based on the given mode parameter.
 
@@ -41,15 +41,15 @@ def genRandomCode(mode: str) -> str:
 	match mode:
 		case 'normal':
 			# Generates a 6-digit numeric 'normal' code
-			return list2str( list( next(genRandomChar(           digits )) for _ in range(6)))
+			return list_to_string( list( next(generate_random_character(           digits )) for _ in range(6)))
 		case 'backup':
 			# Generates an 8-digit alphanumeric 'backup' code
-			return list2str( list( next(genRandomChar( letters + digits )) for _ in range(8)))
+			return list_to_string( list( next(generate_random_character( letters + digits )) for _ in range(8)))
 		case 'backup_let':
 			# Generates an 8-digit alphabetical 'backup' code
-			return list2str( list( next(genRandomChar( letters )) for _ in range(8)))
+			return list_to_string( list( next(generate_random_character( letters )) for _ in range(8)))
 		case 'both':
 			# Generates a code with a random possibility of being 'normal' or 'backup' type
-			# We pack the two genRandomCode options into a list, pass as a single parameter to randchoice
+			# We pack the two generate_random_code options into a list, pass as a single parameter to randchoice
 			# Source: https://stackoverflow.com/a/70510607/19195633
-			return randchoice( [genRandomCode('normal'), genRandomCode('backup')] )
+			return randchoice( [generate_random_code('normal'), generate_random_code('backup')] )

