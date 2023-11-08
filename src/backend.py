@@ -5,7 +5,7 @@ from src.lib.codegen import generate_random_code
 from src.lib.textcolor import color
 
 # Import Selenium libraries and dependencies
-from seleniumwire import webdriver
+from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException
 from webdriver_manager.chrome import ChromeDriverManager
@@ -13,7 +13,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
-def bootstrap_browser(configuration: dict) -> webdriver.chrome.webdriver.WebDriver:
+def bootstrap_browser(
+	configuration: dict,
+) -> webdriver.chrome.webdriver.WebDriver:
 	"""
 	bootstrap_browser is a function that initializes and returns a WebDriver object of the Chrome browser. 
 	:param configuration: a dictionary object which holds the program mode as key-value pairs. 
@@ -33,7 +35,6 @@ def bootstrap_browser(configuration: dict) -> webdriver.chrome.webdriver.WebDriv
 
 	# Get and initialize the most up-to-date Chromium web driver
 	driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-
 	#Blocking various Discord analytics/monitoring URLS so they don't phone home
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
 		'urls': [
@@ -43,7 +44,6 @@ def bootstrap_browser(configuration: dict) -> webdriver.chrome.webdriver.WebDriv
 			'sentry.io'
 		]
 	})
-	
 	# Enable the network connectivity of the browser
 	driver.execute_cdp_cmd('Network.enable', {})
 
@@ -52,16 +52,17 @@ def bootstrap_browser(configuration: dict) -> webdriver.chrome.webdriver.WebDriv
 		case 'login':
 			# Go to the discord login page
 			driver.get('https://www.discord.com/login')
-
 		case 'reset':
 			# Go to the discord page
 			driver.get('https://discord.com/reset#token=' + configuration['resetToken'])
-	
 	# Wait 1 second before typing the email and password
 	driver.implicitly_wait(1)
 	return driver
 
-def bootstrap_login_page(driver: webdriver.chrome.webdriver.WebDriver, configuration: dict):
+def bootstrap_login_page(
+	driver: webdriver.chrome.webdriver.WebDriver,
+	configuration: dict,
+):
 	"""
 	Login Bootstrap is a function that takes in two parameters:
 	1. driver: A web driver object of Chrome
@@ -73,8 +74,9 @@ def bootstrap_login_page(driver: webdriver.chrome.webdriver.WebDriver, configura
 	is caught while trying to find the TOTP login field, the function continues to run, assuming that the hCaptcha has been completed.
 	"""
 	# Find the login input fields
-	login_fields = {'password': driver.find_element(by=By.NAME, value='password')}
-
+	login_fields = {
+		'password': driver.find_element(by=By.NAME, value='password')
+	}
 	match configuration['programMode'].lower():
 		case 'login':
 			login_fields['email'] = driver.find_element(by=By.NAME, value='email')
@@ -95,9 +97,11 @@ def bootstrap_login_page(driver: webdriver.chrome.webdriver.WebDriver, configura
 	while (True):
 		# Attempt to find the TOTP login field
 		try:
+			
 			match configuration['codeMode']:
 				case 'normal':
 					login_fields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='6-digit authentication code']")
+
 				case 'backup':
 					driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/form/div[3]/button[1]").click() # These will need to be cleaned up at some point but they work
 					driver.implicitly_wait(1)
@@ -111,38 +115,16 @@ def bootstrap_login_page(driver: webdriver.chrome.webdriver.WebDriver, configura
 				configuration['programMode'] = 'reset'
 				code_entry(driver, login_fields, configuration)
 			code_entry(driver, login_fields, configuration)
-		
 		except NoSuchElementException: # This try-except block constantly checks whether the hCaptcha has been completed, and if so, it will continue to the next phase.
 			pass
 		except NoSuchWindowException: # If the browser window is closed stop looking for TOTP login field 
 			break
 
-def print_session_statistics(halt_reason: str, session_statistics: dict):
-	"""
-	Displays statistics and the reason for program halt.
-
-	:param halt_reason: A string representing the reason why the program halted.
-	:type halt_reason: str
-	:param session_statistics: A dictionary containing statistical data.
-	:type session_statistics: dict
-	:return: This function does not return anything.
-	"""
-	halt_reasons = {
-			 'invalid_session_ticket': 'Invalid session ticket',
-		'invalid_password_reset_token': 'Invalid password reset token',
-			'password_reset_required': 
-									f"We need to reset the password!\n"\
-									f"Running {color('reset program mode', 'green')}!\n"\
-									f"{color('(This feature will only work if the resetToken is filled in the .env file.)', 'yellow')}"
-	}
-	print(color(f"Halt reason:            {         halt_reasons[halt_reason]}", 'red' ))
-	print(color(f"Program mode:           {       session_statistics['programMode']}", 'blue'))
-	print(color(f"Code mode:              {          session_statistics['codeMode']}", 'blue'))
-	print(color(f"Number of tried codes:  {session_statistics['attemptedCodeCount']}", 'blue'))
-	print(color(f"Time elapsed for codes: {       session_statistics['elapsedTime']}", 'blue'))
-	print(color(f"Number of ratelimits    {    session_statistics['ratelimitCount']}", 'blue'))
-
-def code_entry(driver: webdriver.chrome.webdriver.WebDriver, login_fields: dict, configuration: dict):
+def code_entry(
+	     driver: webdriver.chrome.webdriver.WebDriver,
+	login_fields: dict,
+	     configuration: dict
+):
 	try:
 		"""
 		Enter OTP codes continuously until successful login, using the provided webdriver, 
@@ -165,7 +147,7 @@ def code_entry(driver: webdriver.chrome.webdriver.WebDriver, login_fields: dict,
 		}
 
 		#Logic to continuously enter OTP codes
-		driver.implicitly_wait(0.3)
+		time.sleep(0.3)
 		start_time = time.time()
 		sleep_duration_seconds = 0
 		while (True):
@@ -213,6 +195,7 @@ def code_entry(driver: webdriver.chrome.webdriver.WebDriver, login_fields: dict,
 				# Close the browser and stop the script.
 				driver.close()
 				break
+
 			# This means that Discord has expired this login session, we must restart the process.
 			elif ('Invalid token' in driver.page_source):
 				#  Testing for a new localised message.
@@ -222,28 +205,52 @@ def code_entry(driver: webdriver.chrome.webdriver.WebDriver, login_fields: dict,
 				# Close the browser and stop the script.
 				driver.close()
 				break
+
 			# The entered TOTP code is invalid. Wait a few seconds, then try again.
 			else:
 				sleep_duration_seconds = secrets.choice(range(2, 6))
-			
-			# Testing the login.
+			#Testing if the main app UI renders.
 			try:
-				# Testing for if the Account Token appears in network requests.
-				# The presence of this account token indicates that the login worked, and the session is authenticated.
-				account_token = driver.last_request.headers['Authorization']
+				# Wait 1 second, then check if the Discord App's HTML loaded by it's CSS class name. If loaded, then output it to the user.
+				loginTest = driver.find_element(by=By.CLASS_NAME, value='app-2CXKsg')
 				driver.implicitly_wait(1)
 				print(color(f"Code {totp_code} worked!", 'green'))
-				# Save the account token for future use by the user
-				print(f'Your account\'s auth code/token is: {color(account_token, "green")}')
-				with open('user/account_token.txt', 'w') as f: f.write(account_token)
 				break
-			except KeyError: # This means that the login was unsuccessful so let's inform the user and wait.
+			except NoSuchElementException:
+				# This means that the login was unsuccessful so let's inform the user and wait.
 				print(f"Code: {color(totp_code, 'blue')} did not work, delay: {color(sleep_duration_seconds, 'blue')}")
 				time.sleep(sleep_duration_seconds)
 				# Backspace the previously entered TOTP code.
 				for i in range(len(totp_code)):
 					login_fields['TOTP'].send_keys(Keys.BACKSPACE)
-
 	except NoSuchWindowException:
 		session_statistics['elapsedTime'] = time.time() - start_time
 		print_session_statistics('invalid_session_ticket', session_statistics)
+
+def print_session_statistics(
+	halt_reason: str,
+	session_statistics: dict
+):
+	"""
+	Displays statistics and the reason for program halt.
+
+	:param halt_reason: A string representing the reason why the program halted.
+	:type halt_reason: str
+	:param session_statistics: A dictionary containing statistical data.
+	:type session_statistics: dict
+	:return: This function does not return anything.
+	"""
+	halt_reasons = {
+			 'invalid_session_ticket': 'Invalid session ticket',
+		'invalid_password_reset_token': 'Invalid password reset token',
+			'password_reset_required': 
+									f"We need to reset the password!\n"\
+									f"Running {color('reset program mode', 'green')}!\n"\
+									f"{color('(This feature will only work if the resetToken is filled in the .env file.)', 'yellow')}"
+	}
+	print(color(f"Halt reason:            {         halt_reasons[halt_reason]}", 'red' ))
+	print(color(f"Program mode:           {       session_statistics['programMode']}", 'blue'))
+	print(color(f"Code mode:              {          session_statistics['codeMode']}", 'blue'))
+	print(color(f"Number of tried codes:  {session_statistics['attemptedCodeCount']}", 'blue'))
+	print(color(f"Time elapsed for codes: {       session_statistics['elapsedTime']}", 'blue'))
+	print(color(f"Number of ratelimits    {    session_statistics['ratelimitCount']}", 'blue'))
