@@ -27,7 +27,7 @@ def bootstrap_browser(
 	options = Options()
 	options.add_experimental_option('excludeSwitches', ['enable-logging'])
 	options.add_experimental_option(         'detach', True)
-	options.add_argument("--lang=en-US") # Force the browser window into English so we can find the code XPATH
+	options.add_argument("--lang=en-US") # Force the browser window into English so we can find the code XPATH 
 
 	# If you want to run the program without the browser opening then remove the # from the options below 
 	#options.add_argument('--headless')
@@ -40,7 +40,6 @@ def bootstrap_browser(
 		'urls': [
 			'a.nel.cloudflare.com/report', 
 			'https://discord.com/api/v10/science',
-			'https://discord.com/api/v9/science',
 			'sentry.io'
 		]
 	})
