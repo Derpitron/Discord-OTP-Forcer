@@ -105,8 +105,8 @@ def loginBootstrap(
 					time.sleep(0.5)
 					driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/form/div[3]/button[1]").click() # These will need to be cleaned up at some point but they work
 					time.sleep(0.5)
-					driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/div[2]/div[2]").click() # These will need to be cleaned up at some point but they work
-					time.sleep(0.5)
+					#driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/div[2]/div[2]").click() # These will need to be cleaned up at some point but they work
+					#time.sleep(0.5)
 					loginFields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='8-digit backup code']")
 					
 			# Auto-triggers the password reset flow
