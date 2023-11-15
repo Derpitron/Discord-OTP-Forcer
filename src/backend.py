@@ -180,7 +180,7 @@ def code_entry(
 			session_statistics['attemptedCodeCount'] += 1
 			driver.implicitly_wait(0.3) # Wait for page to update so we can detect changes such as rate limited.   
 
-			while ('rate limit.' in driver.page_source):
+			while ('ratelimited' in driver.page_source):
 				sleep_duration_seconds = secrets.choice(range(5, 7))
 				session_statistics['ratelimitCount'] += 1
 				print(f"Code: {color(totp_code, 'blue')} was {color('Ratelimited', 'yellow')} will retry in {color(sleep_duration_seconds, 'blue')}")
