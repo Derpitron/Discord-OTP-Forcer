@@ -12,6 +12,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
 def bootstrap_browser(
 	configuration: dict,
@@ -104,7 +106,7 @@ def bootstrap_login_page(
 
 				case 'backup':
 					driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/form/div[3]/button[1]").click() # These will need to be cleaned up at some point but they work
-					driver.implicitly_wait(1)
+					WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/div[2]/div[2]"))) # Waits until element is clickable
 					driver.find_element(By.XPATH, "//*[@id='app-mount']/div[2]/div[1]/div[1]/div/div/div/section/div[2]/div/div/div[2]/div[2]").click() # These will need to be cleaned up at some point but they work
 					driver.implicitly_wait(1)
 					login_fields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='8-digit backup code']")
