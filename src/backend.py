@@ -214,10 +214,10 @@ def code_entry(
 			#Testing if the main app UI renders.
 			try:
 				# Wait 1 second, then check if the Discord App's HTML loaded by it's CSS class name. If loaded, then output it to the user.
-				loginTest = driver.find_element(by=By.CLASS_NAME, value='app-2CXKsg')
+				loginTest = driver.find_element(by=By.CLASS_NAME, value='app_b1f720') # Will need a better way to find.
 				driver.implicitly_wait(1)
 				print(color(f"Code {totp_code} worked!", 'green'))
-				break
+				exit
 			except NoSuchElementException:
 				# This means that the login was unsuccessful so let's inform the user and wait.
 				print(f"Code: {color(totp_code, 'blue')} did not work, delay: {color(sleep_duration_seconds, 'blue')}")
