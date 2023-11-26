@@ -1,6 +1,11 @@
 from yaml import safe_load as load
 import sys
 
+import stackprinter
+stackprinter.set_excepthook(style='darkbg')
+
+from loguru import logger
+
 from src.lib.textcolor import color
 from src.backend import bootstrap_browser, bootstrap_login_page
 
@@ -68,5 +73,5 @@ if __name__ == '__main__':
 		userFacing(load_configuration())
 	except KeyboardInterrupt:
 		# Exit procedure taken from: https://stackoverflow.com/a/21144662
-		print(f"\n{color('Halting Program on KeyboardInterrupt...!', 'red')}")
+		logger.info('Halting Program on KeyboardInterrupt')
 		sys.exit(130)
