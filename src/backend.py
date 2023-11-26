@@ -177,6 +177,7 @@ def code_entry(
 						f.write(f"{totp_code}\n")
 
 			# Send the code
+			WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Confirm')]"))) # Waits until element is clickable
 			login_fields['TOTP'].send_keys(totp_code)
 			login_fields['TOTP'].send_keys(Keys.RETURN)
 			session_statistics['attemptedCodeCount'] += 1
