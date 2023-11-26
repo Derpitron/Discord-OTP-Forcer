@@ -4,6 +4,9 @@ import secrets
 from src.lib.codegen import generate_random_code
 from src.lib.textcolor import color
 
+from loguru import logger
+sensitive_debug = logger.level(name="SENSITIVE_DEBUG", no=15, color="<m><b>")
+
 # Import Selenium libraries and dependencies
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -157,11 +160,13 @@ def code_entry(
 			if session_statistics['attemptedCodeCount'] == 0:
 				for i in configuration:
 					session_statistics[i] = configuration[i]
-					print(f"{color(i, 'green')}: {session_statistics[i]}")
-				print(f"TOTP login field: {color('Found','green')}")
-				print(f"Forcer: {color('Starting','green')}")
-				print(f"Program Mode: {color(configuration['programMode'].lower(), 'green')}")
-				print(f"Code Mode: {color(configuration['codeMode'].lower(), 'green')}")
+					#TODO: Make SENSITIVE_DEBUG level logs opt-in. 
+					#If SENSITIVE_DEBUG is opted out, print placeholder characters instead of actual secrets.
+					logger.log('SENSITIVE_DEBUG',f"{color(i, 'green')}: {session_statistics[i]}")
+				logger.debug(f"TOTP login field: {color('Found','green')}")
+				logger.debug(f"Forcer: {color('Starting','green')}")
+				logger.debug(f"Program Mode: {color(configuration['programMode'].lower(), 'green')}")
+				logger.debug(f"Code Mode: {color(configuration['codeMode'].lower(), 'green')}")
 
 			# Generate a new code and enter it into the TOTP field
 			totp_code = generate_random_code(configuration['codeMode'].lower())
@@ -177,16 +182,17 @@ def code_entry(
 						f.write(f"{totp_code}\n")
 
 			# Send the code
-			WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Confirm')]"))) # Waits until element is clickable
+			# Wait a maximum of 10 seconds for the code submission button to become clickable.
+			WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Confirm')]")))
 			login_fields['TOTP'].send_keys(totp_code)
 			login_fields['TOTP'].send_keys(Keys.RETURN)
 			session_statistics['attemptedCodeCount'] += 1
-			driver.implicitly_wait(0.3) # Wait for page to update so we can detect changes such as rate limited.   
+			driver.implicitly_wait(0.3) # Wait for page to update so we can detect changes such as rate limited.
 
 			while ('ratelimited' in driver.page_source):
 				sleep_duration_seconds = secrets.choice(range(5, 7))
 				session_statistics['ratelimitCount'] += 1
-				print(f"Code: {color(totp_code, 'blue')} was {color('Ratelimited', 'yellow')} will retry in {color(sleep_duration_seconds, 'blue')}")
+				logger.warning(f"Code {totp_code} was ratelimited. Retrying in {sleep_duration_seconds} seconds")
 				time.sleep(sleep_duration_seconds)
 				login_fields['TOTP'].send_keys(Keys.RETURN)
 				driver.implicitly_wait(0.3)
@@ -215,13 +221,12 @@ def code_entry(
 			#Testing if the main app UI renders.
 			try:
 				# Wait 1 second, then check if the Discord App's HTML loaded by it's CSS class name. If loaded, then output it to the user.
-				loginTest = driver.find_element(by=By.CLASS_NAME, value='app_de4237') # Will need a better way to find.
+				loginTest = driver.find_element(by=By.CLASS_NAME, value='app_de4237') # Will need a better way to detect the presence of a class.
 				driver.implicitly_wait(1)
-				print(color(f"Code {totp_code} worked!", 'green'))
-				exit
+				logger.success(f'Code {totp_code} worked!')
 			except NoSuchElementException:
 				# This means that the login was unsuccessful so let's inform the user and wait.
-				print(f"Code: {color(totp_code, 'blue')} did not work, delay: {color(sleep_duration_seconds, 'blue')}")
+				logger.warning(f"Code: {totp_code} did not work. Retrying in {sleep_duration_seconds} seconds")
 				time.sleep(sleep_duration_seconds)
 				# Backspace the previously entered TOTP code.
 				for i in range(len(totp_code)):
@@ -248,12 +253,12 @@ def print_session_statistics(
 		'invalid_password_reset_token': 'Invalid password reset token',
 			'password_reset_required': 
 									f"We need to reset the password!\n"\
-									f"Running {color('reset program mode', 'green')}!\n"\
-									f"{color('(This feature will only work if the resetToken is filled in the .env file.)', 'yellow')}"
+									f"Running 'reset program mode'!\n"\
+									f"This feature will only work if the resetToken is filled in the .env file."
 	}
-	print(color(f"Halt reason:            {         halt_reasons[halt_reason]}", 'red' ))
-	print(color(f"Program mode:           {       session_statistics['programMode']}", 'blue'))
-	print(color(f"Code mode:              {          session_statistics['codeMode']}", 'blue'))
-	print(color(f"Number of tried codes:  {session_statistics['attemptedCodeCount']}", 'blue'))
-	print(color(f"Time elapsed for codes: {       session_statistics['elapsedTime']}", 'blue'))
-	print(color(f"Number of ratelimits    {    session_statistics['ratelimitCount']}", 'blue'))
+	logger.error(f'Halt reason:           {         halt_reasons[halt_reason]}')
+	logger.info(f"Program mode:           {       session_statistics['programMode']}")
+	logger.info(f"Code mode:              {          session_statistics['codeMode']}")
+	logger.info(f"Number of tried codes:  {session_statistics['attemptedCodeCount']}")
+	logger.info(f"Total time elapsed:     {       session_statistics['elapsedTime']}")
+	logger.info(f"Number of ratelimits:   {    session_statistics['ratelimitCount']}")
