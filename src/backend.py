@@ -109,8 +109,7 @@ def bootstrap_login_page(
 
 				case 'backup':
 					driver.find_element(By.XPATH, "//*[contains(text(), 'Verify with something else')]").click()
-					WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use a backup code')]"))) # Waits until element is clickable
-					driver.find_element(By.XPATH, "//*[contains(text(), 'Use a backup code')]").click()
+					driver.find_element(By.XPATH, "//*[contains(text(), 'Use a backup code')]").click()					
 					driver.implicitly_wait(1)
 					login_fields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='8-digit backup code']")
 					driver.implicitly_wait(1)
@@ -228,6 +227,7 @@ def code_entry(
 				# This means that the login was unsuccessful so let's inform the user and wait.
 				logger.warning(f"Code: {totp_code} did not work. Retrying in {sleep_duration_seconds} seconds")
 				time.sleep(sleep_duration_seconds)
+				WebDriverWait(driver, 10).until(EC.element_to_be_clickable((login_fields['TOTP']))) # Waits until element is clickable
 				# Backspace the previously entered TOTP code.
 				for i in range(len(totp_code)):
 					login_fields['TOTP'].send_keys(Keys.BACKSPACE)
