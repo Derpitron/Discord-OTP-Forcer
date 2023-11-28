@@ -1,4 +1,5 @@
 # Import dependencies and libraries
+import os
 import time
 import secrets
 from src.lib.codegen import generate_random_code
@@ -57,11 +58,16 @@ def bootstrap_browser(
 	# Go to the appropriate starting page for the mode
 	landing_url = ''
 	match configuration['programMode'].lower():
-		case 'login': landing_url = 'https://www.discord.com/login'
-		case 'reset': landing_url = 'https://discord.com/reset#token=' + configuration['resetToken']
+		case 'login': 
+			landing_url = 'https://www.discord.com/login'
+			driver.get(landing_url)
+			logger.debug(f'Going to landing page: {landing_url}')
+		case 'reset': 
+			landing_url = 'https://discord.com/reset#token=' + configuration['resetToken']
+			driver.get(landing_url)
+			logger.debug(f'Going to landing page: {landing_url}')
 	# Go to the required Discord login/landing page
-	driver.get(landing_url)
-	logger.debug('Going to landing page:', landing_url)
+	
 
 	# Wait 1 second before typing the email and password
 	driver.implicitly_wait(1)
@@ -242,6 +248,8 @@ def code_entry(
 	except KeyboardInterrupt:
 		session_statistics['elapsedTime'] = time.time() - start_time
 		print_session_statistics('closed_by_user_keyboard_interrupt', session_statistics)
+		raise KeyboardInterrupt
+
 
 def print_session_statistics(
 	halt_reason: str,
