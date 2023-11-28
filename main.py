@@ -18,7 +18,9 @@ def load_configuration(configuration_file_path='user/cfg.yml') -> dict:
 	:return: A dictionary representing the loaded YAML configuration file.
 	:rtype: dict
 	"""
-	with open(configuration_file_path, "r") as configuration_file: return load(configuration_file)
+	with open(configuration_file_path, "r") as configuration_file: 
+		logger.debug('Loaded configuration file located at', configuration_file.name)
+		return load(configuration_file)
 
 def userFacing(configuration: dict):
 	"""
@@ -69,9 +71,7 @@ def userFacing(configuration: dict):
 		bootstrap_login_page(driver, configuration)
 
 if __name__ == '__main__':
-	try:
-		userFacing(load_configuration())
-	except KeyboardInterrupt:
-		# Exit procedure taken from: https://stackoverflow.com/a/21144662
-		logger.info('Halting Program on KeyboardInterrupt')
-		sys.exit(130)
+	userFacing(load_configuration())
+	# Exit procedure taken from: https://stackoverflow.com/a/21144662
+	logger.info('Halting Program on KeyboardInterrupt')
+	sys.exit(130)

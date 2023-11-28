@@ -40,6 +40,7 @@ def bootstrap_browser(
 
 	# Get and initialize the most up-to-date Chromium web driver
 	driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+	logger.debug('Starting Chromium browser')
 	#Blocking various Discord analytics/monitoring URLS so they don't phone home
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
 		'urls': [
@@ -49,17 +50,19 @@ def bootstrap_browser(
 			'sentry.io'
 		]
 	})
+	logger.debug('Blocking telemetry URLs')
 	# Enable the network connectivity of the browser
 	driver.execute_cdp_cmd('Network.enable', {})
 
 	# Go to the appropriate starting page for the mode
+	landing_url = ''
 	match configuration['programMode'].lower():
-		case 'login':
-			# Go to the discord login page
-			driver.get('https://www.discord.com/login')
-		case 'reset':
-			# Go to the discord page
-			driver.get('https://discord.com/reset#token=' + configuration['resetToken'])
+		case 'login': landing_url = 'https://www.discord.com/login'
+		case 'reset': landing_url = 'https://discord.com/reset#token=' + configuration['resetToken']
+	# Go to the required Discord login/landing page
+	driver.get(landing_url)
+	logger.debug('Going to landing page:', landing_url)
+
 	# Wait 1 second before typing the email and password
 	driver.implicitly_wait(1)
 	return driver
@@ -95,10 +98,13 @@ def bootstrap_login_page(
 	
 	# Click Enter/Return to submit the user details
 	login_fields['password'].send_keys(Keys.RETURN)
+	logger.debug('Found and inputted basic logging fields')
 
 	# Start code entering
 	#loginTOTP = otp input field. TOTP stands for Timed One Time Password
 	# Constantly run the script.
+	logger.info('Starting the Forcer program')
+
 	while (True):
 		# Attempt to find the TOTP login field
 		try:
@@ -162,8 +168,6 @@ def code_entry(
 					#TODO: Make SENSITIVE_DEBUG level logs opt-in. 
 					#If SENSITIVE_DEBUG is opted out, print placeholder characters instead of actual secrets.
 					logger.log('SENSITIVE_DEBUG',f"{color(i, 'green')}: {session_statistics[i]}")
-				logger.debug(f"TOTP login field: {color('Found','green')}")
-				logger.debug(f"Forcer: {color('Starting','green')}")
 				logger.debug(f"Program Mode: {color(configuration['programMode'].lower(), 'green')}")
 				logger.debug(f"Code Mode: {color(configuration['codeMode'].lower(), 'green')}")
 
@@ -174,9 +178,10 @@ def code_entry(
 			if len(totp_code) == 8:
 				with open('user/used_backup_codes.txt', 'a+') as f:
 					f.seek(0)
-					used_backup_codes = f.read() 
+					used_backup_codes = f.readlines() 
 					if totp_code in used_backup_codes:
-						continue
+						logger.warn(f'Backup code {totp_code} is invalid (Possibly previously used then invalidated)')
+						continue # Skip to next whilte loop iteration, generating a new code.
 					else:
 						f.write(f"{totp_code}\n")
 
@@ -234,6 +239,9 @@ def code_entry(
 	except NoSuchWindowException:
 		session_statistics['elapsedTime'] = time.time() - start_time
 		print_session_statistics('invalid_session_ticket', session_statistics)
+	except KeyboardInterrupt:
+		session_statistics['elapsedTime'] = time.time() - start_time
+		print_session_statistics('closed_by_user_keyboard_interrupt', session_statistics)
 
 def print_session_statistics(
 	halt_reason: str,
@@ -251,6 +259,7 @@ def print_session_statistics(
 	halt_reasons = {
 			 'invalid_session_ticket': 'Invalid session ticket',
 		'invalid_password_reset_token': 'Invalid password reset token',
+		'closed_by_user_keyboard_interrupt': 'Halted by user (KeyboardInterrupt)',
 			'password_reset_required': 
 									f"We need to reset the password!\n"\
 									f"Running 'reset program mode'!\n"\
