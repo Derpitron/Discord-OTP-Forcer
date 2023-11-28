@@ -9,6 +9,7 @@ from loguru import logger
 
 from src.lib.textcolor import color
 from src.backend import bootstrap_browser, bootstrap_login_page
+from src.lib.exceptions import UserCausedHalt
 
 def load_configuration(configuration_file_path='user/cfg.yml') -> dict:
 	"""
@@ -74,7 +75,7 @@ def userFacing(configuration: dict):
 if __name__ == '__main__':
 	try:
 		userFacing(load_configuration())
-	except KeyboardInterrupt:
+	except UserCausedHalt:
 		# Exit procedure taken from: https://stackoverflow.com/a/21144662
-		logger.info('Halting Program on KeyboardInterrupt')
+		logger.info('User halted the program!')
 		sys.exit(130)

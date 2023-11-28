@@ -2,8 +2,10 @@
 import os
 import time
 import secrets
+
 from src.lib.codegen import generate_random_code
 from src.lib.textcolor import color
+from src.lib.exceptions import UserCausedHalt
 
 from loguru import logger
 sensitive_debug = logger.level(name="SENSITIVE_DEBUG", no=15, color="<m><b>")
@@ -247,9 +249,8 @@ def code_entry(
 		print_session_statistics('invalid_session_ticket', session_statistics)
 	except KeyboardInterrupt:
 		session_statistics['elapsedTime'] = time.time() - start_time
-		print_session_statistics('closed_by_user_keyboard_interrupt', session_statistics)
-		raise KeyboardInterrupt
-
+		print_session_statistics('closed_by_user', session_statistics)
+		raise UserCausedHalt
 
 def print_session_statistics(
 	halt_reason: str,
@@ -267,7 +268,7 @@ def print_session_statistics(
 	halt_reasons = {
 			 'invalid_session_ticket': 'Invalid session ticket',
 		'invalid_password_reset_token': 'Invalid password reset token',
-		'closed_by_user_keyboard_interrupt': 'Halted by user (KeyboardInterrupt)',
+		'closed_by_user': 'Halted by user',
 			'password_reset_required': 
 									f"We need to reset the password!\n"\
 									f"Running 'reset program mode'!\n"\
