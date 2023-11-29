@@ -21,7 +21,7 @@ def load_configuration(configuration_file_path='user/cfg.yml') -> dict:
 	:rtype: dict
 	"""
 	with open(configuration_file_path, "r") as configuration_file: 
-		logger.debug(f'Loaded configuration file located at{os.path.realpath(configuration_file.name)}')
+		logger.debug(f'Loaded configuration file located at {os.path.realpath(configuration_file.name)}')
 		return load(configuration_file)
 
 def userFacing(configuration: dict):
