@@ -13,7 +13,7 @@ sensitive_debug = logger.level(name="SENSITIVE_DEBUG", no=15, color="<m><b>")
 # Import Selenium libraries and dependencies
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException
+from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException, TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -159,6 +159,7 @@ def code_entry(
 		session_statistics = {
 			'attemptedCodeCount':   0,
 			    'ratelimitCount':   0,
+				 'slowDownCount':   0,
 			       'elapsedTime': 0.0,
 			       'programMode':  '',
 			          'codeMode':  '',
@@ -195,7 +196,13 @@ def code_entry(
 
 			# Send the code
 			# Wait a maximum of 10 seconds for the code submission button to become clickable.
-			WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Confirm')]")))
+			while True:
+				try:
+					WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Confirm')]")))
+					break
+				except TimeoutException:
+					logger.warning('The page is taking too long ( > 5 seconds) to load the button. May be caused by ratelimiting or a slow internet connection')
+					session_statistics['slowDownCount'] += 1
 			login_fields['TOTP'].send_keys(totp_code)
 			login_fields['TOTP'].send_keys(Keys.RETURN)
 			session_statistics['attemptedCodeCount'] += 1
@@ -240,7 +247,13 @@ def code_entry(
 				# This means that the login was unsuccessful so let's inform the user and wait.
 				logger.warning(f"Code: {totp_code} did not work. Retrying in {sleep_duration_seconds} seconds")
 				time.sleep(sleep_duration_seconds)
-				WebDriverWait(driver, 10).until(EC.element_to_be_clickable((login_fields['TOTP']))) # Waits until element is clickable
+				while True:
+					try:
+						WebDriverWait(driver, 5).until(EC.element_to_be_clickable((login_fields['TOTP']))) # Waits until element is clickable
+						break
+					except TimeoutException:
+						logger.warning('The page is taking too long ( > 5 seconds) to load the code entry field. May be caused by ratelimiting or a slow internet connection')
+						session_statistics['slowDownCount'] += 1
 				# Backspace the previously entered TOTP code.
 				for i in range(len(totp_code)):
 					login_fields['TOTP'].send_keys(Keys.BACKSPACE)
@@ -274,9 +287,10 @@ def print_session_statistics(
 									f"Running 'reset program mode'!\n"\
 									f"This feature will only work if the resetToken is filled in the .env file."
 	}
-	logger.error(f'Halt reason:           {         halt_reasons[halt_reason]}')
-	logger.info(f"Program mode:           {       session_statistics['programMode']}")
-	logger.info(f"Code mode:              {          session_statistics['codeMode']}")
-	logger.info(f"Number of tried codes:  {session_statistics['attemptedCodeCount']}")
-	logger.info(f"Total time elapsed:     {       session_statistics['elapsedTime']}")
-	logger.info(f"Number of ratelimits:   {    session_statistics['ratelimitCount']}")
+	logger.error(f'Halt reason:                                                    {               halt_reasons[halt_reason]}')
+	logger.info(f'Program mode:                                                    {       session_statistics["programMode"]}')
+	logger.info(f'Code mode:                                                       {          session_statistics["codeMode"]}')
+	logger.info(f'Number of tried codes:                                           {session_statistics["attemptedCodeCount"]}')
+	logger.info(f'Total time elapsed:                                              {       session_statistics["elapsedTime"]}')
+	logger.info(f'Number of ratelimits:                                            {    session_statistics["ratelimitCount"]}')
+	logger.info(f'Number of slow downs observed (loading button/code entry field): {     session_statistics["slowDownCount"]}')
