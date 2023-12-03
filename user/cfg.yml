@@ -29,3 +29,7 @@ resetToken: ""
 # Disable 2FA info
 # Fill in your discord account token here.
 authToken: ""
+
+# Show SENSITIVE_DEBUG log info
+# Default = False
+sensitiveDebug: "False"
