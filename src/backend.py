@@ -67,7 +67,10 @@ def bootstrap_browser(
 		case 'reset': 
 			landing_url = 'https://discord.com/reset#token=' + configuration['resetToken']
 			driver.get(landing_url)
-			logger.debug(f'Going to landing page: {landing_url}')
+			if configuration['sensitiveDebug'] == True:
+				logger.debug(f'Going to landing page: {landing_url}')
+			else:
+				logger.debug(f'Going to landing page: Hidden')
 	# Go to the required Discord login/landing page
 	
 
@@ -174,9 +177,10 @@ def code_entry(
 			if session_statistics['attemptedCodeCount'] == 0:
 				for i in configuration:
 					session_statistics[i] = configuration[i]
-					#TODO: Make SENSITIVE_DEBUG level logs opt-in. 
-					#If SENSITIVE_DEBUG is opted out, print placeholder characters instead of actual secrets.
-					logger.log('SENSITIVE_DEBUG',f"{color(i, 'green')}: {session_statistics[i]}")
+					if configuration['sensitiveDebug'] == True:
+						logger.log('SENSITIVE_DEBUG',f"{color(i, 'green')}: {session_statistics[i]}")
+					else:
+						logger.log('SENSITIVE_DEBUG',f"{color(i, 'green')}: Hidden")
 				logger.debug(f"Program Mode: {color(configuration['programMode'].lower(), 'green')}")
 				logger.debug(f"Code Mode: {color(configuration['codeMode'].lower(), 'green')}")
 
