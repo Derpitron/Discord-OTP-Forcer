@@ -233,7 +233,7 @@ def code_entry(
 				#  Testing for a new localised message.
 				#  Print this out as well as some statistics, and prompt the user to retry.
 				session_statistics['elapsedTime'] = time.time() - start_time
-				print_session_statistics('invalid_session_ticket', session_statistics)
+				print_session_statistics('invalid_password_reset_token', session_statistics)
 				# Close the browser and stop the script.
 				driver.close()
 				break
@@ -284,7 +284,7 @@ def print_session_statistics(
 	"""
 	halt_reasons = {
 			 'invalid_session_ticket': 'Invalid session ticket',
-		'invalid_password_reset_token': 'Invalid password reset token',
+		'invalid_password_reset_token': 'Invalid password reset token. Generate a new one by following the same instructions as before.',
 		'closed_by_user': 'Halted by user',
 			'password_reset_required': 
 									f"We need to reset the password!\n"\
