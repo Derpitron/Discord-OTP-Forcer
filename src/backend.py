@@ -291,7 +291,7 @@ def print_session_statistics(
 									f"Running 'reset program mode'!\n"\
 									f"This feature will only work if the resetToken is filled in the .env file."
 	}
-	logger.error(f'Halt reason:                                                    {               halt_reasons[halt_reason]}')
+	logger.error(f'Halt reason:                                                     {               halt_reasons[halt_reason]}')
 	logger.info(f'Program mode:                                                    {       session_statistics["programMode"]}')
 	logger.info(f'Code mode:                                                       {          session_statistics["codeMode"]}')
 	logger.info(f'Number of tried codes:                                           {session_statistics["attemptedCodeCount"]}')
