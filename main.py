@@ -1,11 +1,14 @@
 import os
 from yaml import safe_load as load
 import sys
+from time import strftime
+import time
 
 import stackprinter
 stackprinter.set_excepthook(style='darkbg')
 
 from loguru import logger
+logger.add("user/{0}.log".format(strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))), colorize=False, backtrace=True, diagnose=True)
 
 from src.lib.textcolor import color
 from src.backend import bootstrap_browser, bootstrap_login_page
