@@ -33,3 +33,7 @@ authToken: ""
 # Show SENSITIVE_DEBUG log info
 # Default = False
 sensitiveDebug: "False"
+
+# Enable log file creation
+# Default = False
+logCreation: "False"

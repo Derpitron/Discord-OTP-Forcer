@@ -8,7 +8,6 @@ import stackprinter
 stackprinter.set_excepthook(style='darkbg')
 
 from loguru import logger
-logger.add("user/{0}.log".format(strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))), colorize=False, backtrace=True, diagnose=True)
 
 from src.lib.textcolor import color
 from src.backend import bootstrap_browser, bootstrap_login_page
@@ -24,8 +23,11 @@ def load_configuration(configuration_file_path='user/cfg.yml') -> dict:
 	:rtype: dict
 	"""
 	with open(configuration_file_path, "r") as configuration_file: 
+		config = load(configuration_file)
+		if config['logCreation'] == "True":
+			logger.add("user/Logs/{0}.log".format(strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))), colorize=False, backtrace=True, diagnose=True)
 		logger.debug(f'Loaded configuration file located at {os.path.realpath(configuration_file.name)}')
-		return load(configuration_file)
+		return config
 
 def userFacing(configuration: dict):
 	"""
