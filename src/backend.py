@@ -211,7 +211,7 @@ def code_entry(
 			login_fields['TOTP'].send_keys(Keys.RETURN)
 			session_statistics['attemptedCodeCount'] += 1
 			#driver.implicitly_wait(0.3)
-			WebDriverWait(driver, 5, 0.01).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Confirm')]"))) # Wait for page to update so we can detect changes such as rate limited.
+			WebDriverWait(driver, 10, 0.01).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Confirm')]"))) # Wait for page to update so we can detect changes such as rate limited.
 
 			while ('The resource is being rate limited.' in driver.page_source):
 				sleep_duration_seconds = secrets.choice(range(5, 7))
