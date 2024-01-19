@@ -9,9 +9,9 @@ stackprinter.set_excepthook(style='darkbg')
 
 from loguru import logger
 
-from src.lib.textcolor import color
 from src.backend import bootstrap_browser, bootstrap_login_page
 from src.lib.exceptions import UserCausedHalt
+from src.lib.logcreation import formatter, formatter_sensitive
 
 def load_configuration(configuration_file_path='user/cfg.yml') -> dict:
 	"""
@@ -24,8 +24,12 @@ def load_configuration(configuration_file_path='user/cfg.yml') -> dict:
 	"""
 	with open(configuration_file_path, "r") as configuration_file: 
 		config = load(configuration_file)
+		formatting = formatter
+		if config['sensitiveDebug'] == "True":
+			formatting = formatter_sensitive
 		if config['logCreation'] == "True":
-			logger.add("user/Logs/{0}.log".format(strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))), colorize=False, backtrace=True, diagnose=True)
+			logger.add("user/Logs/{0}.log".format(strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))), colorize=False, backtrace=True, format=formatting)
+		logger.add(sys.stderr, format=formatting, colorize=True, backtrace=True)
 		logger.debug(f'Loaded configuration file located at {os.path.realpath(configuration_file.name)}')
 		return config
 
@@ -79,6 +83,7 @@ def userFacing(configuration: dict):
 
 if __name__ == '__main__':
 	try:
+		logger.remove()
 		userFacing(load_configuration())
 	except UserCausedHalt:
 		# Exit procedure taken from: https://stackoverflow.com/a/21144662
