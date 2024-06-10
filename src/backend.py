@@ -14,12 +14,15 @@ sensitive_debug = logger.level(name="SENSITIVE_DEBUG", no=15, color="<m><b>")
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException, TimeoutException
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service as ChromiumService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+
+from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.os_manager import ChromeType
 
 def bootstrap_browser(
 	configuration: dict,
@@ -42,7 +45,7 @@ def bootstrap_browser(
 	#options.add_argument('--log-level=1')
 
 	# Get and initialize the most up-to-date Chromium web driver
-	driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+	driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()), options=options)
 	logger.debug('Starting Chromium browser')
 	#Blocking various Discord analytics/monitoring URLS so they don't phone home
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
