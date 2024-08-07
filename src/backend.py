@@ -74,6 +74,10 @@ def bootstrap_browser(
 			driver.get(landing_url)
 			logger.debug(f'Going to landing page: {landing_url}')
 
+	# Go to the required Discord login/landing page
+
+
+	# Wait 1 second before typing the email and password
 	driver.implicitly_wait(1)
 	return driver
 
@@ -141,9 +145,9 @@ def bootstrap_login_page(
 			break
 
 def code_entry(
-		 driver: webdriver.chrome.webdriver.WebDriver,
+	     driver: webdriver.chrome.webdriver.WebDriver,
 	login_fields: dict,
-		 configuration: dict
+	     configuration: dict
 ):
 	try:
 		"""
@@ -160,11 +164,11 @@ def code_entry(
 		# Set up statistics counters
 		session_statistics = {
 			'attemptedCodeCount':   0,
-				'ratelimitCount':   0,
+			    'ratelimitCount':   0,
 				 'slowDownCount':   0,
-				   'elapsedTime': 0.0,
-				   'programMode':  '',
-					  'codeMode':  '',
+			       'elapsedTime': 0.0,
+			       'programMode':  '',
+			          'codeMode':  '',
 		}
 
 		#Logic to continuously enter OTP codes
@@ -288,10 +292,10 @@ def print_session_statistics(
 									f"Running 'reset program mode'!\n"\
 									f"This feature will only work if the resetToken is filled in the .env file."
 	}
-	logger.error(f'Halt reason:													 {			   halt_reasons[halt_reason]}')
-	logger.info(f'Program mode:													{	   session_statistics["programMode"]}')
-	logger.info(f'Code mode:													   {		  session_statistics["codeMode"]}')
-	logger.info(f'Number of tried codes:										   {session_statistics["attemptedCodeCount"]}')
-	logger.info(f'Total time elapsed:											  {	   session_statistics["elapsedTime"]}')
-	logger.info(f'Number of ratelimits:											{	session_statistics["ratelimitCount"]}')
-	logger.info(f'Number of slow downs observed (loading button/code entry field): {	 session_statistics["slowDownCount"]}')
+	logger.error(f'Halt reason:                                                     {               halt_reasons[halt_reason]}')
+	logger.info(f'Program mode:                                                    {       session_statistics["programMode"]}')
+	logger.info(f'Code mode:                                                       {          session_statistics["codeMode"]}')
+	logger.info(f'Number of tried codes:                                           {session_statistics["attemptedCodeCount"]}')
+	logger.info(f'Total time elapsed:                                              {       session_statistics["elapsedTime"]}')
+	logger.info(f'Number of ratelimits:                                            {    session_statistics["ratelimitCount"]}')
+	logger.info(f'Number of slow downs observed (loading button/code entry field): {     session_statistics["slowDownCount"]}')
