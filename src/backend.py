@@ -22,60 +22,60 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 import chromedriver_autoinstaller  # Use chromedriver-autoinstaller
 def bootstrap_browser(
-    configuration: dict,
+	configuration: dict,
 ) -> webdriver.chrome.webdriver.WebDriver:
-    """
-    bootstrap_browser is a function that initializes and returns a WebDriver object of the Chrome browser. 
-    :param configuration: a dictionary object which holds the program mode as key-value pairs. 
-    :type configuration: dict
-    :return: a WebDriver object of the Chrome browser.
-    :rtype: webdriver.chrome.webdriver.WebDriver
-    """
-    # Set Chromium options.
-    options = Options()
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    options.add_experimental_option('detach', True)
-    options.add_argument("--lang=en-US") # Force the browser window into English so we can find the code XPATH
+	"""
+	bootstrap_browser is a function that initializes and returns a WebDriver object of the Chrome browser. 
+	:param configuration: a dictionary object which holds the program mode as key-value pairs. 
+	:type configuration: dict
+	:return: a WebDriver object of the Chrome browser.
+	:rtype: webdriver.chrome.webdriver.WebDriver
+	"""
+	# Set Chromium options.
+	options = Options()
+	options.add_experimental_option('excludeSwitches', ['enable-logging'])
+	options.add_experimental_option('detach', True)
+	options.add_argument("--lang=en-US") # Force the browser window into English so we can find the code XPATH
 
-    # If you want to run the program without the browser opening then remove the # from the options below 
-    #options.add_argument('--headless')
-    #options.add_argument('--log-level=1')
+	# If you want to run the program without the browser opening then remove the # from the options below 
+	#options.add_argument('--headless')
+	#options.add_argument('--log-level=1')
 
-    # Automatically install the correct version of ChromeDriver
-    chromedriver_autoinstaller.install()
+	# Automatically install the correct version of ChromeDriver
+	chromedriver_autoinstaller.install()
 
-    # Initialize the WebDriver with the Chromium service
-    driver = webdriver.Chrome(options=options)
-    logger.debug('Starting Chromium browser')
+	# Initialize the WebDriver with the Chromium service
+	driver = webdriver.Chrome(options=options)
+	logger.debug('Starting Chromium browser')
 
-    # Blocking various Discord analytics/monitoring URLs so they don't phone home
-    driver.execute_cdp_cmd('Network.setBlockedURLs', {
-        'urls': [
-            'a.nel.cloudflare.com/report', 
-            'https://discord.com/api/v10/science',
-            'https://discord.com/api/v9/science',
-            'sentry.io'
-        ]
-    })
-    logger.debug('Blocking telemetry URLs')
-    
-    # Enable the network connectivity of the browser
-    driver.execute_cdp_cmd('Network.enable', {})
+	# Blocking various Discord analytics/monitoring URLs so they don't phone home
+	driver.execute_cdp_cmd('Network.setBlockedURLs', {
+		'urls': [
+			'a.nel.cloudflare.com/report', 
+			'https://discord.com/api/v10/science',
+			'https://discord.com/api/v9/science',
+			'sentry.io'
+		]
+	})
+	logger.debug('Blocking telemetry URLs')
+	
+	# Enable the network connectivity of the browser
+	driver.execute_cdp_cmd('Network.enable', {})
 
-    # Go to the appropriate starting page for the mode
-    landing_url = ''
-    match configuration['programMode'].lower():
-        case 'login': 
-            landing_url = 'https://www.discord.com/login'
-            driver.get(landing_url)
-            logger.debug(f'Going to landing page: {landing_url}')
-        case 'reset': 
-            landing_url = 'https://discord.com/reset#token=' + configuration['resetToken']
-            driver.get(landing_url)
-            logger.debug(f'Going to landing page: {landing_url}')
+	# Go to the appropriate starting page for the mode
+	landing_url = ''
+	match configuration['programMode'].lower():
+		case 'login': 
+			landing_url = 'https://www.discord.com/login'
+			driver.get(landing_url)
+			logger.debug(f'Going to landing page: {landing_url}')
+		case 'reset': 
+			landing_url = 'https://discord.com/reset#token=' + configuration['resetToken']
+			driver.get(landing_url)
+			logger.debug(f'Going to landing page: {landing_url}')
 
-    driver.implicitly_wait(1)
-    return driver
+	driver.implicitly_wait(1)
+	return driver
 
 def bootstrap_login_page(
 	driver: webdriver.chrome.webdriver.WebDriver,
@@ -141,9 +141,9 @@ def bootstrap_login_page(
 			break
 
 def code_entry(
-	     driver: webdriver.chrome.webdriver.WebDriver,
+		 driver: webdriver.chrome.webdriver.WebDriver,
 	login_fields: dict,
-	     configuration: dict
+		 configuration: dict
 ):
 	try:
 		"""
@@ -160,11 +160,11 @@ def code_entry(
 		# Set up statistics counters
 		session_statistics = {
 			'attemptedCodeCount':   0,
-			    'ratelimitCount':   0,
+				'ratelimitCount':   0,
 				 'slowDownCount':   0,
-			       'elapsedTime': 0.0,
-			       'programMode':  '',
-			          'codeMode':  '',
+				   'elapsedTime': 0.0,
+				   'programMode':  '',
+					  'codeMode':  '',
 		}
 
 		#Logic to continuously enter OTP codes
@@ -288,10 +288,10 @@ def print_session_statistics(
 									f"Running 'reset program mode'!\n"\
 									f"This feature will only work if the resetToken is filled in the .env file."
 	}
-	logger.error(f'Halt reason:                                                     {               halt_reasons[halt_reason]}')
-	logger.info(f'Program mode:                                                    {       session_statistics["programMode"]}')
-	logger.info(f'Code mode:                                                       {          session_statistics["codeMode"]}')
-	logger.info(f'Number of tried codes:                                           {session_statistics["attemptedCodeCount"]}')
-	logger.info(f'Total time elapsed:                                              {       session_statistics["elapsedTime"]}')
-	logger.info(f'Number of ratelimits:                                            {    session_statistics["ratelimitCount"]}')
-	logger.info(f'Number of slow downs observed (loading button/code entry field): {     session_statistics["slowDownCount"]}')
+	logger.error(f'Halt reason:													 {			   halt_reasons[halt_reason]}')
+	logger.info(f'Program mode:													{	   session_statistics["programMode"]}')
+	logger.info(f'Code mode:													   {		  session_statistics["codeMode"]}')
+	logger.info(f'Number of tried codes:										   {session_statistics["attemptedCodeCount"]}')
+	logger.info(f'Total time elapsed:											  {	   session_statistics["elapsedTime"]}')
+	logger.info(f'Number of ratelimits:											{	session_statistics["ratelimitCount"]}')
+	logger.info(f'Number of slow downs observed (loading button/code entry field): {	 session_statistics["slowDownCount"]}')
