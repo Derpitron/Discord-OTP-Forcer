@@ -17,67 +17,65 @@ from selenium.common.exceptions import NoSuchElementException, NoSuchWindowExcep
 from selenium.webdriver.chrome.service import Service as ChromiumService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.os_manager import ChromeType
-
+import chromedriver_autoinstaller  # Use chromedriver-autoinstaller
 def bootstrap_browser(
-	configuration: dict,
+    configuration: dict,
 ) -> webdriver.chrome.webdriver.WebDriver:
-	"""
-	bootstrap_browser is a function that initializes and returns a WebDriver object of the Chrome browser. 
-	:param configuration: a dictionary object which holds the program mode as key-value pairs. 
-	:type configuration: dict
-	:return: a WebDriver object of the Chrome browser.
-	:rtype: webdriver.chrome.webdriver.WebDriver
-	"""
-	# Set Chromium options.
-	options = Options()
-	options.add_experimental_option('excludeSwitches', ['enable-logging'])
-	options.add_experimental_option(         'detach', True)
-	options.add_argument("--lang=en-US") # Force the browser window into English so we can find the code XPATH
+    """
+    bootstrap_browser is a function that initializes and returns a WebDriver object of the Chrome browser. 
+    :param configuration: a dictionary object which holds the program mode as key-value pairs. 
+    :type configuration: dict
+    :return: a WebDriver object of the Chrome browser.
+    :rtype: webdriver.chrome.webdriver.WebDriver
+    """
+    # Set Chromium options.
+    options = Options()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_experimental_option('detach', True)
+    options.add_argument("--lang=en-US") # Force the browser window into English so we can find the code XPATH
 
-	# If you want to run the program without the browser opening then remove the # from the options below 
-	#options.add_argument('--headless')
-	#options.add_argument('--log-level=1')
+    # If you want to run the program without the browser opening then remove the # from the options below 
+    #options.add_argument('--headless')
+    #options.add_argument('--log-level=1')
 
-	# Get and initialize the most up-to-date Chromium web driver
-	driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()), options=options)
-	logger.debug('Starting Chromium browser')
-	#Blocking various Discord analytics/monitoring URLS so they don't phone home
-	driver.execute_cdp_cmd('Network.setBlockedURLs', {
-		'urls': [
-			'a.nel.cloudflare.com/report', 
-			'https://discord.com/api/v10/science',
-			'https://discord.com/api/v9/science',
-			'sentry.io'
-		]
-	})
-	logger.debug('Blocking telemetry URLs')
-	# Enable the network connectivity of the browser
-	driver.execute_cdp_cmd('Network.enable', {})
+    # Automatically install the correct version of ChromeDriver
+    chromedriver_autoinstaller.install()
 
-	# Go to the appropriate starting page for the mode
-	landing_url = ''
-	match configuration['programMode'].lower():
-		case 'login': 
-			landing_url = 'https://www.discord.com/login'
-			driver.get(landing_url)
-			logger.debug(f'Going to landing page: {landing_url}')
-		case 'reset': 
-			landing_url = 'https://discord.com/reset#token=' + configuration['resetToken']
-			driver.get(landing_url)
-			logger.debug(f'Going to landing page: {landing_url}')
+    # Initialize the WebDriver with the Chromium service
+    driver = webdriver.Chrome(options=options)
+    logger.debug('Starting Chromium browser')
 
-	# Go to the required Discord login/landing page
-	
+    # Blocking various Discord analytics/monitoring URLs so they don't phone home
+    driver.execute_cdp_cmd('Network.setBlockedURLs', {
+        'urls': [
+            'a.nel.cloudflare.com/report', 
+            'https://discord.com/api/v10/science',
+            'https://discord.com/api/v9/science',
+            'sentry.io'
+        ]
+    })
+    logger.debug('Blocking telemetry URLs')
+    
+    # Enable the network connectivity of the browser
+    driver.execute_cdp_cmd('Network.enable', {})
 
-	# Wait 1 second before typing the email and password
-	driver.implicitly_wait(1)
-	return driver
+    # Go to the appropriate starting page for the mode
+    landing_url = ''
+    match configuration['programMode'].lower():
+        case 'login': 
+            landing_url = 'https://www.discord.com/login'
+            driver.get(landing_url)
+            logger.debug(f'Going to landing page: {landing_url}')
+        case 'reset': 
+            landing_url = 'https://discord.com/reset#token=' + configuration['resetToken']
+            driver.get(landing_url)
+            logger.debug(f'Going to landing page: {landing_url}')
+
+    driver.implicitly_wait(1)
+    return driver
 
 def bootstrap_login_page(
 	driver: webdriver.chrome.webdriver.WebDriver,
