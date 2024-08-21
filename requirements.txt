@@ -1,5 +1,5 @@
 selenium
-webdriver_manager
+chromedriver-autoinstaller
 pyYAML
 stackprinter
 loguru

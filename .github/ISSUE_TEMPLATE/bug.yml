@@ -33,6 +33,11 @@ body:
       required: true
   - type: input
     attributes:
+      label: Browser and Browser Version
+    validations:
+      required: true
+  - type: input
+    attributes:
       label: Python Version
     validations:
       required: true
