@@ -14,7 +14,7 @@ sensitive_debug = logger.level(name="SENSITIVE_DEBUG", no=15, color="<m><b>")
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException, TimeoutException
-from selenium.webdriver.chrome.service import Service as ChromiumService
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
