@@ -117,7 +117,7 @@ def bootstrap_login_page(
 	
 	# Click Enter/Return to submit the user details
 	login_fields['password'].send_keys(Keys.RETURN)
-	logger.debug('Found and inputted basic logging fields')
+	logger.debug('Found and inputted basic login fields')
 
 	# Start code entering
 	#loginTOTP = otp input field. TOTP stands for Timed One Time Password
@@ -137,12 +137,12 @@ def bootstrap_login_page(
 					driver.find_element(By.XPATH, "//*[contains(text(), 'Use a backup code')]").click()					
 					driver.implicitly_wait(1)
 					login_fields['TOTP'] = driver.find_element(by=By.XPATH, value="//input[@placeholder='8-digit backup code']")
-					driver.implicitly_wait(1)
-					
+			driver.implicitly_wait(1)
+
 			# Auto-triggers the password reset flow
-			if ('Please reset your password to log in.' in driver.page_source):
+			if ('Please reset your password to log in.' in driver.page_source) or ('TOTP' not in login_fields):
 				configuration['programMode'] = 'reset'
-				code_entry(driver, login_fields, configuration)
+				logger.error('You probably need to get a new password reset token. Check the docs folder for instructions.')
 			code_entry(driver, login_fields, configuration)
 		except NoSuchElementException: # This try-except block constantly checks whether the hCaptcha has been completed, and if so, it will continue to the next phase.
 			pass
