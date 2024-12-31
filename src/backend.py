@@ -20,7 +20,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-import chromedriver_autoinstaller  # Use chromedriver-autoinstaller
 def bootstrap_browser(
 	configuration: dict,
 ) -> webdriver.chrome.webdriver.WebDriver:
@@ -41,12 +40,20 @@ def bootstrap_browser(
 	#options.add_argument('--headless')
 	#options.add_argument('--log-level=1')
 
-	# Automatically install the correct version of ChromeDriver
-	chromedriver_autoinstaller.install()
+	# spit out a webDriver depending on the user's configured browser choice.
+	match configuration['browser']:
+		case 'chrome':
+			import chromedriver_autoinstaller  # Use chromedriver-autoinstaller
+			driver = webdriver.Chrome(options=options)
+		case 'chromium':
+			from webdriver_manager.core.os_manager import ChromeType
+			from selenium.webdriver.chrome.service import Service as ChromiumService
+			driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()), options=options)
+		case _:
+			logger.error('Incorrect browser choice inputted.')
 
-	# Initialize the WebDriver with the Chromium service
-	driver = webdriver.Chrome(options=options)
-	logger.debug('Starting Chromium browser')
+	# Get and initialize the most up-to-date Chromium web driver
+	logger.debug(f'Starting {configuration['browser']} browser')
 
 	# Blocking various Discord analytics/monitoring URLs so they don't phone home
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
@@ -58,7 +65,6 @@ def bootstrap_browser(
 		]
 	})
 	logger.debug('Blocking telemetry URLs')
-	
 	# Enable the network connectivity of the browser
 	driver.execute_cdp_cmd('Network.enable', {})
 
@@ -75,7 +81,6 @@ def bootstrap_browser(
 			logger.debug(f'Going to landing page: {landing_url}')
 
 	# Go to the required Discord login/landing page
-
 
 	# Wait 1 second before typing the email and password
 	driver.implicitly_wait(1)

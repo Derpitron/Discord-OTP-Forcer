@@ -1,0 +1,13 @@
+email (any): target account's email id
+password (any): target account's current login password
+
+programMode (login | reset):
+codeMode (normal | backup | backup_let | both):
+browser (chrome | chromium) :
+
+newPassword (any): target account's new desired login password, after the password reset is done
+resetToken (any): target account's password reset token (see the docs at (https://github.com/Derpitron/Discord-OTP-Forcer/wiki/How-to-setup-and-use#how-to-get-your-token) for how to obtain it)
+authToken (any): target account's discord session token (UNIMPLEMENTED. DO NOT DEPEND ON THIS)
+
+sensitiveDebug (True | False): whether or not to spit out sensitive details in the program console log
+logCreation (True | False): whether or not to write the program log to a text file on disk (see user/ folder for the log files)
