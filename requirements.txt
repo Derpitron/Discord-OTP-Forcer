@@ -3,3 +3,4 @@ chromedriver-autoinstaller
 pyYAML
 stackprinter
 loguru
+webdriver-manager
