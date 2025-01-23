@@ -53,7 +53,7 @@ def bootstrap_browser(
 			logger.error('Incorrect browser choice inputted.')
 
 	# Get and initialize the most up-to-date Chromium web driver
-	logger.debug(f'Starting {configuration['browser']} browser')
+	logger.debug(f'Starting {configuration["browser"]} browser')
 
 	# Blocking various Discord analytics/monitoring URLs so they don't phone home
 	driver.execute_cdp_cmd('Network.setBlockedURLs', {
