@@ -37,3 +37,6 @@ sensitiveDebug: "True"
 # Log file creation
 # Default = False
 logCreation: "False"
+
+# Input which browser you're using, valid options include "chrome" and "chromium".
+browser: ""
