@@ -101,9 +101,12 @@ def bootstrap_login_page(
 	is caught while trying to find the TOTP login field, the function continues to run, assuming that the hCaptcha has been completed.
 	"""
 	# Find the login input fields
-	login_fields = {
-		'password': driver.find_element(by=By.NAME, value='password')
-	}
+	login_fields = {}
+
+	login_fields['password'] = WebDriverWait(driver, 100).until(
+	    EC.presence_of_element_located((By.NAME, 'password'))
+	)
+
 	match configuration['programMode'].lower():
 		case 'login':
 			login_fields['email'] = driver.find_element(by=By.NAME, value='email')
