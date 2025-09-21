@@ -1,0 +1,13 @@
+# Program mode configuration
+
+ # This can be either "login" for the normal mode, or "reset" to do a password reset then bruteforce codes.
+programMode: ""
+
+# This can be "normal" for 6 digit OTP codes that change every 30 seconds, or "backup" for 8 digit alphanumeric codes (that take quite more time.)
+# There are 10^6 possible "normal" codes, and 36^8 possible "backup" codes.
+# While the normal codes change every 30 seconds (i.e the code that might not work now, may have worked 1 second after we entered it because it was on the 30 second interval),
+# It's still a good bet to use them because bruteforcing 36^8 possible codes could take more time than the heat death of the universe.
+codeMode: ""
+
+#possible options: "chrome", "chromium". maybe gecko in the future?
+browser: ""
