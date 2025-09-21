@@ -11,3 +11,11 @@ codeMode: ""
 
 #possible options: "chrome", "chromium". maybe gecko in the future?
 browser: ""
+
+# Show SENSITIVE_DEBUG log info
+# Default = False
+sensitiveDebug: "True"
+
+# Enable log file creation
+# Default = False
+logCreation: "False"
