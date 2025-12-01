@@ -1,6 +1,6 @@
-selenium
-chromedriver-autoinstaller
-pyYAML
-stackprinter
-loguru
-webdriver-manager
+selenium==4.38
+chromedriver-autoinstaller==0.6.4
+pyYAML==6.0.3
+stackprinter==0.2.12
+loguru==0.7.3
+webdriver-manager==4.0.2
