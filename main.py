@@ -52,6 +52,7 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
                 True if program_config_dict["sensitiveDebug"] == "True" else False
             ),
             logLevel=program_config_dict["logLevel"],
+            elementLoadTolerance=float(program_config_dict["elementLoadTolerance"])
         )
 
         formatting = formatter

@@ -70,7 +70,7 @@ def bootstrap_code_page(
     email_field: tuple[ByType, str] = (By.NAME, "email")
     # TODO: add to Config: how long to wait for each HTML element to correctly load?
     # fmt: off
-    driver.implicitly_wait(3)  
+    driver.implicitly_wait(config.program.elementLoadTolerance)  
     # fmt: on
     match config.program.programMode:
         case ProgramMode.Login:

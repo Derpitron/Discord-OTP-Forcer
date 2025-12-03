@@ -46,3 +46,11 @@ headless: "False"
 # Valid options: See here https://loguru.readthedocs.io/en/0.7.3/api/logger.html#levels
 # Default: INFO
 logLevel: "INFO"
+
+# The maximum amount of seconds to wait for a HTML element (e.g password entry field, code submission button) to load in, before crashing.
+# If the element is found before the time elapses, it works as normal and doesn't crash.
+# If the element is not found though, it will usually either trigger various internal points in the code that automatically handle it, or will crash, if we really need the element.
+# Refer https://www.selenium.dev/documentation/webdriver/waits/ "Implicit Wait" section here for how it works.
+# This is in seconds unit and can take a float value.
+# Default: 3
+elementLoadTolerance: 3
