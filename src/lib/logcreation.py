@@ -1,8 +1,4 @@
-import os
 import re
-import sys
-
-from loguru import logger
 
 
 def obfuscate_message(message: str) -> str:
