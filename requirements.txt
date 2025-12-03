@@ -1,4 +1,5 @@
-undetected-chromedriver-3.5.5
+undetected-chromedriver==3.5.5
+setuptools==80.9.0
 pyYAML==6.0.3
 stackprinter==0.2.12
 loguru==0.7.3

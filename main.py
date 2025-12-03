@@ -1,4 +1,3 @@
-import os
 import sys
 import time
 from time import strftime
@@ -7,28 +6,57 @@ import stackprinter
 from loguru import logger
 from yaml import safe_load as load
 
-from src.backend import bootstrap_browser, bootstrap_code_page
-from src.lib.exceptions import UserCausedHalt
+from src.backend import bootstrap_browser, bootstrap_code_page, try_codes
 from src.lib.logcreation import formatter, formatter_sensitive
+from src.lib.types import (
+    AccountConfig,
+    Browser,
+    CodeMode_Backup,
+    CodeMode_Normal,
+    Config,
+    ProgramConfig,
+    ProgramMode,
+)
 
 
-def load_configuration(config_file_path="user/cfg.yml") -> dict:
+def load_configuration(account_config_path: str, program_config_path: str) -> Config:
+    """
+    Parses the config files to our python object.
     """
 
-    We're defining a function f: yaml -> Config
-    """
+    accountConfig: AccountConfig
+    programConfig: ProgramConfig
 
-    with open(config_file_path, "r") as configuration_file:
+    with open(account_config_path, "r") as account_config_file:
+        accountConfig = AccountConfig(**(load(account_config_file)))
 
-        config = load(configuration_file)
+    # need a custom parser for this cus of custom types.
+    with open(program_config_path, "r") as program_config_file:
+        program_config_dict: dict[str, str] = load(program_config_file)
+        # If the user gives a custom regex here we'll assume it's a backup code.
+        programConfig = ProgramConfig(
+            programMode=ProgramMode[(program_config_dict["programMode"])],
+            codeMode=(
+                CodeMode_Normal()
+                if program_config_dict["codeMode"] == "Normal"
+                else (
+                    CodeMode_Backup()
+                    if program_config_dict["codeMode"] == "Backup"
+                    else CodeMode_Backup(program_config_dict["codeMode"])
+                )
+            ),
+            browser=Browser[(program_config_dict["browser"])],
+            headless=True if program_config_dict["headless"] == "True" else False,
+            logCreation=True if program_config_dict["logCreation"] == "True" else False,
+            sensitiveDebug=(
+                True if program_config_dict["sensitiveDebug"] == "True" else False
+            ),
+        )
 
         formatting = formatter
-
-        if config["sensitiveDebug"] == "True":
-
+        if programConfig.sensitiveDebug == True:
             formatting = formatter_sensitive
-
-        if config["logCreation"] == "True":
+        if programConfig.logCreation == True:
             logger.add(
                 "log/{0}.log".format(
                     strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))
@@ -39,44 +67,15 @@ def load_configuration(config_file_path="user/cfg.yml") -> dict:
             )
 
         logger.add(sys.stderr, format=formatting, colorize=True, backtrace=True)
+        logger.debug(f"Loaded config/account.yml, config/program.yml files.")
 
-        logger.debug(
-            f"Loaded configuration file located at {os.path.realpath(configuration_file.name)}"
-        )
-        return config
+        return Config(account=accountConfig, program=programConfig)
 
 
-def userFacing(configuration: dict):
-
-    validProgramModes: set = {"login", "reset"}
-
-    if configuration["programMode"].lower() not in validProgramModes:
-
-        raise ValueError("Invalid program mode inputted!")
-
-    validCodeModes: set = {"normal", "backup", "backup_let", "both"}
-
-    if configuration["codeMode"].lower() not in validCodeModes:
-
-        raise ValueError("Invalid code-generation mode inputted!")
-
-    while True:
-
-        driver = bootstrap_browser(configuration)
-
-        bootstrap_code_page(driver, configuration)
+def main(config: Config) -> None:
+    try_codes(*bootstrap_code_page(*bootstrap_browser(config)))
 
 
 if __name__ == "__main__":
-
-    try:
-
-        logger.remove()
-
-        userFacing(load_configuration())
-
-    except UserCausedHalt:
-
-        logger.info("User halted the program!")
-
-        sys.exit(130)
+    logger.remove()
+    main(load_configuration("config/account.yml", "config/program.yml"))

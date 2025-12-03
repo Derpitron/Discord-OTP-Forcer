@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import NamedTuple
-
-from selenium.webdriver.remote.webdriver import WebDriver as Driver
-from selenium.webdriver.remote.webelement import WebElement as Element
+from typing import NamedTuple, TypeVar
 
 """
 This is the canonical definition for program and account configuration. all possibilities defined here
@@ -13,6 +10,15 @@ Naming convention here:
 PascalCase for classes, types, kinds, enum-possibilities
 camelCase for objects, variables, instances, members
 """
+
+T = TypeVar("T")
+
+
+# TODO: This is ugly
+def unwrap(x: T | None) -> T:
+    if x is None:
+        raise TypeError("Expected actual variable, got None")
+    return x
 
 
 class ProgramMode(Enum):
@@ -33,6 +39,7 @@ class CodeMode_Normal(CodeMode):
 
 @dataclass
 class CodeMode_Backup(CodeMode):
+    # TODO: is this the current default? discord's backup code input field shows 11 characters. do 9-11 char backup codes exist now?
     pattern: str = r"[a-z0-9]{8}"
 
 
@@ -43,7 +50,8 @@ class Browser(Enum):
     # Firefox = 2
 
 
-class ProgramConfig(NamedTuple):
+@dataclass(frozen=True)
+class ProgramConfig:
     """
     This is public and can be shared anywhere.
     """
@@ -57,7 +65,8 @@ class ProgramConfig(NamedTuple):
     headless: bool
 
 
-class AccountConfig(NamedTuple):
+@dataclass(frozen=True)
+class AccountConfig:
     """
     I want this to be private and shared as little as possible.
     """
@@ -71,39 +80,23 @@ class AccountConfig(NamedTuple):
     authToken: str
 
 
-class Config(NamedTuple):
+@dataclass(frozen=True)
+class Config:
     program: ProgramConfig
     account: AccountConfig
 
 
-class Color(str, Enum):
-    Black = "\033[30m"
-    Red = "\033[31m"
-    Green = "\033[32m"
-    Yellow = "\033[33m"
-    Blue = "\033[34m"
-    Magenta = "\033[35m"
-    Cyan = "\033[36m"
-    White = "\033[37m"
-    Reset = "\033[0m"
-
-
-@dataclass
-class LoginFields:
-    password: Element
-    code: Element
-    email: Element
-
-
 @dataclass
 class SessionStats:
-    attemptedCodeCount: int
-    ratelimitCount: int
-    slowDownCount: int
-    elapsedTime: float
+    attemptedCodeCount: int  # The number of codes attempted in this session
+    # fmt: off
+    attemptedBackupCodeCount: int # The number of backup codes attempted in this session
+    # fmt: on
+    ratelimitCount: int  # The number of times we got ratelimited
+    slowDownCount: int  # The number of times the submit button loaded too slowly, because of a server-side invisible ratelimit or network conditions.
+    elapsedTime: float  # The time this program ran, in seconds
 
 
-class CodeInputResult(Enum):
-    Success = 0
-    Err_Invalid = 1
-    Err_RateLimited = 2
+class CodeError(Enum):
+    Invalid = 0
+    Ratelimited = 1
