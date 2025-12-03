@@ -1,0 +1,4 @@
+[alias]
+    ignore = update-index --skip-worktree
+    unignore = update-index --no-skip-worktree
+    list-ignored = !git ls-files -v | grep "^S"
