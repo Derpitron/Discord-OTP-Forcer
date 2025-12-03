@@ -192,7 +192,9 @@ def try_codes(driver: Driver, config: Config) -> None:
                             logger.warning(f"{code_status_msg}: {random_code}")
                             # fmt: on
                             make_new_code = True
-                        case "The resource is being ratelimited.":
+                        # fmt: off
+                        case "The resource is being ratelimited." | "Service resource is being rate-limited.":
+                        # fmt: on
                             codeError = CodeError.Ratelimited
                             logger.warning(code_status_msg)
                             sessionStats.ratelimitCount += 1
