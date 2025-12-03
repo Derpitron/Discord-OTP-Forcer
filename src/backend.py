@@ -134,8 +134,8 @@ def try_codes(driver: Driver, config: Config) -> None:
     random_code: str = generate_random_code(config.program.codeMode)
 
     logger.info("Starting a Forcer session")
-    logger.debug(pformat(config.program))
-    logger.log("SENSITIVE", pformat(config.account))
+    logger.debug("\n" + pformat(config.program))
+    logger.log("SENSITIVE", "\n" + pformat(config.account))
 
     # Generate a new code.
     try:
@@ -211,10 +211,10 @@ def try_codes(driver: Driver, config: Config) -> None:
         logger.critical("Stopping the program on KeyboardInterrupt!")
         pass
 
-    sessionStats.elapsedTime = time.time() - start_time
+    sessionStats.elapsedTimeSeconds = time.time() - start_time
     logger.critical("Program finished!")
     print_session_statistics(sessionStats)
 
 
 def print_session_statistics(SessionStats):
-    logger.info(pformat(SessionStats))
+    logger.info("\n" + pformat(SessionStats))
