@@ -33,7 +33,7 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
     # need a custom parser for this cus of custom types.
     with open(program_config_path, "r") as program_config_file:
         program_config_dict: dict[str, str] = load(program_config_file)
-        # If the user gives a custom regex here we'll assume it's a backup code.
+        # If the user gives a custom regex here i'll assume it's a backup code.
         programConfig = ProgramConfig(
             programMode=ProgramMode[(program_config_dict["programMode"])],
             codeMode=(

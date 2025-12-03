@@ -11,6 +11,9 @@ PascalCase for classes, types, kinds, enum-possibilities
 camelCase for objects, variables, instances, members
 """
 
+# TODO: add proper user documentation
+# TODO: update contributors and thanks list
+
 T = TypeVar("T")
 
 
@@ -93,7 +96,7 @@ class SessionStats:
     # fmt: off
     attemptedBackupCodeCount: int # The number of backup codes attempted in this session
     # fmt: on
-    ratelimitCount: int  # The number of times we got ratelimited
+    ratelimitCount: int  # The number of times I got ratelimited
     slowDownCount: int  # The number of times the submit button loaded too slowly, because of a server-side invisible ratelimit or network conditions.
     elapsedTimeSeconds: float  # The time this program ran, in seconds
 

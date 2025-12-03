@@ -102,7 +102,7 @@ def bootstrap_code_page(
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
 
-    # TODO: we prolly wanna solve the captcha here.
+    # TODO: Implement waiting for the user to finish their captcha here, if it spawns
 
     # fmt: off
     match config.program.codeMode:
@@ -141,21 +141,21 @@ def try_codes(driver: Driver, config: Config) -> None:
     try:
         while True:
             sleep_duration_range = [6, 8]
-            # only if we got ratelimited last time.
+            # only if I got ratelimited last time.
             # TODO: clean this up
             if make_new_code:
                 random_code = generate_random_code(config.program.codeMode)
                 sleep_duration_range = [7, 11]
 
-            # Use the gen'd backup code only if it's not in the used_backup_codes.txt list. Add the code to the list if we use it.
-            # the thing that really sucks here is even if a backup code is valid, by trying it here and logging in, we invalidate it. (backup codes expire on use)
+            # Use the gen'd backup code only if it's not in the used_backup_codes.txt list. Add the code to the list if I use it.
+            # the thing that really sucks here is even if a backup code is valid, by trying it here and logging in, I invalidate it. (backup codes expire on use)
             if isinstance(config.program.codeMode, CodeMode_Backup):
                 with open("user/used_backup_codes.txt", "a+") as f:
                     f.seek(0)
                     used_backup_codes: list[str] = f.readlines()
                     if random_code in used_backup_codes:
                         # fmt: off
-                        logger.warning(f"Backup code {random_code} is invalid. Possibly we previously used it, but now it's expired anyway.")
+                        logger.warning(f"Backup code {random_code} is invalid. Possibly I previously used it, but now it's expired anyway.")
                         # fmt: on
                         continue
                     else:
@@ -173,18 +173,17 @@ def try_codes(driver: Driver, config: Config) -> None:
             if isinstance(config.program.codeMode, CodeMode_Backup):
                 sessionStats.attemptedBackupCodeCount += 1
 
-            # Success check. Break out if we succeed.
+            # Success check. Break out if I succeed.
             try:
                 login_test: Element = driver.find_element(*user_homepage)
-                # TODO: implement cookie saving so we don't lose the entire effort if a user closes their browser.
-                # TODO: if app_, IMMEDATELY SPAM CHECK ALL POSSIBLE AVENUES OF DISCORD ACCOUNT TOKEN STORAGE AND STORE IT IN SOME FILE AND SAVE IT.
-                # TODO: what if the user gets a "suspicious account lockout" error, implement handling it
+                # TODO: implement cookie saving so I don't lose the succesfully logged in account if the program/browser closes or crashes.
+                # TODO: what if I get a "suspicious account lockout" error, implement handling it
                 break
             except NoSuchElementException as login_didnt_work:
                 try:
                     code_status_msg: str = (driver.find_element(*code_status_elt)).text
 
-                    # TODO: handle invalid session ticket case (we need to re-login)
+                    # TODO: handle invalid session ticket case (I need to re-login)
                     match (code_status_msg):
                         case "Invalid two-factor code":
                             codeError = CodeError.Invalid
