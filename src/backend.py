@@ -6,67 +6,56 @@ from pprint import pformat
 from typing import Tuple
 
 from loguru import Level, logger
-
-from src.lib.types import CodePage, SessionStats
+from requests.api import head
+from undetected_chromedriver.options import ChromeOptions
 
 sensitive: Level = logger.level(name="SENSITIVE", no=15, color="<m><b>")
+
+import selenium.webdriver as slnm
+import undetected_chromedriver as uc
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.remote.webdriver import WebDriver as Driver
+from selenium.webdriver.remote.webelement import WebElement as Element
 
 from src.lib.codegen import generate_random_code
 from src.lib.exceptions import UserCausedHalt, unwrap
 from src.lib.textcolor import color
 from src.lib.types import (
+    Browser,
     CodeMode_Backup,
     CodeMode_Normal,
     Config,
     LoginFields,
+    ProgramConfig,
     ProgramMode,
+    SessionStats,
 )
 
-ReturnKeyUnicode: str = "\ue006"
 
-import zd
-from zd.core.browser import Browser
-from zd.core.element import Element
-from zd.core.tab import Tab
-
-
-async def bootstrap_browser(config: Config) -> Browser:
+async def bootstrap_browser(config_program: ProgramConfig) -> Driver:
     """
     bootstrap_browser is a function that prepares a puppetable browser.
     """
 
     # TODO: implement browser choice between chrome or chromium
     # TODO: add detach mode, so the browser doesn't die when you kill the program
-    browser: Browser = unwrap(
-        await zd.start(
-            headless=config.program.headless,
-            lang="en-US",  # Force the browser window into English-US language so we can find the code XPATH by string matching,
-        )
-    )
+
+    driver: Driver
+    match config_program.browser:
+        case Browser.Chrome:
+            opts = ChromeOptions()
+            opts.add_argument("--lang=en-US")
+            driver = uc.Chrome(headless=config_program.headless, options=opts)
     logger.debug(f"Started browser")
 
-    default_tab: Tab = unwrap(browser.main_tab)
-    await default_tab.send(
-        cdp_obj=zd.cdp.network.set_blocked_ur_ls(
-            urls=[
-                "a.nel.cloudflare.com/report",
-                "https://discord.com/api/*/science",
-                "sentry.io",
-            ]
-        )
-    )
-    logger.debug("Blocked telemetry URLs")
-
-    await default_tab.send(cdp_obj=zd.cdp.network.enable())
-    logger.debug("Enabled network connectivity")
-
-    return browser
+    return driver
 
 
 async def bootstrap_code_page(
-    browser: Browser,
+    driver: Driver,
     config: Config,
-) -> Tuple[Config, Tab, LoginFields]:
+) -> Tuple[Driver, ProgramConfig, LoginFields]:
     """
     This sets up the code entry page, and gives us the correct login fields per mode.
     """
@@ -78,13 +67,14 @@ async def bootstrap_code_page(
             landing_url = "https://discord.com/login"
         case ProgramMode.Reset:
             landing_url = f"https://discord.com/reset#token={config.account.resetToken}"
-    tab: Tab = unwrap(await browser.get(unwrap(landing_url)))
+    driver.get(unwrap(landing_url))
     logger.debug(f"Gone to {config.program.programMode.name} page")
 
     # Find input fields.
     loginFields: LoginFields = LoginFields()
     match config.program.programMode:
         case ProgramMode.Login:
+            loginFields.email = driver.find_element(By.NAME, "email")
             loginFields.email = unwrap(await tab.find_element_by_text("email"))
     loginFields.password = unwrap(await tab.find_element_by_text("password"))
 
@@ -114,21 +104,7 @@ async def bootstrap_code_page(
     return config, tab, loginFields
 
 
-async def didWeSubmitSuccesfully(submitButton: Element) -> bool:
-    """
-    Rising-Falling edge detector
-    LOW: aria-busy=false
-    HIGH: aria-busy=true
-
-    The pattern to detect:
-               ____..._____
-    ..._______|            |__________...
-
-    BREAK INFINITE DETECT LOOP: Give False after 5 sec elapse, if we haven't returned before then
-    """
-
-
-async def code_entry(config: Config, tab: Tab, loginFields: LoginFields) -> None:
+async def code_entry(config: ProgramConfig, tab: Tab, loginFields: LoginFields) -> None:
     try:
         """Logic to continously enter TOTP/Backup codes"""
 
@@ -167,7 +143,7 @@ async def code_entry(config: Config, tab: Tab, loginFields: LoginFields) -> None
             # I want to break out if code is success, and retry if we get actively ratelimited?
             await loginFields.code.send_keys(random_code)
             await submitButton.click()
-            
+
             sessionStats.attemptedCodeCount += 1
             # TODO: handle the case where a click fails, e.g network request didn't get sent
             # TODO: dynamic sleep delay interval changing based on changing condition?

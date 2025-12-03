@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import NamedTuple, Tuple
+from typing import NamedTuple
 
-from idna.core import InvalidCodepoint
-from zd.core.element import Element
-from zd.core.tab import Tab
+from selenium.webdriver.remote.webdriver import WebDriver as Driver
+from selenium.webdriver.remote.webelement import WebElement as Element
 
 """
 This is the canonical definition for program and account configuration. all possibilities defined here
@@ -39,10 +38,12 @@ class CodeMode_Backup(CodeMode):
 
 class Browser(Enum):
     Chrome = 0
-    Chromium = 1
+    # TODO: IMPLEMENT
+    # Chromium = 1
+    # Firefox = 2
 
 
-class Config(NamedTuple):
+class ProgramConfig(NamedTuple):
     """
     This is public and can be shared anywhere.
     """
@@ -71,7 +72,7 @@ class AccountConfig(NamedTuple):
 
 
 class Config(NamedTuple):
-    program: Config
+    program: ProgramConfig
     account: AccountConfig
 
 
