@@ -14,7 +14,6 @@ camelCase for objects, variables, instances, members
 T = TypeVar("T")
 
 
-# TODO: This is ugly
 def unwrap(x: T | None) -> T:
     if x is None:
         raise TypeError("Expected actual variable, got None")
@@ -39,7 +38,7 @@ class CodeMode_Normal(CodeMode):
 
 @dataclass
 class CodeMode_Backup(CodeMode):
-    # TODO: is this the current default? discord's backup code input field shows 11 characters. do 9-11 char backup codes exist now?
+    # TODO: investigate 9-11 char backup codes and implement here if they exist now
     pattern: str = r"[a-z0-9]{8}"
 
 
@@ -63,6 +62,7 @@ class ProgramConfig:
     sensitiveDebug: bool
     logCreation: bool
     headless: bool
+    logLevel: str
 
 
 @dataclass(frozen=True)
