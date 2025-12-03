@@ -63,6 +63,7 @@ class ProgramConfig:
     logCreation: bool
     headless: bool
     logLevel: str
+    elementLoadTolerance: float
 
 
 @dataclass(frozen=True)
