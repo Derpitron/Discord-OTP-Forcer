@@ -3,11 +3,8 @@ echo Installing requirements...
 pip install -r "%~dp0..\..\requirements.txt"
 echo Requirements installed!
 
-start notepad.exe "%~dp0..\..\config\account.yml"
-echo Setup the your account details here.
-
-start notepad.exe "%~dp0..\..\config\program.yml"
-echo Setup the program configuration you want here here. 
+start notepad.exe "%~dp0..\..\user\cfg.yml"
+echo Setup the account and program details here.
 
 :LOOP
 tasklist | find /i "notepad.exe" > nul
