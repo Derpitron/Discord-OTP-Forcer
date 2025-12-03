@@ -51,6 +51,7 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
             sensitiveDebug=(
                 True if program_config_dict["sensitiveDebug"] == "True" else False
             ),
+            logLevel=program_config_dict["logLevel"],
         )
 
         formatting = formatter
@@ -66,7 +67,17 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
                 format=formatting,
             )
 
-        logger.add(sys.stderr, format=formatting, colorize=True, backtrace=True)
+        logger.add(
+            sys.stderr,
+            format=formatting,
+            colorize=True,
+            backtrace=True,
+            level=programConfig.logLevel,
+        )
+        if programConfig.logLevel in ("SENSITIVE", "DEBUG"):
+            import stackprinter
+
+            stackprinter.set_excepthook(style='darkbg')
         logger.debug(f"Loaded config/account.yml, config/program.yml files.")
 
         return Config(account=accountConfig, program=programConfig)

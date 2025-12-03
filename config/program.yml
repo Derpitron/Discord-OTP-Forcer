@@ -41,3 +41,8 @@ logCreation: "False"
 # True, False
 # Default: False
 headless: "False"
+
+# The log level to print out.
+# Valid options: See here https://loguru.readthedocs.io/en/0.7.3/api/logger.html#levels
+# Default: INFO
+logLevel: "INFO"
