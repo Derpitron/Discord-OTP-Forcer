@@ -189,7 +189,7 @@ def try_codes(driver: Driver, config: Config) -> None:
                         case "Invalid two-factor code":
                             codeError = CodeError.Invalid
                             # fmt: off
-                            logger.warning(f"{code_status_msg}:{random_code}")
+                            logger.warning(f"{code_status_msg}: {random_code}")
                             # fmt: on
                             make_new_code = True
                         case "The resource is being ratelimited.":
