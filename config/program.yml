@@ -1,21 +1,43 @@
-# Program mode configuration
+# All config validation/parsing logic lives in main.py
+# All valid options live in src.lib.types.py
+# If an option is invalid you should input it exactly like how it appears below in the comments, or in the src.lib.types.py file.Z
 
- # This can be either "login" for the normal mode, or "reset" to do a password reset then bruteforce codes.
+# Program mode configuration. Login is for a normal login, Reset is for when you want/need to reset your password and then Force codes, e.g discord forces you to reset the password.
+# Valid Modes:
+# Login, Reset
 programMode: ""
 
-# This can be "normal" for 6 digit OTP codes that change every 30 seconds, or "backup" for 8 digit alphanumeric codes (that take quite more time.)
-# There are 10^6 possible "normal" codes, and 36^8 possible "backup" codes.
+# This can be "normal" for 6 digit OTP codes that change every 30 seconds, or "Backup" for 8 digit alphanumeric codes (that take quite more time.)
+# There are 10^6 possible "normal" codes, and 36^8 possible "Backup" codes.
 # While the normal codes change every 30 seconds (i.e the code that might not work now, may have worked 1 second after we entered it because it was on the 30 second interval),
 # It's still a good bet to use them because bruteforcing 36^8 possible codes could take more time than the heat death of the universe.
+# You can also put a CUSTOM REGEX here in case you remember half of your Backup code but wanna bruteforce the rest. In this case you'd be REDUCING the possible max amount of time
+# To bruteforce all the codes. Very useful if you remember half your code. To create a proper regex for what you remember, check out https://regex101.com.
+# If you use the regex mode, it'll be counted as a Backup code.
+
+# Valid Options:
+# Normal, Backup, <custom regex> (counts as Backup mode)
 codeMode: ""
 
-#possible options: "chrome", "chromium". maybe gecko in the future?
+# Chrome option runs with undetected-chromedriver.
+# Valid Options:
+# Chrome
 browser: ""
 
 # Show SENSITIVE_DEBUG log info
-# Default = False
-sensitiveDebug: "True"
+# Valid Options:
+# True, False
+# Default: False
+sensitiveDebug: "False"
 
 # Enable log file creation
-# Default = False
+# Valid Options:
+# True, False
+# Default: False
 logCreation: "False"
+
+# Enable headless mode (no browser gui spawned). Very untested and unrecommended unless you set logCreation =  True and save the account token. TODO:save the account token.
+# Valid Options:
+# True, False
+# Default: False
+headless: "False"

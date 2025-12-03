@@ -9,6 +9,8 @@
 # YOU SHARED YOUR FILLED IN COPY OF THIS FILE TO ANYONE,
 # THE AUTHORS AND CONTRIBUTORS OF THIS PROGRAM ARE NOT RESPONSIBLE FOR WHATEVER DAMAGES MAY ENSUE
 
+# All config validation/parsing logic lives in main.py and src.lib.types.py. If anything's erroring out you should check those 2 places
+
 # Basic login info
 
 email: ""
