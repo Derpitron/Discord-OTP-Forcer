@@ -94,7 +94,7 @@ class SessionStats:
     # fmt: on
     ratelimitCount: int  # The number of times we got ratelimited
     slowDownCount: int  # The number of times the submit button loaded too slowly, because of a server-side invisible ratelimit or network conditions.
-    elapsedTime: float  # The time this program ran, in seconds
+    elapsedTimeSeconds: float  # The time this program ran, in seconds
 
 
 class CodeError(Enum):
