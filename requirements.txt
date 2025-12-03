@@ -1,6 +1,5 @@
-selenium==4.38
-chromedriver-autoinstaller==0.6.4
+zendriver==0.15.2
 pyYAML==6.0.3
 stackprinter==0.2.12
 loguru==0.7.3
-webdriver-manager==4.0.2
+regex-string-generator==0.1.0

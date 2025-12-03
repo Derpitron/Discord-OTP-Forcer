@@ -5,8 +5,8 @@ import sys
 from loguru import logger
 
 
-def obfuscate_message(message: str):
-    obfuscation_patterns = [
+def obfuscate_message(message: str) -> str:
+    obfuscation_patterns: list[tuple[str, str]] = [
         (r"email: .*", "email: ******"),
         (r"password: .*", "password: ******"),
         (r"newPassword: .*", "newPassword: ******"),

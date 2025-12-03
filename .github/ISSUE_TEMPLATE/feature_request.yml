@@ -1,6 +1,6 @@
 name: Feature Request
 description: template for missing feature
-title: '[Feature Request]: '
+title: ''
 labels:
   - enhancement
 body:

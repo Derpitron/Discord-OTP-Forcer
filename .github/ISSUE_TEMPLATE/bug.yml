@@ -1,6 +1,6 @@
 name: Bug report
 description: Describe what your problem is.
-title: '[Bug]: '
+title: ''
 labels:
   - bug
 body:
