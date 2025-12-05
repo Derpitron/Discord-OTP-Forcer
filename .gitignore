@@ -1,6 +1,7 @@
 # User-handled files
-log/*
+# log/*
 config/*
+# secret/*
 
 # VSCode-generated files
 *.pyc
