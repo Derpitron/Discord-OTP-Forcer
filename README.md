@@ -16,6 +16,9 @@ Instructions on how to setup and use this program can be found on the [wiki](htt
 - Blocks analytics URLs such as Cloudflare logging, Discord Science, and Sentry.io
 - User friendly
 
+# How to use:
+See this repo's Github wiki or the `docs` folder for this section. https://github.com/Derpitron/Discord-OTP-Forcer/wiki/How-to-setup-and-use
+
 # Dependencies
 - Google Chrome
 - Python >= 3.10
