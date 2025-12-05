@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import NamedTuple, TypeVar
+from typing import TypeVar
 
 """
 This is the canonical definition for program and account configuration. all possibilities defined here
@@ -10,9 +10,6 @@ Naming convention here:
 PascalCase for classes, types, kinds, enum-possibilities
 camelCase for objects, variables, instances, members
 """
-
-# TODO: add proper user documentation
-# TODO: update contributors and thanks list
 
 T = TypeVar("T")
 
@@ -33,7 +30,6 @@ class CodeMode:
     pattern: str
 
 
-# TODO: make this readonly
 @dataclass
 class CodeMode_Normal(CodeMode):
     pattern: str = r"\d{6}"
@@ -41,7 +37,6 @@ class CodeMode_Normal(CodeMode):
 
 @dataclass
 class CodeMode_Backup(CodeMode):
-    # TODO: investigate 9-11 char backup codes and implement here if they exist now
     pattern: str = r"[a-z0-9]{8}"
 
 
@@ -67,6 +62,9 @@ class ProgramConfig:
     headless: bool
     logLevel: str
     elementLoadTolerance: float
+
+    usualAttemptDelayRange: tuple[int, int]
+    ratelimitedAttemptDelayRange: tuple[int, int]
 
 
 @dataclass(frozen=True)

@@ -1,16 +1,8 @@
 # Change the ratelimit/delay duration
-Modify `src/backend.py` at the following lines:
-[L225](https://github.com/Derpitron/Discord-OTP-Forcer/blob/1885d829b739e2c9a0b2a3a7debb4483059deef6/src/backend.py#L225) [L252](https://github.com/Derpitron/Discord-OTP-Forcer/blob/1885d829b739e2c9a0b2a3a7debb4483059deef6/src/backend.py#L252)
-
-Change the values in the `secrets.choice(range(x, y))` calls to modify the range. E.g if it says `secrets.choice(range(2, 6))`, then the program will sleep for anywhere from 2 to 5 seconds (doesn't include the last value in the range). Read the `range()` docs here https://docs.python.org/3/library/stdtypes.html#range if you want to make custom ranges with weird timings
+Modify the `config/program.yml` file, and find the `AttemptDelay` variables. Change their values as you want, to adjust the delays of the program between codes.
 
 # Use the program in headless mode (console/terminal-only mode)
-Edit `src/backend.py` at the lines L40, 41, to uncomment the two `add_argument()` lines below. "headless" means "make the program run only on terminal, without any other GUI/window popup".
-```
-# If you want to run the program without the browser opening then remove the # from the options below 
-#options.add_argument('--headless')
-#options.add_argument('--log-level=1')
-```
+Modify the `config.program.yml` file and set `headless` to `True`.
 
 No GUI will show up, no annoying browser window. Usable in Linux TTY/any environment without an X server
 

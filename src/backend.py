@@ -18,7 +18,6 @@ from undetected_chromedriver.options import ChromeOptions
 
 from .lib.codegen import generate_random_code
 from .lib.exceptions import InvalidCredentialError
-from .lib.textcolor import Color, color
 from .lib.types import (
     Browser,
     CodeError,
@@ -36,12 +35,26 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
     """
 
     driver: Driver | None = None
-    # TODO: implement proper detach mode (browser can run without crashing, if the program closes)
+    # TODO: implement proper detach mode so the browser can run without crashing, if the program closes
     match config.program.browser:
         case Browser.Chrome:
             opts = ChromeOptions()
             opts.add_argument("--lang=en-US")
+            if config.program.headless:
+                opts.add_argument("--log-level=1")
             driver = uc.Chrome(headless=config.program.headless, options=opts)
+            driver.execute_cdp_cmd(
+                "Network.setBlockedURLs",
+                {
+                    "urls": [
+                        "a.nel.cloudflare.com/report",
+                        "https://discord.com/api/v10/science",
+                        "https://discord.com/api/v9/science",
+                        "sentry.io",
+                    ]
+                },
+            )
+            driver.execute_cdp_cmd("Network.enable", {})
     logger.debug(f"Started browser")
 
     return unwrap(driver), config
@@ -68,7 +81,6 @@ def bootstrap_code_page(
     # Log-in with credentials
     password_field: tuple[ByType, str] = (By.NAME, "password")
     email_field: tuple[ByType, str] = (By.NAME, "email")
-    # TODO: add to Config: how long to wait for each HTML element to correctly load?
     # fmt: off
     driver.implicitly_wait(config.program.elementLoadTolerance)  
     # fmt: on
@@ -81,6 +93,18 @@ def bootstrap_code_page(
     driver.find_element(*password_field).send_keys(Keys.RETURN)
     logger.debug("Found and inputted basic login fields")
 
+    captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "container__8a031")
+    # infinitely loop until captcha box is detected
+    while True:
+        try:
+            while True:
+                # if captcha box is detected, loop infinitely until the user solves it (captcha box disappears)
+                captcha_box_test: Element = driver.find_element(captcha_box)
+        except NoSuchElementException:
+            # if captcha box disappears, exit the loop
+            break
+    del captcha_box
+
     # Check if the code field exists
     try:
         # fmt: off
@@ -91,7 +115,7 @@ def bootstrap_code_page(
         match config.program.programMode:
             case ProgramMode.Login:
                 # fmt: off
-                msg: str = "Could not log-in to account. Are your email and password correct?"
+                msg: str = "Could not log-in to account. Are your email and password correct? Or, you may have to reset your password. Check the wiki/docs for instructions on this"
                 # fmt: on
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
@@ -101,8 +125,6 @@ def bootstrap_code_page(
                 # fmt: on
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
-
-    # TODO: Implement waiting for the user to finish their captcha here, if it spawns
 
     # fmt: off
     match config.program.codeMode:
@@ -121,7 +143,7 @@ def try_codes(driver: Driver, config: Config) -> None:
     sessionStats: SessionStats = SessionStats(0, 0, 0, 0, 0)
     start_time: float = time.time()
     # fmt: off
-    sleep_duration_range: list[int] = [6, 8]  # TODO: add to config: how long to delay between each code attempt?
+    sleep_duration_range: list[int] = list(config.program.usualAttemptDelayRange)
     # fmt:on
     secrets
 
@@ -140,12 +162,11 @@ def try_codes(driver: Driver, config: Config) -> None:
     # Generate a new code.
     try:
         while True:
-            sleep_duration_range = [6, 8]
+            sleep_duration_range = list(config.program.usualAttemptDelayRange)
             # only if I got ratelimited last time.
-            # TODO: clean this up
             if make_new_code:
                 random_code = generate_random_code(config.program.codeMode)
-                sleep_duration_range = [7, 11]
+                sleep_duration_range = list(config.program.ratelimitedAttemptDelayRange)
 
             # Use the gen'd backup code only if it's not in the used_backup_codes.txt list. Add the code to the list if I use it.
             # the thing that really sucks here is even if a backup code is valid, by trying it here and logging in, I invalidate it. (backup codes expire on use)
@@ -162,13 +183,12 @@ def try_codes(driver: Driver, config: Config) -> None:
                         f.write(f"{random_code}\n")
 
             # Attempt the code
-            # TODO: clean this up.
+
             # backspace the previous code. the max length of a code can be 11 characters (from the backup code)
             driver.find_element(*code_field).send_keys(11 * Keys.BACKSPACE)
             driver.find_element(*code_field).send_keys(random_code)
             time.sleep(secrets.choice(sleep_duration_range))
             driver.find_element(*submit_button).click()
-            # TODO: handle the case where a click fails, e.g network request didn't get sent
             sessionStats.attemptedCodeCount += 1
             if isinstance(config.program.codeMode, CodeMode_Backup):
                 sessionStats.attemptedBackupCodeCount += 1
@@ -177,13 +197,11 @@ def try_codes(driver: Driver, config: Config) -> None:
             try:
                 login_test: Element = driver.find_element(*user_homepage)
                 # TODO: implement cookie saving so I don't lose the succesfully logged in account if the program/browser closes or crashes.
-                # TODO: what if I get a "suspicious account lockout" error, implement handling it
                 break
             except NoSuchElementException as login_didnt_work:
                 try:
                     code_status_msg: str = (driver.find_element(*code_status_elt)).text
 
-                    # TODO: handle invalid session ticket case (I need to re-login)
                     match (code_status_msg):
                         case "Invalid two-factor code":
                             codeError = CodeError.Invalid
