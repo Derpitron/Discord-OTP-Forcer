@@ -99,7 +99,7 @@ def bootstrap_code_page(
         try:
             while True:
                 # if captcha box is detected, loop infinitely until the user solves it (captcha box disappears)
-                captcha_box_test: Element = driver.find_element(captcha_box)
+                captcha_box_test: Element = driver.find_element(*captcha_box)
         except NoSuchElementException:
             # if captcha box disappears, exit the loop
             break
@@ -196,7 +196,9 @@ def try_codes(driver: Driver, config: Config) -> None:
             # Success check. Break out if I succeed.
             try:
                 login_test: Element = driver.find_element(*user_homepage)
-                # TODO: implement cookie saving so I don't lose the succesfully logged in account if the program/browser closes or crashes.
+                # TODO: get discord account token
+                # TODO: print discord account token at critical log level to console
+                # TODO: save discord account token into `secret/token.txt`
                 break
             except NoSuchElementException as login_didnt_work:
                 try:
