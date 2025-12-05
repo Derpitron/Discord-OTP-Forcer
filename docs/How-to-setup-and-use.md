@@ -43,11 +43,11 @@ python main.py
 ```
 7. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
 8. **Wait for either a successful login**, or a closed browser window (Failure to brute force codes)
-9. If it succeeds, **The program will PRINT YOUR ACCOUNT TOKEN TO CONSOLE**. Be warned and don't run this where someone else could access the log. **It will also save it to a file in `secret/token.txt`**.
-10. **Do not log out of discord.com on that browser window at all**. Even if the browser closes, that's fine. just **do NOT log out** under any circumstances or the token will be regenerated, making your currently obtained token invalid and the whole effort is lost.
-11. **You can LOG IN to your account using that token** with this script: https://github.com/JHVIW/Discord-Token-Login-Script. Go to `discord.com/login`, open browser console, paste the script, fill in your account token where it says to, and wait for it to log-in.
-12. As soon as it logs in, **go to User Settings > My Account > Authenticator App > View Backup Codes**. Click it and enter your password, or your newPassword if you were in Reset mode.
-13. It may ask you for an email verification code. Check your account's registered mail for this and enter it.
+9. If it succeeds, **The program will PRINT YOUR ACCOUNT TOKEN TO CONSOLE**. Be warned and don't run this where someone else could access the log. **It will also save it to a file in `secret/token.txt`**. If there were multiple codes there, the latest, only-valid code is at the bottom of the file. Save this token 13 times safely and write it on a piece of paper.
+10. **do NOT log out, log in from a different device, or change account setting**. Under any circumstances or the token will be regenerated, making your currently obtained token invalid. Even if the browser closes, that's fine, the latest token will be active and usable to log-in. If you're logged in and secure on the browser though, you won't be signed out and will be able to use Discord like normal, so be very wary when doing this.
+11. In the program's browser window, or your own browser where **you can LOG IN to your account using that token** with this script: https://github.com/JHVIW/Discord-Token-Login-Script. Go to `discord.com/login`, open browser console, paste the script, fill in your account token where it says to, and wait for it to log-in.
+12. As soon as it logs in, **go to User Settings > My Account > Authenticator App > View Backup Codes**. Click it and enter your password, or your newPassword if you were in Reset mode. (Your password has succesfully been changed in this case.)
+13. It may ask you for an email/phone verification code. Check your account's registered mail for this and enter it.
 14. **You'll see your account's backup codes. SAVE THEM.** SCREENSHOT THIS 15 TIMES AND SAVE 3 COPIES OF IT ON GOOGLE DRIVE, AND YOUR HARD DRIVE, YOUR PHONE, WRITTEN ON A PIECE OF PAPER, ETC.
 15. After having saved one of these backup codes, **click Remove Authenticator App** above and enter one of the backup codes you just obtained above.
 16. Now your account is liberated. Feel free to do whatever you want with it but remember to **save all details** you change.

@@ -39,7 +39,6 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
     # TODO: implement proper detach mode so the browser can run without crashing, if the program closes
     match config.program.browser:
         case Browser.Chrome:
-            # --- 1. The same JS as above, but as a Python string ---
             HARDEN_WEB_STORAGE_JS = r"""
                 (function hardenWebStorage() {
                   if (typeof window === 'undefined') return;
@@ -105,6 +104,7 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
                 "Page.addScriptToEvaluateOnNewDocument",
                 {"source": HARDEN_WEB_STORAGE_JS},
             )
+            logger.debug("Fixed compatibility polyfill")
     logger.debug(f"Started browser")
 
     return unwrap(driver), config
@@ -125,35 +125,8 @@ def bootstrap_code_page(
             landing_url = "https://discord.com/login"
         case ProgramMode.Reset:
             landing_url = f"https://discord.com/reset#token={config.account.resetToken}"
-    # driver.get(unwrap(landing_url))
-    # driver.get("https://example.com/")
-    # print(
-    #     "example.com storage status:",
-    #     driver.execute_script(
-    #         """
-    #       return {
-    #         inOperator: 'localStorage' in window,
-    #         typeofLocalStorage: typeof window.localStorage,
-    #         instanceofStorage: (typeof Storage !== 'undefined') && (window.localStorage instanceof Storage),
-    #         typeofGetItem: typeof window.localStorage?.getItem
-    #       };
-    #     """
-    #     ),
-    # )
-
     driver.get(unwrap(landing_url))
     logger.debug(f"Gone to {config.program.programMode.name} page")
-    status = driver.execute_script(
-        """
-        return {
-          inOperator: 'localStorage' in window,
-          typeofLocalStorage: typeof window.localStorage,
-          instanceofStorage: (typeof Storage !== 'undefined') && (window.localStorage instanceof Storage),
-          typeofGetItem: typeof window.localStorage?.getItem
-        };
-        """
-    )
-    print("target storage status:", status)
 
     # Log-in with credentials
     password_field: tuple[ByType, str] = (By.NAME, "password")
@@ -273,23 +246,19 @@ def try_codes(driver: Driver, config: Config) -> None:
             # Success check. Break out if I succeed.
             try:
                 # CRITICAL PATH
-                print(1)
                 login_test: Element = driver.find_element(*user_homepage)
-                print(2)
                 while True:
                     # fmt: off
-                    cookies = driver.execute_script("return window.localStorage")
+                    token = driver.execute_script("return window.localStorage.getItem('token')")
                     # fmt: on
-                    print(pformat(cookies))
-                    if "token" in str(cookies):
+                    if token is not None:
+                        # fmt: off
+                        logger.info(f"FOUND YOUR ACCOUNT'S TOKEN SAVE IT AND DO NOT LOG OUT OF DISCORD)")
+                        # fmt: on
+                        logger.success(token)
+                        with open("secret/token.txt", "a+") as f:
+                            f.write(token + "\n")
                         break
-
-                # with open("secret/cookies.json", "a+") as f:
-                #    json.dump(cookies, f)
-
-                # TODO: get discord account token
-                # TODO: print discord account token at critical log level to console
-                # TODO: save discord account token into `secret/token.txt`
                 break
             except NoSuchElementException as login_didnt_work:
                 try:
@@ -326,6 +295,7 @@ def try_codes(driver: Driver, config: Config) -> None:
     sessionStats.elapsedTimeSeconds = time.time() - start_time
     logger.critical("Program finished!")
     print_session_statistics(sessionStats)
+    # TODO: hold the webdriver here.
 
 
 def print_session_statistics(SessionStats):
