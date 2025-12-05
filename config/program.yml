@@ -5,7 +5,7 @@
 # Program mode configuration. Login is for a normal login, Reset is for when you want/need to reset your password and then Force codes, e.g discord forces you to reset the password.
 # Valid Modes:
 # Login, Reset
-programMode: ""
+programMode:
 
 # This can be "normal" for 6 digit OTP codes that change every 30 seconds, or "Backup" for 8 digit alphanumeric codes (that take quite more time.)
 # There are 10^6 possible "normal" codes, and 36^8 possible "Backup" codes.
@@ -16,36 +16,38 @@ programMode: ""
 # If you use the regex mode, it'll be counted as a Backup code.
 
 # Valid Options:
-# Normal, Backup, <custom regex> (counts as Backup mode)
-codeMode: ""
+# Normal, Backup, "<custom regex>" (counts as Backup mode). Make sure to put it in double-quotes or it won't work.
+codeMode:
 
 # Chrome option runs with undetected-chromedriver.
 # Valid Options:
 # Chrome
-browser: ""
+browser:
 
 # Show SENSITIVE_DEBUG log info
+# If the logLevel is higher than DEBUG or SENSITIVE_DEBUG, this will have no effect as credentials wouldn't be printed in those levels.
 # Valid Options:
 # True, False
 # Default: False
-sensitiveDebug: "False"
+sensitiveDebug: False
 
 # Enable log file creation
 # Valid Options:
 # True, False
 # Default: False
-logCreation: "False"
+logCreation: False
 
 # Enable headless mode (no browser gui spawned). Very untested and unrecommended unless you set logCreation =  True and save the account token. TODO:save the account token.
 # Valid Options:
 # True, False
 # Default: False
-headless: "False"
+headless: False
 
-# The log level to print out.
+# The log level to print out. Only prints logs at the given log level or higher
 # Valid options: See here https://loguru.readthedocs.io/en/0.7.3/api/logger.html#levels
+# TRACE, DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL
 # Default: INFO
-logLevel: "INFO"
+logLevel: INFO
 
 # The maximum amount of seconds to wait for a HTML element (e.g password entry field, code submission button) to load in, before crashing.
 # If the element is found before the time elapses, it works as normal and doesn't crash.
@@ -54,3 +56,21 @@ logLevel: "INFO"
 # This is in seconds unit and can take a float value.
 # Default: 3
 elementLoadTolerance: 3
+
+# Set the range for the minimum and maximum "amount of seconds" to wait, after I attempt a code.
+# This is so we don't unnecessarily tax Discord's infrastructure by spamming them.
+# Please do not lower the min-bound any more than "6", from my testing.
+# The range this takes is in the form [min, max)
+# This is in seconds unit and takes only integer value.
+# Default: Min: 6, Max: 8
+usualAttemptDelayMin: 6
+usualAttemptDelayMax: 8
+
+# Set the range for the minimum and maximum "amount of seconds" to wait, after I attempt a code and we get ratelimited by Discord.
+# This is so we don't unnecessarily tax Discord's infrastructure by spamming them and don't trigger spam-detection blocks by giving them some time to recover.
+# Please do not lower the min-bound any more than "7", from my testing. Lowering this might cause you to get temp or perma IP banned for repeated spam
+# The range this takes is in the form [min, max)
+# This is in seconds unit and takes only integer value.
+# Default: Min: 6, Max: 8
+ratelimitedAttemptDelayMin: 7
+ratelimitedAttemptDelayMax: 11
