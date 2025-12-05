@@ -1,6 +1,7 @@
 import sys
 import time
 from time import strftime
+from typing import Any
 
 import stackprinter
 from loguru import logger
@@ -32,7 +33,9 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
 
     # need a custom parser for this cus of custom types.
     with open(program_config_path, "r") as program_config_file:
-        program_config_dict: dict[str, str] = load(program_config_file)
+        program_config_dict: dict[str, str | bool | float | int] = load(
+            program_config_file
+        )
         # If the user gives a custom regex here i'll assume it's a backup code.
         programConfig = ProgramConfig(
             programMode=ProgramMode[(program_config_dict["programMode"])],
@@ -46,13 +49,19 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
                 )
             ),
             browser=Browser[(program_config_dict["browser"])],
-            headless=True if program_config_dict["headless"] == "True" else False,
-            logCreation=True if program_config_dict["logCreation"] == "True" else False,
-            sensitiveDebug=(
-                True if program_config_dict["sensitiveDebug"] == "True" else False
-            ),
+            headless=program_config_dict["headless"],
+            logCreation=program_config_dict["logCreation"],
+            sensitiveDebug=program_config_dict["sensitiveDebug"],
             logLevel=program_config_dict["logLevel"],
-            elementLoadTolerance=float(program_config_dict["elementLoadTolerance"])
+            elementLoadTolerance=program_config_dict["elementLoadTolerance"],
+            usualAttemptDelayRange=(
+                program_config_dict["usualAttemptDelayMin"],
+                program_config_dict["usualAttemptDelayMax"],
+            ),
+            ratelimitedAttemptDelayRange=(
+                program_config_dict["ratelimitedAttemptDelayMin"],
+                program_config_dict["ratelimitedAttemptDelayMax"],
+            ),
         )
 
         formatting = formatter
@@ -78,8 +87,8 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
         if programConfig.logLevel in ("SENSITIVE", "DEBUG"):
             import stackprinter
 
-            stackprinter.set_excepthook(style='darkbg')
-        logger.debug(f"Loaded config/account.yml, config/program.yml files.")
+            stackprinter.set_excepthook(style="darkbg")
+        logger.debug(f"Loaded config/account.yml, config/program.yml config files.")
 
         return Config(account=accountConfig, program=programConfig)
 

@@ -1,3 +1,4 @@
+# Thanks to @SpaghettDev for inspiring this program
 from enum import Enum
 
 

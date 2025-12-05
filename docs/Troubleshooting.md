@@ -3,7 +3,7 @@ Troubleshooting
 </h1>
 
 <p align="center">
-<b>This part of the wiki should hopefully help you when something isn't working right.</b>
+<b>This part of the wiki should hopefully help you when something isn't working right.</b> The first thing to do before filing an issue is<br>1. check here for any issues you might face, <br>2. search the web for the error and try to solve it yourself.<br> If that doesn't work for you, feel free to file an issue with the details.
 </p>
 
 ---
@@ -17,19 +17,13 @@ Troubleshooting
 Extract the files from the .zip file which you downloaded. This program cannot run from a .zip file
 
 ## My config file isn't working!
-If you're trying to upgrade your program while using an old config file, first `cd` to the root directory of this folder, i.e you should be in Discord-OTP-Forcer. Then, run:
+Try and check if your config file is incorrectly formatted or you filled in a wrong option. If you did that, and it's still not working, file an issue with the details. Remember to redact all personal details when reporting
 
-```
-python3 tools/convert-config.py
-```
-
-This should create two files `account.yml` and `program.yml` in a folder called `config`.
-
-## The browser is frozen/not moving past the password reset screen. Pressing the password reset button does nothing, when the program is in `reset` programMode.
+## In programMode: reset, The browser is frozen/not moving past the password reset screen. Pressing the password reset button does nothing, when the program is in `reset` programMode.
 Re-do the password reset steps. https://github.com/Derpitron/Discord-OTP-Forcer/wiki/How-to-setup-and-use#how-to-get-your-token
 
 ## I'm using my system/browser in a language other than English (USA), and the program isn't working for me
-To fix this, change your system/browser language to English (US).
+To fix this, change your system/browser language to English (US). The locale for the browser should be `en-US`.
 
 ### Linux
 One user says this worked, when he was using Chromium in GNU/Linux:

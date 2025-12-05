@@ -3,12 +3,11 @@ import re
 
 def obfuscate_message(message: str) -> str:
     obfuscation_patterns: list[tuple[str, str]] = [
-        (r"email: .*", "email: ******"),
-        (r"password: .*", "password: ******"),
-        (r"newPassword: .*", "newPassword: ******"),
-        (r"resetToken: .*", "resetToken: ******"),
-        (r"authToken: .*", "authToken: ******"),
-        (r"located at .*", "located at ******"),
+        (r"email=.*", "email: ******"),
+        (r"password=.*", "password: ******"),
+        (r"newPassword=.*", "newPassword: ******"),
+        (r"resetToken=.*", "resetToken: ******"),
+        (r"authToken=.*", "authToken: ******"),
         (r"#token=.*", "#token=******"),
     ]
     for pattern, replacement in obfuscation_patterns:
