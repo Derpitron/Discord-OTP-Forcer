@@ -1,6 +1,5 @@
 name: Feature Request
-description: template for missing feature
-title: ''
+description: "template for missing feature. Likely won't be implemented for a long time. You could also write it yourself and file a pull request." 
 labels:
   - enhancement
 body:
