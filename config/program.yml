@@ -24,12 +24,14 @@ codeMode:
 # Chrome
 browser:
 
-# Show SENSITIVE_DEBUG log info
+# If True, this option redacts sensitive log info.
+# If False, this option reveals sensitive log info like your password, resetToken, and email address.
+# Unless you know what you're doing you should probably keep this at True.
 # If the logLevel is higher than DEBUG or SENSITIVE_DEBUG, this will have no effect as credentials wouldn't be printed in those levels.
 # Valid Options:
 # True, False
-# Default: False
-sensitiveDebug: False
+# Default: True
+sensitiveDebug: True
 
 # Enable log file creation
 # Valid Options:
