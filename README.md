@@ -39,7 +39,7 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
 - [Luminaex](https://github.com/Luminaex) for implementing 8-char Backup OTP code brute-forcing, Password Reset OTP forcing, various bug fixes, and maintaining this program when I couldn't ❤️
 - [progressEdd](https://github.com/progressEdd) for fixing a chromedriver installation bug a while ago ❤️
 - [nyathea](https://github.com/nyathea) for adding a missing config option ❤️
-- [ultrafunkamsterdam](https://github.com/ultrafunkamsterdam) for making and maintaining the `undetected-chromedriver` library that this program uses.
+- [ultrafunkamsterdam](https://github.com/ultrafunkamsterdam) for making and maintaining the `undetected-chromedriver` library that this program uses. ❤️
 
 ---
 # Disclaimer
