@@ -87,7 +87,9 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
             opts.add_argument("--lang=en-US")
             if config.program.headless:
                 opts.add_argument("--log-level=1")
+            # fmt: off
             driver = uc.Chrome(headless=config.program.headless, options=opts)
+            # fmt: on
             driver.execute_cdp_cmd(
                 "Network.setBlockedURLs",
                 {

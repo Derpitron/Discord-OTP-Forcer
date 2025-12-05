@@ -93,10 +93,14 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
         return Config(account=accountConfig, program=programConfig)
 
 
-def main(config: Config) -> None:
-    try_codes(*bootstrap_code_page(*bootstrap_browser(config)))
-
-
 if __name__ == "__main__":
     logger.remove()
-    main(load_configuration("config/account.yml", "config/program.yml"))
+
+    # innermost runs first.
+    try_codes(
+        *bootstrap_code_page(
+            *bootstrap_browser(
+                load_configuration("config/account.yml", "config/program.yml")
+            )
+        )
+    )
