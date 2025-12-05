@@ -5,6 +5,9 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 
 Instructions on how to setup and use this program can be found on the [wiki](https://github.com/Derpitron/Discord-OTP-Forcer/wiki/How-to-setup-and-use)
 
+> [!NOTE]  
+> Going forward I won't maintain this program often. I don't have the time or inclination to maintain this for more than my personal needs anymore. If the community wishes they can write their own bug fixes and features and add pull requests, and I'll merge them in here. Thanks to the contributors and people who help each other out in this. You've been real ones
+
 # Features
 - Brute forces 6 digit TOTP codes (1 million possible codes) and 8 digit Backup codes (2.82 trillion possible codes)
 - If you know part of a valid backup code, you can fill it in using a [regex template.](https://docs.python.org/3/library/re.html#regular-expression-syntax)
