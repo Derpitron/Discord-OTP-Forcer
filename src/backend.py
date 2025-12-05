@@ -1,8 +1,9 @@
 # Import dependencies and libraries
+import json
 import secrets
 import time
 from pprint import pformat
-from typing import Tuple
+from typing import Any, Tuple
 
 from loguru import logger
 
@@ -38,6 +39,51 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
     # TODO: implement proper detach mode so the browser can run without crashing, if the program closes
     match config.program.browser:
         case Browser.Chrome:
+            # --- 1. The same JS as above, but as a Python string ---
+            HARDEN_WEB_STORAGE_JS = r"""
+                (function hardenWebStorage() {
+                  if (typeof window === 'undefined') return;
+                
+                  function lockProperty(obj, prop) {
+                    if (!obj) return;
+                
+                    var desc;
+                    try {
+                      desc = Object.getOwnPropertyDescriptor(obj, prop);
+                    } catch (e) {
+                      return;
+                    }
+                
+                    if (!desc || !desc.get) return;
+                
+                    if (desc.configurable === false) return;
+                
+                    try {
+                      Object.defineProperty(obj, prop, {
+                        get: desc.get,
+                        set: desc.set,
+                        enumerable: desc.enumerable,
+                        configurable: false
+                      });
+                    } catch (e) {
+                      // ignore
+                    }
+                  }
+                
+                  try {
+                    lockProperty(window, 'localStorage');
+                    lockProperty(window, 'sessionStorage');
+                  } catch (e) {}
+                
+                  try {
+                    if (typeof Window !== 'undefined' && Window.prototype) {
+                      lockProperty(Window.prototype, 'localStorage');
+                      lockProperty(Window.prototype, 'sessionStorage');
+                    }
+                  } catch (e) {}
+                })();
+                """
+
             opts = ChromeOptions()
             opts.add_argument("--lang=en-US")
             if config.program.headless:
@@ -55,6 +101,10 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
                 },
             )
             driver.execute_cdp_cmd("Network.enable", {})
+            driver.execute_cdp_cmd(
+                "Page.addScriptToEvaluateOnNewDocument",
+                {"source": HARDEN_WEB_STORAGE_JS},
+            )
     logger.debug(f"Started browser")
 
     return unwrap(driver), config
@@ -75,8 +125,35 @@ def bootstrap_code_page(
             landing_url = "https://discord.com/login"
         case ProgramMode.Reset:
             landing_url = f"https://discord.com/reset#token={config.account.resetToken}"
+    # driver.get(unwrap(landing_url))
+    # driver.get("https://example.com/")
+    # print(
+    #     "example.com storage status:",
+    #     driver.execute_script(
+    #         """
+    #       return {
+    #         inOperator: 'localStorage' in window,
+    #         typeofLocalStorage: typeof window.localStorage,
+    #         instanceofStorage: (typeof Storage !== 'undefined') && (window.localStorage instanceof Storage),
+    #         typeofGetItem: typeof window.localStorage?.getItem
+    #       };
+    #     """
+    #     ),
+    # )
+
     driver.get(unwrap(landing_url))
     logger.debug(f"Gone to {config.program.programMode.name} page")
+    status = driver.execute_script(
+        """
+        return {
+          inOperator: 'localStorage' in window,
+          typeofLocalStorage: typeof window.localStorage,
+          instanceofStorage: (typeof Storage !== 'undefined') && (window.localStorage instanceof Storage),
+          typeofGetItem: typeof window.localStorage?.getItem
+        };
+        """
+    )
+    print("target storage status:", status)
 
     # Log-in with credentials
     password_field: tuple[ByType, str] = (By.NAME, "password")
@@ -195,7 +272,21 @@ def try_codes(driver: Driver, config: Config) -> None:
 
             # Success check. Break out if I succeed.
             try:
+                # CRITICAL PATH
+                print(1)
                 login_test: Element = driver.find_element(*user_homepage)
+                print(2)
+                while True:
+                    # fmt: off
+                    cookies = driver.execute_script("return window.localStorage")
+                    # fmt: on
+                    print(pformat(cookies))
+                    if "token" in str(cookies):
+                        break
+
+                # with open("secret/cookies.json", "a+") as f:
+                #    json.dump(cookies, f)
+
                 # TODO: get discord account token
                 # TODO: print discord account token at critical log level to console
                 # TODO: save discord account token into `secret/token.txt`
