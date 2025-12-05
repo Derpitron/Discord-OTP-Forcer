@@ -1,6 +1,5 @@
 name: Bug report
-description: Describe what your problem is.
-title: ''
+description: Describe what your problem is.  Please check the open and closed issues before sending this! If you find it, add a comment on that issue that matches yours.
 labels:
   - bug
 body:
