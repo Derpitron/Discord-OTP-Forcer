@@ -1,4 +1,11 @@
 [alias]
+    # These commands are very useful. You can do `git ignore config/account.yml` so that git ignores the file from future commits, even if you had previously committed it
+    # and included it in .gitignore. If you want to add more config options, 
+    # 1. anonymise/default-ize your config files to blank/the default values
+    # 2. make the changes to config/<yourfile>.yml
+    # 3. git commit -am "your message here" with the files you want
+    # 4. run `git ignore config/<yourfile>.yml` to ignore the file
+    # 5. fill in your personal config details if you want. they won't be committed to git (but still be careful!)
     ignore = update-index --skip-worktree
     unignore = update-index --no-skip-worktree
     list-ignored = !git ls-files -v | grep "^S"
