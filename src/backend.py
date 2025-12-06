@@ -223,7 +223,7 @@ def try_codes(driver: Driver, config: Config) -> None:
             # Use the gen'd backup code only if it's not in the used_backup_codes.txt list. Add the code to the list if I use it.
             # the thing that really sucks here is even if a backup code is valid, by trying it here and logging in, I invalidate it. (backup codes expire on use)
             if isinstance(config.program.codeMode, CodeMode_Backup):
-                with open("user/used_backup_codes.txt", "a+") as f:
+                with open("secret/used_backup_codes.txt", "a+") as f:
                     f.seek(0)
                     used_backup_codes: list[str] = f.readlines()
                     if random_code in used_backup_codes:
