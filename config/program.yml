@@ -1,6 +1,7 @@
 # All config validation/parsing logic lives in main.py
 # All valid options live in src.lib.types.py
-# If an option is invalid you should input it exactly like how it appears below in the comments, or in the src.lib.types.py file.Z
+# If an option is invalid you should input it exactly like how it appears below in the comments, or in the src.lib.types.py file.
+# Note: put a space after the `:` for all the config options, or else the config format will be wrong.
 
 # Program mode configuration. Login is for a normal login, Reset is for when you want/need to reset your password and then Force codes, e.g discord forces you to reset the password.
 # Valid Modes:
