@@ -23,6 +23,7 @@ from .lib.types import (
     Browser,
     CodeError,
     CodeMode_Backup,
+    CodeMode_Normal,
     Config,
     ProgramMode,
     SessionStats,
@@ -200,7 +201,12 @@ def try_codes(driver: Driver, config: Config) -> None:
     secrets
 
     submit_button: tuple[ByType, str] = (By.XPATH, "//*[@type='submit']")
-    code_field: tuple[ByType, str] = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
+    code_field: tuple[ByType, str] | None = None
+    match config.program.codeMode:
+        # fmt: off
+        case CodeMode_Backup(): code_field = (By.XPATH, "//*[@label='Enter Discord Backup Code']")
+        case CodeMode_Normal(): code_field = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
+        # fmt: on
     code_status_elt: tuple[ByType, str] = (By.CLASS_NAME, "error__7c901")
     user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "app__160d8")
 
@@ -237,8 +243,8 @@ def try_codes(driver: Driver, config: Config) -> None:
             # Attempt the code
 
             # backspace the previous code. the max length of a code can be 11 characters (from the backup code)
-            driver.find_element(*code_field).send_keys(11 * Keys.BACKSPACE)
-            driver.find_element(*code_field).send_keys(random_code)
+            driver.find_element(*unwrap(code_field)).send_keys(11 * Keys.BACKSPACE)
+            driver.find_element(*unwrap(code_field)).send_keys(random_code)
             time.sleep(secrets.choice(sleep_duration_range))
             driver.find_element(*submit_button).click()
             sessionStats.attemptedCodeCount += 1
