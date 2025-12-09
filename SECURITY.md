@@ -6,4 +6,4 @@ The current latest version only.
 
 ## Reporting a Vulnerability
 
-Report to priya[.]aravamuthan[AT]protonmail.com with as much info as possible.
+Report to aadhithyanm[at]protonmail[dot]com with as much info as possible.
