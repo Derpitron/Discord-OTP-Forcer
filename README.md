@@ -22,6 +22,7 @@ Instructions on how to setup and use this program can be found on the [wiki](htt
 
 # How to use:
 See this repo's Github wiki or the `docs` folder for this section. https://github.com/Derpitron/Discord-OTP-Forcer/wiki/How-to-setup-and-use
+Here's a video tutorial: https://www.youtube.com/watch?v=v4skgYVmvQg
 
 # Dependencies
 - Google Chrome
