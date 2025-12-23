@@ -159,31 +159,35 @@ def bootstrap_code_page(
     del captcha_box
 
     # Check if the code field exists
-    try:
+    #try:
         # fmt: off
-        code_field: tuple[ByType, str] = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
-        code_field_test: Element = driver.find_element(*code_field)
+        #code_field: tuple[ByType, str] = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
+        #code_field_test: Element = driver.find_element(*code_field)
         # fmt: on
-    except NoSuchElementException:
-        match config.program.programMode:
-            case ProgramMode.Login:
+    #except NoSuchElementException:
+        #match config.program.programMode:
+            #case ProgramMode.Login:
                 # fmt: off
-                msg: str = "Could not log-in to account. Are your email and password correct? Or, you may have to reset your password. Check the wiki/docs for instructions on this"
+                #msg: str = "Could not log-in to account. Are your email and password correct? Or, you may have to reset your password. Check the wiki/docs for instructions on this"
                 # fmt: on
-                logger.critical(msg)
-                raise InvalidCredentialError(msg)
-            case ProgramMode.Reset:
+                #logger.critical(msg)
+                #raise InvalidCredentialError(msg)
+            #case ProgramMode.Reset:
                 # fmt: off
-                msg: str = "Could not enter old password. Is your old password correct? Or, more likely, Your password reset token is expired. Refresh it and fill it in (check the instructions)"
+                #msg: str = "Could not enter old password. Is your old password correct? Or, more likely, Your password reset token is expired. Refresh it and fill it in (check the instructions)"
                 # fmt: on
-                logger.critical(msg)
-                raise InvalidCredentialError(msg)
-
+                #logger.critical(msg)
+                #raise InvalidCredentialError(msg)
     # fmt: off
     match config.program.codeMode:
+        case CodeMode_Normal():
+            driver.find_element(By.XPATH, value="//*[contains(text(), 'Verify with something else')]").click()
+            driver.find_element(By.XPATH, value="//*[contains(text(), 'Use your authenticator app')]").click()
         case CodeMode_Backup():
             driver.find_element(By.XPATH, value="//*[contains(text(), 'Verify with something else')]").click()
             driver.find_element(By.XPATH, value="//*[contains(text(), 'Use a backup code')]").click()
+            time.sleep(11)
+            driver.find_element(By.XPATH, value="//*[contains(text(), 'use a backup code')]").click()
     # fmt: on
 
     return driver, config
@@ -207,8 +211,8 @@ def try_codes(driver: Driver, config: Config) -> None:
         case CodeMode_Backup(): code_field = (By.XPATH, "//*[@label='Enter Discord Backup Code']")
         case CodeMode_Normal(): code_field = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
         # fmt: on
-    code_status_elt: tuple[ByType, str] = (By.CLASS_NAME, "error__7c901")
-    user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "app__160d8")
+    code_status_elt: tuple[ByType, str] = (By.CLASS_NAME, "_7c9014d93f58a515-error")
+    user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "_160d8e55254637e5-app")
 
     make_new_code: bool = False
     random_code: str = generate_random_code(config.program.codeMode)
@@ -271,7 +275,6 @@ def try_codes(driver: Driver, config: Config) -> None:
             except NoSuchElementException as login_didnt_work:
                 try:
                     code_status_msg: str = (driver.find_element(*code_status_elt)).text
-
                     match (code_status_msg):
                         case "Invalid two-factor code":
                             codeError = CodeError.Invalid
@@ -280,15 +283,18 @@ def try_codes(driver: Driver, config: Config) -> None:
                             # fmt: on
                             make_new_code = True
                         # fmt: off
-                        case "The resource is being ratelimited." | "Service resource is being rate-limited.":
+                        case "The resource is being ratelimited." | "Service resource is being rate limited.":
                         # fmt: on
                             codeError = CodeError.Ratelimited
                             logger.warning(code_status_msg)
                             sessionStats.ratelimitCount += 1
                             make_new_code = False
+                        case "POST /auth/reset [400]":
+                            logger.critical(f"{code_status_msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
+                            quit
                         case _:
                             # fmt:off
-                            logger.error(f"Encountered unimpemented status message. Tell the developers about this: {code_status_msg}")
+                            logger.error(f"Encountered unimplemented status message. Tell the developers about this: {code_status_msg}")
                             # fmt:on
                 except NoSuchElementException as click_didnt_go_through_yet:
                     # fmt:off
