@@ -159,25 +159,25 @@ def bootstrap_code_page(
     del captcha_box
 
     # Check if the code field exists
-    #try:
-        # fmt: off
-        #code_field: tuple[ByType, str] = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
-        #code_field_test: Element = driver.find_element(*code_field)
-        # fmt: on
-    #except NoSuchElementException:
-        #match config.program.programMode:
-            #case ProgramMode.Login:
-                # fmt: off
-                #msg: str = "Could not log-in to account. Are your email and password correct? Or, you may have to reset your password. Check the wiki/docs for instructions on this"
-                # fmt: on
-                #logger.critical(msg)
-                #raise InvalidCredentialError(msg)
-            #case ProgramMode.Reset:
-                # fmt: off
-                #msg: str = "Could not enter old password. Is your old password correct? Or, more likely, Your password reset token is expired. Refresh it and fill it in (check the instructions)"
-                # fmt: on
-                #logger.critical(msg)
-                #raise InvalidCredentialError(msg)
+    try:
+        #fmt: off
+        code_field: tuple[ByType, str] = (By.CLASS_NAME, "_49fc18ba07c5025f-header")
+        code_field_test: Element = driver.find_element(*code_field)
+        #fmt: on
+    except NoSuchElementException:
+        match config.program.programMode:
+            case ProgramMode.Login:
+                #fmt: off
+                msg: str = "Could not log-in to account. Are your email and password correct? Or, you may have to reset your password. Check the wiki/docs for instructions on this"
+                #fmt: on
+                logger.critical(msg)
+                raise InvalidCredentialError(msg)
+            case ProgramMode.Reset:
+                #fmt: off
+                msg: str = "Could not enter old password. Is your old password correct? Or, more likely, Your password reset token is expired. Refresh it and fill it in (check the instructions)"
+                #fmt: on
+                logger.critical(msg)
+                raise InvalidCredentialError(msg)
     # fmt: off
     match config.program.codeMode:
         case CodeMode_Normal():
@@ -314,3 +314,4 @@ def try_codes(driver: Driver, config: Config) -> None:
 
 def print_session_statistics(SessionStats):
     logger.info("\n" + pformat(SessionStats))
+
