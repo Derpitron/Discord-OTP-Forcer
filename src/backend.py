@@ -2,6 +2,7 @@
 import json
 import secrets
 import time
+import sys
 from pprint import pformat
 from typing import Any, Tuple
 
@@ -291,7 +292,7 @@ def try_codes(driver: Driver, config: Config) -> None:
                             make_new_code = False
                         case "POST /auth/reset [400]":
                             logger.critical(f"{code_status_msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
-                            quit
+                            sys.exit()
                         case _:
                             # fmt:off
                             logger.error(f"Encountered unimplemented status message. Tell the developers about this: {code_status_msg}")
@@ -314,4 +315,5 @@ def try_codes(driver: Driver, config: Config) -> None:
 
 def print_session_statistics(SessionStats):
     logger.info("\n" + pformat(SessionStats))
+
 
