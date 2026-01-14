@@ -147,17 +147,13 @@ def bootstrap_code_page(
     driver.find_element(*password_field).send_keys(Keys.RETURN)
     logger.debug("Found and inputted basic login fields")
 
-    captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "container__8a031")
-    # infinitely loop until captcha box is detected
-    while True:
-        try:
-            while True:
-                # if captcha box is detected, loop infinitely until the user solves it (captcha box disappears)
-                captcha_box_test: Element = driver.find_element(*captcha_box)
-        except NoSuchElementException:
-            # if captcha box disappears, exit the loop
-            break
-    del captcha_box
+    captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "_8a031a135bfcb9ba-container")
+    
+    while driver.find_elements(*captcha_box): # Check if the code field exists
+        logger.info("A captcha detected. Please complete the captcha for the program to continue.")
+        time.sleep(2)
+    
+    logger.debug("No captcha detected or has been completed. Moving on to the rest of the script.")
 
     # Check if the code field exists
     try:
@@ -315,5 +311,6 @@ def try_codes(driver: Driver, config: Config) -> None:
 
 def print_session_statistics(SessionStats):
     logger.info("\n" + pformat(SessionStats))
+
 
 
