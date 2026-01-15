@@ -149,9 +149,9 @@ def bootstrap_code_page(
 
     captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "_8a031a135bfcb9ba-container")
     
-    while driver.find_elements(*captcha_box): # Check if the code field exists
+    while driver.find_elements(*captcha_box): # Check if the captcha exists
         logger.info("A captcha detected. Please complete the captcha for the program to continue.")
-        time.sleep(2)
+        driver.implicitly_wait(config.program.elementLoadTolerance) #Waits for the program to detect that the captcha isn't there.
     
     logger.debug("No captcha detected or has been completed. Moving on to the rest of the script.")
 
@@ -312,6 +312,7 @@ def try_codes(driver: Driver, config: Config) -> None:
 
 def print_session_statistics(SessionStats):
     logger.info("\n" + pformat(SessionStats))
+
 
 
 
