@@ -232,12 +232,13 @@ def try_codes(driver: Driver, config: Config) -> None:
             if isinstance(config.program.codeMode, CodeMode_Backup):
                 with open("secret/used_backup_codes.txt", "a+") as f:
                     f.seek(0)
-                    used_backup_codes: list[str] = f.readlines()
+                    used_backup_codes: list[str] = f.read().splitlines()
                     if random_code in used_backup_codes:
-                        # fmt: off
-                        logger.warning(f"Backup code {random_code} is invalid. Possibly I previously used it, but now it's expired anyway.")
-                        # fmt: on
-                        continue
+                        if make_new_code:
+                            logger.warning(f"Backup code {random_code} is invalid. Possibly I previously used it, but now it's expired anyway.")
+                            random_code = generate_random_code(config.program.codeMode)
+                        else: #If rate limiting occurs, do not generate a new code
+                            logger.warning(f"Backup code {random_code} wasn't tested. Will test once the ratelimiting is over.")
                     else:
                         f.write(f"{random_code}\n")
 
@@ -311,6 +312,7 @@ def try_codes(driver: Driver, config: Config) -> None:
 
 def print_session_statistics(SessionStats):
     logger.info("\n" + pformat(SessionStats))
+
 
 
 
