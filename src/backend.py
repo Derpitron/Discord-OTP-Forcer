@@ -147,17 +147,13 @@ def bootstrap_code_page(
     driver.find_element(*password_field).send_keys(Keys.RETURN)
     logger.debug("Found and inputted basic login fields")
 
-    captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "container__8a031")
-    # infinitely loop until captcha box is detected
-    while True:
-        try:
-            while True:
-                # if captcha box is detected, loop infinitely until the user solves it (captcha box disappears)
-                captcha_box_test: Element = driver.find_element(*captcha_box)
-        except NoSuchElementException:
-            # if captcha box disappears, exit the loop
-            break
-    del captcha_box
+    captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "_8a031a135bfcb9ba-container")
+    
+    while driver.find_elements(*captcha_box): # Check if the captcha exists
+        logger.info("A captcha detected. Please complete the captcha for the program to continue.")
+        driver.implicitly_wait(config.program.elementLoadTolerance) #Waits for the program to detect that the captcha isn't there.
+    
+    logger.debug("No captcha detected or has been completed. Moving on to the rest of the script.")
 
     # Check if the code field exists
     try:
@@ -236,12 +232,13 @@ def try_codes(driver: Driver, config: Config) -> None:
             if isinstance(config.program.codeMode, CodeMode_Backup):
                 with open("secret/used_backup_codes.txt", "a+") as f:
                     f.seek(0)
-                    used_backup_codes: list[str] = f.readlines()
+                    used_backup_codes: list[str] = f.read().splitlines()
                     if random_code in used_backup_codes:
-                        # fmt: off
-                        logger.warning(f"Backup code {random_code} is invalid. Possibly I previously used it, but now it's expired anyway.")
-                        # fmt: on
-                        continue
+                        if make_new_code:
+                            logger.warning(f"Backup code {random_code} is invalid. Possibly I previously used it, but now it's expired anyway.")
+                            random_code = generate_random_code(config.program.codeMode)
+                        else: #If rate limiting occurs, do not generate a new code
+                            logger.warning(f"Backup code {random_code} wasn't tested. Will test once the ratelimiting is over.")
                     else:
                         f.write(f"{random_code}\n")
 
@@ -315,5 +312,8 @@ def try_codes(driver: Driver, config: Config) -> None:
 
 def print_session_statistics(SessionStats):
     logger.info("\n" + pformat(SessionStats))
+
+
+
 
 
