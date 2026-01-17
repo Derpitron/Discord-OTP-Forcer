@@ -281,7 +281,7 @@ def try_codes(driver: Driver, config: Config) -> None:
                             # fmt: on
                             make_new_code = True
                         # fmt: off
-                        case "The resource is being ratelimited." | "Service resource is being rate limited.":
+                        case "The resource is being ratelimited." | "Service resource is being rate-limited.":
                         # fmt: on
                             codeError = CodeError.Ratelimited
                             logger.warning(code_status_msg)
