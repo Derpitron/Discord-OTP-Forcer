@@ -158,7 +158,7 @@ def bootstrap_code_page(
     # Check if the code field exists
     try:
         #fmt: off
-        code_field: tuple[ByType, str] = (By.CLASS_NAME, "_49fc18ba07c5025f-header")
+        code_field: tuple[ByType, str] = (By.CLASS_NAME, "input__0f084")
         code_field_test: Element = driver.find_element(*code_field)
         #fmt: on
     except NoSuchElementException:
