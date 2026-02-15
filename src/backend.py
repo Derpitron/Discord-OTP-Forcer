@@ -208,7 +208,7 @@ def try_codes(driver: Driver, config: Config) -> None:
         case CodeMode_Backup(): code_field = (By.XPATH, "//*[@label='Enter Discord Backup Code']")
         case CodeMode_Normal(): code_field = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
         # fmt: on
-    code_status_elt: tuple[ByType, str] = (By.CLASS_NAME, "_7c9014d93f58a515-error")
+    code_status_elt: tuple[ByType, str] = (By.XPATH, "//*[contains(@class, 'error_')]")
     user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "_160d8e55254637e5-app")
 
     make_new_code: bool = False
