@@ -208,7 +208,7 @@ def try_codes(driver: Driver, config: Config) -> None:
         case CodeMode_Backup(): code_field = (By.XPATH, "//*[@label='Enter Discord Backup Code']")
         case CodeMode_Normal(): code_field = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
         # fmt: on
-    code_status_elt: tuple[ByType, str] = (By.XPATH, "//*[contains(@class, 'error_')]")
+    code_status_elt: tuple[ByType, str] = (By.CLASS_NAME, "error__7c901")
     user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "_160d8e55254637e5-app")
 
     make_new_code: bool = False
@@ -272,7 +272,32 @@ def try_codes(driver: Driver, config: Config) -> None:
                 break
             except NoSuchElementException as login_didnt_work:
                 try:
-                    code_status_msg: str = (driver.find_element(*code_status_elt)).text
+                    # Try first with the Code Status Element Class, if not, fallback to the text.
+                    code_status_selectors = [
+                        code_status_elt,
+                        (By.XPATH, "//form//div[text()='Invalid two-factor code']"),
+                        (By.XPATH, "//form//div[text()='The resource is being ratelimited.']"),
+                        (By.XPATH, "//form//div[text()='Service resource is being rate-limited.']"),
+                        (By.XPATH, "//form//div[text()='Service resource is being rate limited.']"),
+                    ]
+
+                    code_status_msg: str | None = None
+
+                    # Try first with the Code Status Element Class, if not, fallback to the text.
+                    for selector in code_status_selectors:
+                        try:
+                            code_status_msg = driver.find_element(*selector).text
+                            break
+                        except NoSuchElementException:
+                            if selector == code_status_elt:
+                                # fmt:off
+                                logger.warning(f"Code Status Element '{code_status_elt[1]}' not found, trying fallback selectors. Please report this to the developers.")
+                                # fmt:on
+                            continue
+
+                    if code_status_msg is None:
+                        raise NoSuchElementException()
+
                     match (code_status_msg):
                         case "Invalid two-factor code":
                             codeError = CodeError.Invalid
