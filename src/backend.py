@@ -147,7 +147,7 @@ def bootstrap_code_page(
     driver.find_element(*password_field).send_keys(Keys.RETURN)
     logger.debug("Found and inputted basic login fields")
 
-    captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "_8a031a135bfcb9ba-container")
+    captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "container__8a031")
     
     while driver.find_elements(*captcha_box): # Check if the captcha exists
         logger.info("A captcha detected. Please complete the captcha for the program to continue.")
