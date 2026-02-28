@@ -87,7 +87,14 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
 
             opts = ChromeOptions()
             opts.add_argument("--lang=en-US")
-            opts.add_experimental_option("prefs", {"credentials_enable_service": False})
+            # Options to disable password save prompt
+            opts.add_experimental_option(
+                "prefs",
+                {
+                    "credentials_enable_service": False,
+                    "profile": {"password_manager_enabled": False},
+                },
+            )
             if config.program.headless:
                 opts.add_argument("--log-level=1")
             # fmt: off
