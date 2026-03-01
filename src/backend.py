@@ -220,7 +220,7 @@ def try_codes(driver: Driver, config: Config) -> None:
         case CodeMode_Normal(): code_field = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
         # fmt: on
     code_status_elt: tuple[ByType, str] = (By.CLASS_NAME, "error__7c901")
-    user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "_160d8e55254637e5-app")
+    user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "app_a3002d")
 
     make_new_code: bool = False
     random_code: str = generate_random_code(config.program.codeMode)
