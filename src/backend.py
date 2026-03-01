@@ -16,6 +16,8 @@ from selenium.webdriver.common.by import By, ByType
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webdriver import WebDriver as Driver
 from selenium.webdriver.remote.webelement import WebElement as Element
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from undetected_chromedriver.options import ChromeOptions
 
 from .lib.codegen import generate_random_code
@@ -184,15 +186,16 @@ def bootstrap_code_page(
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
     # fmt: off
+    wait = WebDriverWait(driver, 15)
     match config.program.codeMode:
         case CodeMode_Normal():
-            driver.find_element(By.XPATH, value="//*[contains(text(), 'Verify with something else')]").click()
-            driver.find_element(By.XPATH, value="//*[contains(text(), 'Use your authenticator app')]").click()
+            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
+            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use your authenticator app')]"))).click()
         case CodeMode_Backup():
-            driver.find_element(By.XPATH, value="//*[contains(text(), 'Verify with something else')]").click()
-            driver.find_element(By.XPATH, value="//*[contains(text(), 'Use a backup code')]").click()
+            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
+            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use a backup code')]"))).click()
             time.sleep(11)
-            driver.find_element(By.XPATH, value="//*[contains(text(), 'use a backup code')]").click()
+            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'use a backup code')]"))).click()
     # fmt: on
 
     return driver, config
