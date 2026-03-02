@@ -10,15 +10,13 @@ from loguru import logger
 
 logger.level(name="SENSITIVE", no=15, color="<m><b>")
 
-import undetected_chromedriver as uc
+from seleniumbase import Driver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By, ByType
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.remote.webdriver import WebDriver as Driver
 from selenium.webdriver.remote.webelement import WebElement as Element
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from undetected_chromedriver.options import ChromeOptions
 
 from .lib.codegen import generate_random_code
 from .lib.exceptions import InvalidCredentialError
@@ -87,20 +85,19 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
                 })();
                 """
 
-            opts = ChromeOptions()
-            opts.add_argument("--lang=en-US")
-            # Options to disable password save prompt
-            opts.add_experimental_option(
-                "prefs",
-                {
-                    "credentials_enable_service": False,
-                    "profile": {"password_manager_enabled": False},
-                },
-            )
+            arguments = None
             if config.program.headless:
-                opts.add_argument("--log-level=1")
+                arguments = "--log-level=1"
             # fmt: off
-            driver = uc.Chrome(headless=config.program.headless, options=opts)
+            driver = Driver(
+                browser="chrome",
+                # undetected-chromedriver maintained from SeleniumBase.
+                uc=True,
+                headless=config.program.headless,
+                # Sets the Language Locale Code for the web browser.
+                locale_code="en-US",
+                chromium_arg=arguments,
+            )
             # fmt: on
             driver.execute_cdp_cmd(
                 "Network.setBlockedURLs",
@@ -146,7 +143,7 @@ def bootstrap_code_page(
     password_field: tuple[ByType, str] = (By.NAME, "password")
     email_field: tuple[ByType, str] = (By.NAME, "email")
     # fmt: off
-    driver.implicitly_wait(config.program.elementLoadTolerance)  
+    driver.implicitly_wait(config.program.elementLoadTolerance)
     # fmt: on
     match config.program.programMode:
         case ProgramMode.Login:
@@ -280,6 +277,11 @@ def try_codes(driver: Driver, config: Config) -> None:
                         with open("secret/token.txt", "a+") as f:
                             f.write(token + "\n")
                         break
+
+                    status_elements = driver.find_elements(*code_status_elt)
+
+                    if status_elements and status_elements[0].is_displayed():
+                        raise NoSuchElementException()
                 break
             except NoSuchElementException as login_didnt_work:
                 try:
