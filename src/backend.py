@@ -292,6 +292,7 @@ def try_codes(driver: Driver, config: Config) -> None:
                         (By.XPATH, "//form//div[text()='The resource is being ratelimited.']"),
                         (By.XPATH, "//form//div[text()='Service resource is being rate-limited.']"),
                         (By.XPATH, "//form//div[text()='Service resource is being rate limited.']"),
+                        (By.XPATH, "//form//div[text()='The resource is being rate limited.']"),
                     ]
 
                     code_status_msg: str | None = None
@@ -319,7 +320,7 @@ def try_codes(driver: Driver, config: Config) -> None:
                             # fmt: on
                             make_new_code = True
                         # fmt: off
-                        case "The resource is being ratelimited." | "Service resource is being rate-limited." | "Service resource is being rate limited." | "You are being rate limited.":
+                        case "The resource is being ratelimited." | "Service resource is being rate-limited." | "Service resource is being rate limited." | "You are being rate limited." | "The resource is being rate limited.":
                         # fmt: on
                             codeError = CodeError.Ratelimited
                             logger.warning(code_status_msg)
