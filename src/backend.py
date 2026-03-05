@@ -162,7 +162,21 @@ def bootstrap_code_page(
     
     logger.debug("No captcha detected or has been completed. Moving on to the rest of the script.")
 
-    # Check if the code field exists
+    # fmt: off
+    WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
+
+    wait = WebDriverWait(driver, 15)
+    # Select the method
+    match config.program.codeMode:
+        case CodeMode_Normal():
+            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use your authenticator app')]"))).click()
+        case CodeMode_Backup():
+            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use a backup code')]"))).click()
+            time.sleep(11)
+            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'use a backup code')]"))).click()
+    # fmt: on
+
+    # Check if the code filed exists
     try:
         #fmt: off
         code_field: tuple[ByType, str] = (By.CLASS_NAME, "input__0f084")
@@ -182,18 +196,6 @@ def bootstrap_code_page(
                 #fmt: on
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
-    # fmt: off
-    wait = WebDriverWait(driver, 15)
-    match config.program.codeMode:
-        case CodeMode_Normal():
-            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
-            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use your authenticator app')]"))).click()
-        case CodeMode_Backup():
-            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
-            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use a backup code')]"))).click()
-            time.sleep(11)
-            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'use a backup code')]"))).click()
-    # fmt: on
 
     return driver, config
 
