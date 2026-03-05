@@ -217,7 +217,7 @@ def try_codes(driver: Driver, config: Config) -> None:
         case CodeMode_Normal(): code_field = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
         # fmt: on
     code_status_elt: tuple[ByType, str] = (By.CLASS_NAME, "error__7c901")
-    user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "app_a3002d")
+    user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "app__160d8")
 
     make_new_code: bool = False
     random_code: str = generate_random_code(config.program.codeMode)
@@ -267,7 +267,8 @@ def try_codes(driver: Driver, config: Config) -> None:
                 login_test: Element = driver.find_element(*user_homepage)
                 while True:
                     # fmt: off
-                    token = driver.execute_script("return window.localStorage.getItem('token')")
+                    # Check if it exists localStorage and .getItem, if not, returns null and try again
+                    token = driver.execute_script("return (window.localStorage && window.localStorage.getItem) ? window.localStorage.getItem('token') : null")
                     # fmt: on
                     if token is not None:
                         # fmt: off
