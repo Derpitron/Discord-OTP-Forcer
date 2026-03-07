@@ -44,7 +44,7 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
 
 ---
 # Disclaimer
-    Copyright (C) Derpitron 2025
+    Copyright (C) Contributors 2026
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
