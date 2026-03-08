@@ -275,20 +275,20 @@ def try_codes(driver: WebDriver, config: Config) -> None:
             try:
                 # CRITICAL PATH
                 login_test: Element = driver.find_element(*user_homepage)
-
-                while True:
-                    # fmt: off
-                    token = driver.execute_script("return window.localStorage.getItem('token');")
-                    # fmt: on
-                    if token is not None:
+                if (login_test):
+                    while True:
                         # fmt: off
-                        logger.info("FOUND YOUR ACCOUNT'S TOKEN SAVE IT AND DO NOT LOG OUT OF DISCORD")
+                        token = driver.execute_script("return window.localStorage.getItem('token');")
                         # fmt: on
-                        logger.success(token)
-                        with open("secret/token.txt", "a+") as f:
-                            f.write(token + "\n")
-                        break
-                break
+                        if token is not None:
+                            # fmt: off
+                            logger.info("FOUND YOUR ACCOUNT'S TOKEN SAVE IT AND DO NOT LOG OUT OF DISCORD")
+                            # fmt: on
+                            logger.success(token)
+                            with open("secret/token.txt", "a+") as f:
+                                f.write(token + "\n")
+                            break
+                    break
             except NoSuchElementException as login_didnt_work:
                 try:
                     # Try first with the Code Status Element Class, if not, fallback to the text.
