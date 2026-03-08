@@ -1,20 +1,18 @@
 # Import dependencies and libraries
-import json
 import secrets
 import time
 import sys
 from pprint import pformat
-from typing import Any, Tuple
+from typing import Tuple
 
 from loguru import logger
-
-logger.level(name="SENSITIVE", no=15, color="<m><b>")
 
 from seleniumbase import Driver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By, ByType
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement as Element
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -31,34 +29,35 @@ from .lib.types import (
     unwrap,
 )
 
+logger.level(name="SENSITIVE", no=15, color="<m><b>")
 
-def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
+def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
     """
     bootstrap_browser is a function that prepares a puppetable browser.
     """
 
-    driver: Driver | None = None
+    driver: WebDriver | None = None
     # TODO: implement proper detach mode so the browser can run without crashing, if the program closes
     match config.program.browser:
         case Browser.Chrome:
             HARDEN_WEB_STORAGE_JS = r"""
                 (function hardenWebStorage() {
                   if (typeof window === 'undefined') return;
-                
+
                   function lockProperty(obj, prop) {
                     if (!obj) return;
-                
+
                     var desc;
                     try {
                       desc = Object.getOwnPropertyDescriptor(obj, prop);
                     } catch (e) {
                       return;
                     }
-                
+
                     if (!desc || !desc.get) return;
-                
+
                     if (desc.configurable === false) return;
-                
+
                     try {
                       Object.defineProperty(obj, prop, {
                         get: desc.get,
@@ -70,12 +69,12 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
                       // ignore
                     }
                   }
-                
+
                   try {
                     lockProperty(window, 'localStorage');
                     lockProperty(window, 'sessionStorage');
                   } catch (e) {}
-                
+
                   try {
                     if (typeof Window !== 'undefined' && Window.prototype) {
                       lockProperty(Window.prototype, 'localStorage');
@@ -88,6 +87,7 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
             arguments = None
             if config.program.headless:
                 arguments = "--log-level=1"
+
             # fmt: off
             driver = Driver(
                 browser="chrome",
@@ -98,8 +98,15 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
                 locale_code="en-US",
                 chromium_arg=arguments,
             )
+            # SeleniumBase doesn't include --detach mode, so we make our own as the definition of --detach says:
+            # Setting the detach parameter to true will keep the browser open after the process has ended,
+            # so long as the quit command is not sent to the driver.
+            unwrap(driver).quit = lambda: None
+
+            unwrap(driver).execute_cdp_cmd("Network.enable", {})
+
             # fmt: on
-            driver.execute_cdp_cmd(
+            unwrap(driver).execute_cdp_cmd(
                 "Network.setBlockedURLs",
                 {
                     "urls": [
@@ -110,21 +117,21 @@ def bootstrap_browser(config: Config) -> Tuple[Driver, Config]:
                     ]
                 },
             )
-            driver.execute_cdp_cmd("Network.enable", {})
-            driver.execute_cdp_cmd(
+
+            unwrap(driver).execute_cdp_cmd(
                 "Page.addScriptToEvaluateOnNewDocument",
                 {"source": HARDEN_WEB_STORAGE_JS},
             )
             logger.debug("Fixed compatibility polyfill")
-    logger.debug(f"Started browser")
+    logger.debug("Started browser")
 
     return unwrap(driver), config
 
 
 def bootstrap_code_page(
-    driver: Driver,
+    driver: WebDriver,
     config: Config,
-) -> Tuple[Driver, Config]:
+) -> Tuple[WebDriver, Config]:
     """
     This sets up the code entry page.
     """
@@ -136,7 +143,7 @@ def bootstrap_code_page(
             landing_url = "https://discord.com/login"
         case ProgramMode.Reset:
             landing_url = f"https://discord.com/reset#token={config.account.resetToken}"
-    driver.get(unwrap(landing_url))
+    driver.default_get(unwrap(landing_url))  # type: ignore
     logger.debug(f"Gone to {config.program.programMode.name} page")
 
     # Log-in with credentials
@@ -155,17 +162,17 @@ def bootstrap_code_page(
     logger.debug("Found and inputted basic login fields")
 
     captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "container__8a031")
-    
+
     while driver.find_elements(*captcha_box): # Check if the captcha exists
         logger.info("A captcha detected. Please complete the captcha for the program to continue.")
         driver.implicitly_wait(config.program.elementLoadTolerance) #Waits for the program to detect that the captcha isn't there.
-    
+
     logger.debug("No captcha detected or has been completed. Moving on to the rest of the script.")
 
+    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, 15)
     # fmt: off
-    WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
+    wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
 
-    wait = WebDriverWait(driver, 15)
     # Select the method
     match config.program.codeMode:
         case CodeMode_Normal():
@@ -183,16 +190,17 @@ def bootstrap_code_page(
         code_field_test: Element = driver.find_element(*code_field)
         #fmt: on
     except NoSuchElementException:
+        msg: str
         match config.program.programMode:
             case ProgramMode.Login:
                 #fmt: off
-                msg: str = "Could not log-in to account. Are your email and password correct? Or, you may have to reset your password. Check the wiki/docs for instructions on this"
+                msg = "Could not log-in to account. Are your email and password correct? Or, you may have to reset your password. Check the wiki/docs for instructions on this"
                 #fmt: on
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
             case ProgramMode.Reset:
                 #fmt: off
-                msg: str = "Could not enter old password. Is your old password correct? Or, more likely, Your password reset token is expired. Refresh it and fill it in (check the instructions)"
+                msg = "Could not enter old password. Is your old password correct? Or, more likely, Your password reset token is expired. Refresh it and fill it in (check the instructions)"
                 #fmt: on
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
@@ -200,7 +208,7 @@ def bootstrap_code_page(
     return driver, config
 
 
-def try_codes(driver: Driver, config: Config) -> None:
+def try_codes(driver: WebDriver, config: Config) -> None:
     """Logic to continously enter TOTP/Backup codes"""
 
     # Set up statistics counters
@@ -267,24 +275,19 @@ def try_codes(driver: Driver, config: Config) -> None:
             try:
                 # CRITICAL PATH
                 login_test: Element = driver.find_element(*user_homepage)
+
                 while True:
                     # fmt: off
-                    # Check if it exists localStorage and .getItem, if not, returns null and try again
-                    token = driver.execute_script("return (window.localStorage && window.localStorage.getItem) ? window.localStorage.getItem('token') : null")
+                    token = driver.execute_script("return window.localStorage.getItem('token');")
                     # fmt: on
                     if token is not None:
                         # fmt: off
-                        logger.info(f"FOUND YOUR ACCOUNT'S TOKEN SAVE IT AND DO NOT LOG OUT OF DISCORD)")
+                        logger.info("FOUND YOUR ACCOUNT'S TOKEN SAVE IT AND DO NOT LOG OUT OF DISCORD")
                         # fmt: on
                         logger.success(token)
                         with open("secret/token.txt", "a+") as f:
                             f.write(token + "\n")
                         break
-
-                    status_elements = driver.find_elements(*code_status_elt)
-
-                    if status_elements and status_elements[0].is_displayed():
-                        raise NoSuchElementException()
                 break
             except NoSuchElementException as login_didnt_work:
                 try:
@@ -354,8 +357,3 @@ def try_codes(driver: Driver, config: Config) -> None:
 
 def print_session_statistics(SessionStats):
     logger.info("\n" + pformat(SessionStats))
-
-
-
-
-
