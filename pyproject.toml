@@ -1,0 +1,12 @@
+[tool.basedpyright]
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "standard"
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownParameterType = false
+
+
+[tool.ruff.lint]
+ignore = ["E701"]
