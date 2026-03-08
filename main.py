@@ -1,9 +1,7 @@
 import sys
 import time
 from time import strftime
-from typing import Any
 
-import stackprinter
 from loguru import logger
 from yaml import safe_load as load
 
@@ -17,6 +15,7 @@ from src.lib.types import (
     Config,
     ProgramConfig,
     ProgramMode,
+    ProgramConfigDict,
 )
 
 
@@ -33,9 +32,8 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
 
     # need a custom parser for this cus of custom types.
     with open(program_config_path, "r") as program_config_file:
-        program_config_dict: dict[str, str | bool | float | int] = load(
-            program_config_file
-        )
+        program_config_dict: ProgramConfigDict = load(program_config_file)
+
         # If the user gives a custom regex here i'll assume it's a backup code.
         programConfig = ProgramConfig(
             programMode=ProgramMode[(program_config_dict["programMode"])],
@@ -65,9 +63,9 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
         )
 
         formatting = formatter
-        if programConfig.sensitiveDebug == True:
+        if programConfig.sensitiveDebug:
             formatting = formatter_sensitive
-        if programConfig.logCreation == True:
+        if programConfig.logCreation:
             logger.add(
                 "log/{0}.log".format(
                     strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))
@@ -88,7 +86,7 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
             import stackprinter
 
             stackprinter.set_excepthook(style="darkbg2")
-        logger.debug(f"Loaded config/account.yml, config/program.yml config files.")
+        logger.debug("Loaded config/account.yml, config/program.yml config files.")
 
         return Config(account=accountConfig, program=programConfig)
 
