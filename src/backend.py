@@ -37,7 +37,7 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
     """
 
     driver: WebDriver | None = None
-    # TODO: implement proper detach mode so the browser can run without crashing, if the program closes
+
     match config.program.browser:
         case Browser.Chrome:
             HARDEN_WEB_STORAGE_JS = r"""
@@ -352,7 +352,6 @@ def try_codes(driver: WebDriver, config: Config) -> None:
     sessionStats.elapsedTimeSeconds = time.time() - start_time
     logger.critical("Program finished!")
     print_session_statistics(sessionStats)
-    # TODO: hold the webdriver here.
 
 
 def print_session_statistics(SessionStats):
