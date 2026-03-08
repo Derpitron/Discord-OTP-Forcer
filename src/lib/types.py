@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import TypeVar
+from typing import TypeVar, TypedDict
 
 """
 This is the canonical definition for program and account configuration. all possibilities defined here
@@ -102,3 +102,20 @@ class SessionStats:
 class CodeError(Enum):
     Invalid = 0
     Ratelimited = 1
+
+class ProgramConfigDict(TypedDict):
+    """
+    Raw YAML structure for program configuration.
+    """
+    programMode: str
+    codeMode: str
+    browser: str
+    headless: bool
+    logCreation: bool
+    sensitiveDebug: bool
+    logLevel: str
+    elementLoadTolerance: float
+    usualAttemptDelayMin: int
+    usualAttemptDelayMax: int
+    ratelimitedAttemptDelayMin: int
+    ratelimitedAttemptDelayMax: int
