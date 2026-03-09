@@ -29,7 +29,17 @@ from .lib.types import (
     unwrap,
 )
 
+# TODO: Refactor this into an Enum class in the future for type safety
+RATE_LIMIT_ERRORS: tuple[str, ...] = (
+    "The resource is being ratelimited.",
+    "Service resource is being rate-limited.",
+    "Service resource is being rate limited.",
+    "You are being rate limited.",
+    "The resource is being rate limited.",
+)
+
 logger.level(name="SENSITIVE", no=15, color="<m><b>")
+
 
 def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
     """
@@ -163,9 +173,11 @@ def bootstrap_code_page(
 
     captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "container__8a031")
 
+    # fmt: off
     while driver.find_elements(*captcha_box): # Check if the captcha exists
         logger.info("A captcha detected. Please complete the captcha for the program to continue.")
         driver.implicitly_wait(config.program.elementLoadTolerance) #Waits for the program to detect that the captcha isn't there.
+    # fmt: on
 
     logger.debug("No captcha detected or has been completed. Moving on to the rest of the script.")
 
@@ -221,11 +233,11 @@ def try_codes(driver: WebDriver, config: Config) -> None:
 
     submit_button: tuple[ByType, str] = (By.XPATH, "//*[@type='submit']")
     code_field: tuple[ByType, str] | None = None
+    # fmt: off
     match config.program.codeMode:
-        # fmt: off
         case CodeMode_Backup(): code_field = (By.XPATH, "//*[@label='Enter Discord Backup Code']")
         case CodeMode_Normal(): code_field = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
-        # fmt: on
+    # fmt: on
     code_status_elt: tuple[ByType, str] = (By.CLASS_NAME, "error__7c901")
     user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "app__160d8")
 
@@ -275,7 +287,7 @@ def try_codes(driver: WebDriver, config: Config) -> None:
             try:
                 # CRITICAL PATH
                 login_test: Element = driver.find_element(*user_homepage)
-                if (login_test):
+                if login_test:
                     while True:
                         # fmt: off
                         token = driver.execute_script("return window.localStorage.getItem('token');")
@@ -291,43 +303,47 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                     break
             except NoSuchElementException as login_didnt_work:
                 try:
-                    # Try first with the Code Status Element Class, if not, fallback to the text.
-                    code_status_selectors = [
-                        code_status_elt,
+                    # fmt:off
+                    code_status_fallback_selectors = [
                         (By.XPATH, "//form//div[text()='Invalid two-factor code']"),
                         (By.XPATH, "//form//div[text()='The resource is being ratelimited.']"),
                         (By.XPATH, "//form//div[text()='Service resource is being rate-limited.']"),
                         (By.XPATH, "//form//div[text()='Service resource is being rate limited.']"),
                         (By.XPATH, "//form//div[text()='The resource is being rate limited.']"),
                     ]
+                    # fmt:on
 
                     code_status_msg: str | None = None
 
                     # Try first with the Code Status Element Class, if not, fallback to the text.
-                    for selector in code_status_selectors:
-                        try:
-                            code_status_msg = driver.find_element(*selector).text
-                            break
-                        except NoSuchElementException:
-                            if selector == code_status_elt:
+                    try:
+                        code_status_msg = driver.find_element(*code_status_elt).text
+                    except NoSuchElementException:
+                        driver.implicitly_wait(0)
+
+                        for selector in code_status_fallback_selectors:
+                            try:
+                                code_status_msg = driver.find_element(*selector).text
                                 # fmt:off
-                                logger.warning(f"Code Status Element '{code_status_elt[1]}' not found, trying fallback selectors. Please report this to the developers.")
+                                logger.warning(f"Code Status Element '{code_status_elt[1]}' not found, using fallback selectors. Please report this to the developers.")
                                 # fmt:on
-                            continue
+                                break
+                            except NoSuchElementException:
+                                continue
+
+                        driver.implicitly_wait(config.program.elementLoadTolerance)
 
                     if code_status_msg is None:
                         raise NoSuchElementException()
 
-                    match (code_status_msg):
+                    match code_status_msg:
                         case "Invalid two-factor code":
                             codeError = CodeError.Invalid
                             # fmt: off
                             logger.warning(f"{code_status_msg}: {random_code}")
                             # fmt: on
                             make_new_code = True
-                        # fmt: off
-                        case "The resource is being ratelimited." | "Service resource is being rate-limited." | "Service resource is being rate limited." | "You are being rate limited." | "The resource is being rate limited.":
-                        # fmt: on
+                        case msg if msg in RATE_LIMIT_ERRORS:
                             codeError = CodeError.Ratelimited
                             logger.warning(code_status_msg)
                             sessionStats.ratelimitCount += 1
