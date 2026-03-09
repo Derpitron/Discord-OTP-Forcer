@@ -7,6 +7,12 @@ reportUnknownMemberType = false
 reportUnknownArgumentType = false
 reportUnknownParameterType = false
 
-
 [tool.ruff.lint]
 ignore = ["E701"]
+
+[tool.ruff.format]
+quote-style = "preserve"
+line-ending = "cr-lf"
+
+[tool.ruff]
+line-length = 160
