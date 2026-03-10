@@ -123,12 +123,16 @@ if __name__ == "__main__":
             import stackprinter
 
             print(stackprinter.format(error, style="darkbg2"))
-    else:
-        from pygments.styles import get_all_styles
+        else:
+            import traceback
+            import pygments
+            from pygments.lexers import PythonTracebackLexer
+            from pygments.formatters import TerminalTrueColorFormatter
 
-        print(list(get_all_styles()))
+            tb = traceback.format_exc()
+            print(pygments.highlight(tb, PythonTracebackLexer(), TerminalTrueColorFormatter(style="native")))
 
     finally:
         if driver:
-            input("Press ENTER to close the browser...")
+            input("Press Enter to close the browser...")
             driver.quit()
