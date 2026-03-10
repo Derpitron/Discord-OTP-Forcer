@@ -16,6 +16,7 @@ from src.lib.types import (
     ProgramConfig,
     ProgramMode,
     ProgramConfigDict,
+    CensoredStr,
 )
 
 
@@ -27,16 +28,31 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
     accountConfig: AccountConfig
     programConfig: ProgramConfig
 
-    with open(account_config_path, "r") as account_config_file:
-        accountConfig = AccountConfig(**(load(account_config_file)))
-
-    # need a custom parser for this cus of custom types.
+    # We first read the program_config_file so we know if sensitiveDebug is active or not
     with open(program_config_path, "r") as program_config_file:
         program_config_dict: ProgramConfigDict = load(program_config_file)
 
+    # And if it is, we convert the strings into the CensoredStr type
+    with open(account_config_path, "r") as account_config_file:
+        account_dict = load(account_config_file)
+
+        if program_config_dict["sensitiveDebug"]:
+            censored_account_dict = {}
+            for key, value in account_dict.items():
+                if value:
+                    value = CensoredStr(value)
+                censored_account_dict[key] = value
+
+            accountConfig = AccountConfig(**censored_account_dict)
+        else:
+            accountConfig = AccountConfig(**account_dict)
+
+        # need a custom parser for this cus of custom types.
         # If the user gives a custom regex here i'll assume it's a backup code.
+        # fmt: off
         programConfig = ProgramConfig(
             programMode=ProgramMode[(program_config_dict["programMode"])],
+
             codeMode=(
                 CodeMode_Normal()
                 if program_config_dict["codeMode"] == "Normal"
@@ -61,11 +77,13 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
                 program_config_dict["ratelimitedAttemptDelayMax"],
             ),
         )
+        # fmt: on
 
         formatting = formatter
         if programConfig.sensitiveDebug:
             formatting = formatter_sensitive
         if programConfig.logCreation:
+            # fmt: off
             logger.add(
                 "log/{0}.log".format(
                     strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))
@@ -74,6 +92,7 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
                 backtrace=True,
                 format=formatting,
             )
+            # fmt: on
 
         logger.add(
             sys.stderr,
@@ -95,6 +114,7 @@ if __name__ == "__main__":
     logger.remove()
 
     # innermost runs first.
+    # fmt: off
     try_codes(
         *bootstrap_code_page(
             *bootstrap_browser(
@@ -102,3 +122,4 @@ if __name__ == "__main__":
             )
         )
     )
+    # fmt: on
