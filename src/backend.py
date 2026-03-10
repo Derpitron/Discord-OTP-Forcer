@@ -8,7 +8,7 @@ from typing import Tuple
 from loguru import logger
 
 from seleniumbase import Driver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By, ByType
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.remote.webelement import WebElement as Element
@@ -248,13 +248,13 @@ def try_codes(driver: WebDriver, config: Config) -> None:
     logger.debug("\n" + pformat(config.program))
     logger.log("SENSITIVE", "\n" + pformat(config.account))
 
-    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, 10)
+    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, 15)
 
     # Generate a new code.
     try:
         while True:
             sleep_duration_range = list(config.program.usualAttemptDelayRange)
-            # only if I got ratelimited last time.
+            # only if I didn't get ratelimited last time.
             if make_new_code:
                 random_code = generate_random_code(config.program.codeMode)
                 sleep_duration_range = list(config.program.ratelimitedAttemptDelayRange)
@@ -275,17 +275,21 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                         f.write(f"{random_code}\n")
 
             # Attempt the code
-
-            # backspace the previous code. the max length of a code can be 11 characters (from the backup code)
-            code_field_element = wait.until(EC.element_to_be_clickable(unwrap(code_field)))
-            code_field_element.clear()
-            code_field_element.send_keys(random_code)
-            time.sleep(secrets.choice(sleep_duration_range))
-            submit_button_element = wait.until(EC.element_to_be_clickable(unwrap(submit_button)))
-            submit_button_element.click()
-            sessionStats.attemptedCodeCount += 1
-            if isinstance(config.program.codeMode, CodeMode_Backup):
-                sessionStats.attemptedBackupCodeCount += 1
+            try:
+                code_field_element = wait.until(EC.element_to_be_clickable(unwrap(code_field)))
+                code_field_element.clear()
+                code_field_element.send_keys(random_code)
+                time.sleep(secrets.choice(sleep_duration_range))
+                submit_button_element = wait.until(EC.element_to_be_clickable(unwrap(submit_button)))
+                submit_button_element.click()
+                sessionStats.attemptedCodeCount += 1
+                if isinstance(config.program.codeMode, CodeMode_Backup):
+                    sessionStats.attemptedBackupCodeCount += 1
+            except TimeoutException as element_isnt_clickable:
+                logger.warning("Element isn't clickable yet after 15 sec. You may be on a slow network or ratelimited.")
+                sessionStats.slowDownCount += 1
+                make_new_code = False
+                continue
 
             # Success check. Break out if I succeed.
             try:
