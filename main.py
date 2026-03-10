@@ -3,6 +3,7 @@ import time
 from time import strftime
 
 from loguru import logger
+from selenium.webdriver.remote.webdriver import WebDriver
 from yaml import safe_load as load
 
 from src.backend import bootstrap_browser, bootstrap_code_page, try_codes
@@ -47,79 +48,87 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
         else:
             accountConfig = AccountConfig(**account_dict)
 
-        # need a custom parser for this cus of custom types.
-        # If the user gives a custom regex here i'll assume it's a backup code.
-        # fmt: off
-        programConfig = ProgramConfig(
-            programMode=ProgramMode[(program_config_dict["programMode"])],
+    # need a custom parser for this cus of custom types.
+    # If the user gives a custom regex here i'll assume it's a backup code.
+    # fmt: off
+    programConfig = ProgramConfig(
+        programMode=ProgramMode[(program_config_dict["programMode"])],
 
-            codeMode=(
-                CodeMode_Normal()
-                if program_config_dict["codeMode"] == "Normal"
-                else (
-                    CodeMode_Backup()
-                    if program_config_dict["codeMode"] == "Backup"
-                    else CodeMode_Backup(program_config_dict["codeMode"])
-                )
+        codeMode=(
+            CodeMode_Normal()
+            if program_config_dict["codeMode"] == "Normal"
+            else (
+                CodeMode_Backup()
+                if program_config_dict["codeMode"] == "Backup"
+                else CodeMode_Backup(program_config_dict["codeMode"])
+            )
+        ),
+        browser=Browser[(program_config_dict["browser"])],
+        headless=program_config_dict["headless"],
+        logCreation=program_config_dict["logCreation"],
+        sensitiveDebug=program_config_dict["sensitiveDebug"],
+        logLevel=program_config_dict["logLevel"],
+        elementLoadTolerance=program_config_dict["elementLoadTolerance"],
+        usualAttemptDelayRange=(
+            program_config_dict["usualAttemptDelayMin"],
+            program_config_dict["usualAttemptDelayMax"],
+        ),
+        ratelimitedAttemptDelayRange=(
+            program_config_dict["ratelimitedAttemptDelayMin"],
+            program_config_dict["ratelimitedAttemptDelayMax"],
+        ),
+    )
+    # fmt: on
+
+    formatting = formatter
+    if programConfig.sensitiveDebug:
+        formatting = formatter_sensitive
+    if programConfig.logCreation:
+        # fmt: off
+        logger.add(
+            "log/{0}.log".format(
+                strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))
             ),
-            browser=Browser[(program_config_dict["browser"])],
-            headless=program_config_dict["headless"],
-            logCreation=program_config_dict["logCreation"],
-            sensitiveDebug=program_config_dict["sensitiveDebug"],
-            logLevel=program_config_dict["logLevel"],
-            elementLoadTolerance=program_config_dict["elementLoadTolerance"],
-            usualAttemptDelayRange=(
-                program_config_dict["usualAttemptDelayMin"],
-                program_config_dict["usualAttemptDelayMax"],
-            ),
-            ratelimitedAttemptDelayRange=(
-                program_config_dict["ratelimitedAttemptDelayMin"],
-                program_config_dict["ratelimitedAttemptDelayMax"],
-            ),
+            colorize=False,
+            backtrace=True,
+            format=formatting,
         )
         # fmt: on
 
-        formatting = formatter
-        if programConfig.sensitiveDebug:
-            formatting = formatter_sensitive
-        if programConfig.logCreation:
-            # fmt: off
-            logger.add(
-                "log/{0}.log".format(
-                    strftime("%d-%m-%Y-%H_%M_%S", time.localtime(time.time()))
-                ),
-                colorize=False,
-                backtrace=True,
-                format=formatting,
-            )
-            # fmt: on
+    logger.add(
+        sys.stderr,
+        format=formatting,
+        colorize=True,
+        backtrace=True,
+        level=programConfig.logLevel,
+    )
+    logger.debug("Loaded config/account.yml, config/program.yml config files.")
 
-        logger.add(
-            sys.stderr,
-            format=formatting,
-            colorize=True,
-            backtrace=True,
-            level=programConfig.logLevel,
-        )
-        if programConfig.logLevel in ("SENSITIVE", "DEBUG"):
-            import stackprinter
-
-            stackprinter.set_excepthook(style="darkbg2")
-        logger.debug("Loaded config/account.yml, config/program.yml config files.")
-
-        return Config(account=accountConfig, program=programConfig)
+    return Config(account=accountConfig, program=programConfig)
 
 
 if __name__ == "__main__":
     logger.remove()
 
-    # innermost runs first.
-    # fmt: off
-    try_codes(
-        *bootstrap_code_page(
-            *bootstrap_browser(
-                load_configuration("config/account.yml", "config/program.yml")
-            )
-        )
-    )
-    # fmt: on
+    config: Config = load_configuration("config/account.yml", "config/program.yml")
+    driver: WebDriver | None = None
+
+    try:
+        driver, config = bootstrap_browser(config)
+        driver, config = bootstrap_code_page(driver, config)
+        try_codes(driver, config)
+
+    except Exception as error:
+        if config.program.logLevel in ("SENSITIVE", "DEBUG"):
+            import stackprinter
+
+            print(stackprinter.format(error, style="darkbg2"))
+    else:
+        from pygments.styles import get_all_styles
+
+        print(list(get_all_styles()))
+
+    finally:
+        if driver:
+            input("Press ENTER to close the browser...")
+            driver.quit()
