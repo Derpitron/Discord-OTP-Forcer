@@ -111,11 +111,6 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
 
             uc_driver = unwrap(driver)
 
-            # SeleniumBase doesn't include --detach mode, so we make our own as the definition of --detach says:
-            # Setting the detach parameter to true will keep the browser open after the process has ended,
-            # so long as the quit command is not sent to the driver.
-            uc_driver.quit = lambda: None
-
             uc_driver.execute_cdp_cmd("Network.enable", {})
 
             # fmt: on
