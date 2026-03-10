@@ -66,6 +66,9 @@ class ProgramConfig:
     usualAttemptDelayRange: tuple[int, int]
     ratelimitedAttemptDelayRange: tuple[int, int]
 
+class CensoredStr(str):
+    def __repr__(self) -> str:
+        return "'******'"
 
 @dataclass(frozen=True)
 class AccountConfig:
@@ -73,13 +76,13 @@ class AccountConfig:
     I want this to be private and shared as little as possible.
     """
 
-    email: str
-    password: str
+    email: CensoredStr
+    password: CensoredStr
 
-    newPassword: str
-    resetToken: str
+    newPassword: CensoredStr
+    resetToken: CensoredStr
 
-    authToken: str
+    authToken: CensoredStr
 
 
 @dataclass(frozen=True)
