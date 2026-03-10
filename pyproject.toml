@@ -1,3 +1,20 @@
+[project]
+name = "Discord-OTP-Forcer"
+version = "0.1.0"
+description = "Selenium based discord OTP forcer"
+requires-python = ">=3.11"
+dependencies = [
+    "seleniumbase==4.47.1",
+    "setuptools==82.0.1",
+    "PyYAML==6.0.3",
+    "stackprinter==0.2.12",
+    "loguru==0.7.3",
+    "regex-string-generator==0.1.0",
+]
+
+[tool.uv]
+package = false
+
 [tool.basedpyright]
 venvPath = "."
 venv = ".venv"
