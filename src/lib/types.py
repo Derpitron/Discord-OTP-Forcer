@@ -76,13 +76,13 @@ class AccountConfig:
     I want this to be private and shared as little as possible.
     """
 
-    email: CensoredStr
-    password: CensoredStr
+    email: str | CensoredStr
+    password: str | CensoredStr
 
-    newPassword: CensoredStr
-    resetToken: CensoredStr
+    newPassword: str | CensoredStr
+    resetToken: str | CensoredStr
 
-    authToken: CensoredStr
+    authToken: str | CensoredStr
 
 
 @dataclass(frozen=True)
