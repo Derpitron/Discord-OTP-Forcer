@@ -108,15 +108,18 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
                 locale_code="en-US",
                 chromium_arg=arguments,
             )
+
+            uc_driver = unwrap(driver)
+
             # SeleniumBase doesn't include --detach mode, so we make our own as the definition of --detach says:
             # Setting the detach parameter to true will keep the browser open after the process has ended,
             # so long as the quit command is not sent to the driver.
-            unwrap(driver).quit = lambda: None
+            uc_driver.quit = lambda: None
 
-            unwrap(driver).execute_cdp_cmd("Network.enable", {})
+            uc_driver.execute_cdp_cmd("Network.enable", {})
 
             # fmt: on
-            unwrap(driver).execute_cdp_cmd(
+            uc_driver.execute_cdp_cmd(
                 "Network.setBlockedURLs",
                 {
                     "urls": [
@@ -128,14 +131,14 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
                 },
             )
 
-            unwrap(driver).execute_cdp_cmd(
+            uc_driver.execute_cdp_cmd(
                 "Page.addScriptToEvaluateOnNewDocument",
                 {"source": HARDEN_WEB_STORAGE_JS},
             )
             logger.debug("Fixed compatibility polyfill")
     logger.debug("Started browser")
 
-    return unwrap(driver), config
+    return uc_driver, config
 
 
 def bootstrap_code_page(
@@ -153,7 +156,7 @@ def bootstrap_code_page(
             landing_url = "https://discord.com/login"
         case ProgramMode.Reset:
             landing_url = f"https://discord.com/reset#token={config.account.resetToken}"
-    driver.default_get(unwrap(landing_url))  # type: ignore
+    driver.get(unwrap(landing_url))
     logger.debug(f"Gone to {config.program.programMode.name} page")
 
     # Log-in with credentials
