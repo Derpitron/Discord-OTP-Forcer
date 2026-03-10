@@ -197,23 +197,23 @@ def bootstrap_code_page(
 
     # Check if the code filed exists
     try:
-        #fmt: off
+        # fmt: off
         code_field: tuple[ByType, str] = (By.CLASS_NAME, "input__0f084")
         code_field_test: Element = driver.find_element(*code_field)
-        #fmt: on
+        # fmt: on
     except NoSuchElementException:
         msg: str
         match config.program.programMode:
             case ProgramMode.Login:
-                #fmt: off
+                # fmt: off
                 msg = "Could not log-in to account. Are your email and password correct? Or, you may have to reset your password. Check the wiki/docs for instructions on this"
-                #fmt: on
+                # fmt: on
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
             case ProgramMode.Reset:
-                #fmt: off
+                # fmt: off
                 msg = "Could not enter old password. Is your old password correct? Or, more likely, Your password reset token is expired. Refresh it and fill it in (check the instructions)"
-                #fmt: on
+                # fmt: on
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
 
@@ -248,6 +248,8 @@ def try_codes(driver: WebDriver, config: Config) -> None:
     logger.debug("\n" + pformat(config.program))
     logger.log("SENSITIVE", "\n" + pformat(config.account))
 
+    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, 10)
+
     # Generate a new code.
     try:
         while True:
@@ -267,7 +269,7 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                         if make_new_code:
                             logger.warning(f"Backup code {random_code} is invalid. Possibly I previously used it, but now it's expired anyway.")
                             random_code = generate_random_code(config.program.codeMode)
-                        else: #If rate limiting occurs, do not generate a new code
+                        else:  # If rate limiting occurs, do not generate a new code
                             logger.warning(f"Backup code {random_code} wasn't tested. Will test once the ratelimiting is over.")
                     else:
                         f.write(f"{random_code}\n")
@@ -275,10 +277,12 @@ def try_codes(driver: WebDriver, config: Config) -> None:
             # Attempt the code
 
             # backspace the previous code. the max length of a code can be 11 characters (from the backup code)
-            driver.find_element(*unwrap(code_field)).send_keys(11 * Keys.BACKSPACE)
-            driver.find_element(*unwrap(code_field)).send_keys(random_code)
+            code_field_element = wait.until(EC.element_to_be_clickable(unwrap(code_field)))
+            code_field_element.clear()
+            code_field_element.send_keys(random_code)
             time.sleep(secrets.choice(sleep_duration_range))
-            driver.find_element(*submit_button).click()
+            submit_button_element = wait.until(EC.element_to_be_clickable(unwrap(submit_button)))
+            submit_button_element.click()
             sessionStats.attemptedCodeCount += 1
             if isinstance(config.program.codeMode, CodeMode_Backup):
                 sessionStats.attemptedBackupCodeCount += 1
