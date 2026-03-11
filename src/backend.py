@@ -222,7 +222,7 @@ def try_codes(driver: WebDriver, config: Config) -> None:
     """Logic to continously enter TOTP/Backup codes"""
 
     # Set up statistics counters
-    sessionStats: SessionStats = SessionStats(0, 0, 0, 0, 0)
+    sessionStats: SessionStats = SessionStats(0, 0, 0, 0, 0, 0)
     start_time: float = time.time()
     # fmt: off
     sleep_duration_range: list[int] = list(config.program.usualAttemptDelayRange)
@@ -357,6 +357,11 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                         case "POST /auth/reset [400]":
                             logger.critical(f"{code_status_msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
                             sys.exit()
+                        case "POST /auth/mfa/totp [503]":
+                            codeError = CodeError.ServiceUnavailable
+                            logger.warning(f"{code_status_msg}: The service is unavailable, Discord is probably under maintenance.")
+                            sessionStats.serviceUnavailableCount += 1
+                            make_new_code = False
                         case _:
                             # fmt:off
                             logger.error(f"Encountered unimplemented status message. Tell the developers about this: {code_status_msg}")
