@@ -99,12 +99,14 @@ class SessionStats:
     # fmt: on
     ratelimitCount: int  # The number of times I got ratelimited
     slowDownCount: int  # The number of times the submit button loaded too slowly, because of a server-side invisible ratelimit or network conditions.
+    serviceUnavailableCount: int  # The number of times discord was unavailable.
     elapsedTimeSeconds: float  # The time this program ran, in seconds
 
 
 class CodeError(Enum):
     Invalid = 0
     Ratelimited = 1
+    ServiceUnavailable = 2
 
 class ProgramConfigDict(TypedDict):
     """
