@@ -6,9 +6,9 @@ set account_saved=0
 for %%A in ("%~dp0..\..\config\program.yml") do set program_timestamp=%%~tA
 for %%A in ("%~dp0..\..\config\account.yml") do set account_timestamp=%%~tA
 
-echo Installing requirements...
-python.exe -m pip install -r "%~dp0..\..\requirements.txt"
-echo Requirements installed!
+echo Installing dependencies...
+python.exe -m pip install -r "%~dp0..\..\dependencies.txt"
+echo Dependencies installed!
 
 echo Set the program settings (program.yml) and your account details (account.yml) in the Notepad windows that have just opened
 timeout /t 1 >nul
