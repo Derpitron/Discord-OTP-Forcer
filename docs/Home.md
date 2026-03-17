@@ -27,7 +27,7 @@ Instructions on how to setup and use this program can be found on the [wiki](htt
 # Dependencies
 - Google Chrome
 - Python >= 3.13
-- All the libraries in `requirements.txt`
+- All the libraries in `dependencies.txt`
 
 ---
 
@@ -50,7 +50,7 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
 
 ---
 # Disclaimer
-    Copyright (C) Derpitron 2025
+    Copyright (C) Contributors 2026
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
