@@ -13,9 +13,9 @@
     ```
       git clone https://github.com/Derpitron/Discord-OTP-Forcer.git
       ```
-2. Go to the location you installed the repository and run `scripts/Windows/setup.bat`.
-3. The requisite dependencies with install then the `config/account.yml` and `config/program.yml` files will open, fill out the necessary credentials then save and close notepad. 
-4. Run `scripts/Windows/start.bat`, Follow the instructions in the command prompt. 
+2. Go to the location you installed the repository and run `scripts/Windows/setup.cmd`.
+3. The requisite dependencies will install then the `config/account.yml` and `config/program.yml` files will open, fill out the necessary details then save the files and close Notepad. If you are ready to start a forcer session now, type `Y` at the prompt. A new window will open starting a forcer session.
+4. If you chose 'No' to starting a forcer session on the setup script, when you are ready, run `scripts/Windows/start.cmd` and follow the instructions in the command prompt. 
 5. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
 6. Wait for either a successful login, or a closed browser window (Failure to brute force codes). Go to the "Running the program" section for the main instructions.
 ---
@@ -30,7 +30,7 @@ source .venv/bin/activate
 ```
 2. Install the requisite dependencies.
 ```
-pip install -r requirements.txt
+pip install -r dependencies.txt
 ```
 3. Fill in the files in the `config` folder as shown below:
 4. Fill out the necessary credentials in the `config/account.yml` file.

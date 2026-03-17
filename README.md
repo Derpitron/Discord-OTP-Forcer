@@ -27,7 +27,7 @@ Here's a video tutorial: https://www.youtube.com/watch?v=v4skgYVmvQg
 # Dependencies
 - Google Chrome
 - Python >= 3.13
-- All the libraries in `requirements.txt`
+- All the libraries in `dependencies.txt`
 
 # Why did I make this?
 In December 2021, I lost access to my passwords and OTP list due to a file syncing issue. I was able to recover most of the credentials, except for my Discord Alt. When I contacted Discord Support, they informed me that due to their security policy, they could not disable 2FA for that account, which while it is understandable, is unfortunate. As a proof-of-concept program, I hacked together this crude script which simply brute forces randomly generated 6 digit numbers to the Discord login's TOTP field.
