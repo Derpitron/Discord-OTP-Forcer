@@ -1,10 +1,10 @@
 [project]
 name = "Discord-OTP-Forcer"
-version = "0.1.0"
+version = "0.2.0"
 description = "Selenium based discord OTP forcer"
 requires-python = ">=3.11"
 dependencies = [
-    "seleniumbase==4.47.1",
+    "seleniumbase==4.47.3",
     "setuptools==82.0.1",
     "PyYAML==6.0.3",
     "stackprinter==0.2.12",
@@ -25,11 +25,12 @@ reportUnknownArgumentType = false
 reportUnknownParameterType = false
 
 [tool.ruff.lint]
-ignore = ["E701"]
+ignore = ["E701", "F841"]
 
 [tool.ruff.format]
 quote-style = "preserve"
 line-ending = "cr-lf"
+exclude = ["src/lib/types.py"]
 
 [tool.ruff]
 line-length = 160
