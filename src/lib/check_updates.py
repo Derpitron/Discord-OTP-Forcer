@@ -1,15 +1,21 @@
 import json
 from loguru import logger
-
 import requests
-from .types import LocalVersion, GitHubVersion
 
+from .types import (
+    LocalVersion,
+    GitHubVersion,
+    VersionCheckError,
+    TomlNotFound,
+    TomlParseError,
+    NetworkError,
+)
 
 _session = requests.Session()
 _session.headers["User-Agent"] = "Discord-OTP-Forcer"
 
 
-def _fetch_url(url: str) -> str | None:
+def _fetch_url(url: str) -> str | NetworkError:
     """
     Makes a GET request to the given URL and returns the content as text.
     Returns None if the request fails.
@@ -19,26 +25,24 @@ def _fetch_url(url: str) -> str | None:
         response.raise_for_status()
         return response.text
     except requests.RequestException as error:
-        logger.debug(f"Request to {url} failed: {error}")
-        return None
+        return NetworkError(reason=str(error))
 
 
-def _fetch_json(url: str) -> dict | None:
+def _fetch_json(url: str) -> dict | NetworkError:
     """
     Makes a GET request to the given URL git _fetch_url and returns the content as json format.
     Returns None if the request fails or the json decoder failed to parse the content.
     """
     content = _fetch_url(url)
-    if content is None:
-        return None
+    if isinstance(content, NetworkError):
+        return content
     try:
         return json.loads(content)
     except json.JSONDecodeError:
-        logger.debug(f"Failed to parse JSON response from {url}")
-        return None
+        return NetworkError(reason=f"Failed to parse JSON response from {url}")
 
 
-def _extract_version_from_toml(lines: list[str]) -> str | None:
+def _extract_version_from_toml(lines: list[str]) -> str | TomlParseError:
     """
     Extracts the version string from a pyproject.toml file.
     (Version is in the third line, index 2)
@@ -48,7 +52,7 @@ def _extract_version_from_toml(lines: list[str]) -> str | None:
         version: str = lines[2].split('"')[1]
         return version
     except IndexError:
-        logger.debug("Could not parse version from pyproject.toml.")
+        return TomlParseError()
 
 
 def _parse_version(version: str) -> list[int]:
@@ -59,31 +63,35 @@ def _parse_version(version: str) -> list[int]:
     return [int(part) for part in version.split(".")]
 
 
-def _get_local_version() -> LocalVersion | None:
+def _get_local_version() -> LocalVersion | VersionCheckError:
     """
     Reads the local version of the program directly from the local file of pyproject.toml.
     """
     try:
         with open("pyproject.toml", encoding="utf-8") as file:
-            extracted_version: str | None = _extract_version_from_toml(file.readlines())
+            extracted_version: str | TomlParseError = _extract_version_from_toml(file.readlines())
 
-            return LocalVersion(extracted_version) if extracted_version is not None else None
+            if isinstance(extracted_version, TomlParseError):
+                return extracted_version
+
+            return LocalVersion(extracted_version)
     except FileNotFoundError:
-        logger.debug("Could not find pyproject.toml.")
-        return None
+        return TomlNotFound()
 
 
-def _fetch_github_version() -> GitHubVersion | None:
+def _fetch_github_version() -> GitHubVersion | VersionCheckError:
     """
     Fetches the remote pyproject.toml from GitHub and extracts the version.
     """
     content = _fetch_url("https://raw.githubusercontent.com/Derpitron/Discord-OTP-Forcer/refs/heads/main/pyproject.toml")
-    if content is None:
-        return None
+    if isinstance(content, NetworkError):
+        return content
 
-    extracted_version: str | None = _extract_version_from_toml(content.splitlines())
+    extracted_version: str | TomlParseError = _extract_version_from_toml(content.splitlines())
+    if isinstance(extracted_version, TomlParseError):
+        return extracted_version
 
-    return GitHubVersion(extracted_version) if extracted_version is not None else None
+    return GitHubVersion(extracted_version)
 
 
 def _fetch_latest_commit_hash() -> str | None:
@@ -91,11 +99,21 @@ def _fetch_latest_commit_hash() -> str | None:
     Fetches the latest commit hash from the main branch on GitHub.
     """
     data = _fetch_json("https://api.github.com/repos/Derpitron/Discord-OTP-Forcer/git/ref/heads/main")
-    if data is None:
+    if isinstance(data, NetworkError):
         return None
 
     commit_hash = data.get("object", {}).get("sha", "")
     return commit_hash[:7] if commit_hash else None
+
+
+def _log_version_error(error: VersionCheckError, source: str) -> None:
+    match error:
+        case TomlNotFound():
+            logger.debug(f"Could not find pyproject.toml ({source} source).")
+        case TomlParseError():
+            logger.debug(f"Could not parse version from pyproject.toml ({source} source).")
+        case NetworkError(reason=r):
+            logger.debug(f"Network error reading {source} version: {r}")
 
 
 def check_for_updates() -> None:
@@ -103,13 +121,13 @@ def check_for_updates() -> None:
     Compares the local version against the latest GitHub version and logs the result.
     """
     local_version = _get_local_version()
-    if local_version is None:
-        logger.debug("Could not retrieve the local version.")
+    if isinstance(local_version, (TomlNotFound, TomlParseError, NetworkError)):
+        _log_version_error(local_version, "local")
         return
 
     github_version = _fetch_github_version()
-    if github_version is None:
-        logger.debug("Could not retrieve the version from GitHub.")
+    if isinstance(github_version, (TomlNotFound, TomlParseError, NetworkError)):
+        _log_version_error(github_version, "GitHub")
         return
 
     local = _parse_version(local_version)
@@ -123,8 +141,7 @@ def check_for_updates() -> None:
     match result:
         case 1:
             logger.warning(f"New version available: {github_version} (Current: {local_version})")
-            commit_hash = _fetch_latest_commit_hash()
-            if commit_hash:
+            if commit_hash := _fetch_latest_commit_hash():
                 logger.warning(f"Latest commit on main: {commit_hash}")
         case -1:
             logger.info(f"Local version {local_version} is ahead of GitHub: {github_version}")

@@ -157,5 +157,23 @@ class NetworkOffline:
 
 CodeError = InvalidCode | RateLimited | ServiceUnavailable | TokenExpired | UnknownError | NetworkOffline
 
+
+@dataclass(frozen=True)
+class TomlNotFound:
+    pass
+
+
+@dataclass(frozen=True)
+class TomlParseError:
+    pass
+
+
+@dataclass(frozen=True)
+class NetworkError:
+    reason: str
+
+
+VersionCheckError = TomlNotFound | TomlParseError | NetworkError
+
 LocalVersion = NewType("LocalVersion", str)
 GitHubVersion = NewType("GitHubVersion", str)
