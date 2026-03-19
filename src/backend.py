@@ -30,7 +30,6 @@ from .lib.types import (
     Config,
     ProgramMode,
     SessionStats,
-    unwrap,
     InvalidCode,
     RateLimited,
     ServiceUnavailable,
@@ -69,12 +68,10 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
                 chromium_arg=arguments,
             )
 
-            uc_driver = unwrap(driver)
-
-            uc_driver.execute_cdp_cmd("Network.enable", {})
+            driver.execute_cdp_cmd("Network.enable", {})
 
             # fmt: on
-            uc_driver.execute_cdp_cmd(
+            driver.execute_cdp_cmd(
                 "Network.setBlockedURLs",
                 {
                     "urls": [
@@ -86,14 +83,14 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
                 },
             )
 
-            uc_driver.execute_cdp_cmd(
+            driver.execute_cdp_cmd(
                 "Page.addScriptToEvaluateOnNewDocument",
                 {"source": _HARDEN_WEB_STORAGE_JS},
             )
             logger.debug("Fixed compatibility polyfill")
     logger.debug("Started browser")
 
-    return uc_driver, config
+    return driver, config
 
 
 def _get_landing_url(program_mode: ProgramMode, reset_token: str) -> str:
@@ -231,7 +228,7 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                 code_field_element.clear()
                 code_field_element.send_keys(random_code)
                 time.sleep(secrets.choice(sleep_duration_range))
-                submit_button_element = wait.until(EC.element_to_be_clickable(unwrap(submit_button)))
+                submit_button_element = wait.until(EC.element_to_be_clickable(submit_button))
                 submit_button_element.click()
                 sessionStats.attemptedCodeCount += 1
                 if isinstance(config.program.codeMode, CodeMode_Backup):
