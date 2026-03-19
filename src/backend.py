@@ -4,6 +4,8 @@ import time
 import sys
 from pprint import pformat
 from typing import Tuple
+from pathlib import Path
+from typing import assert_never
 
 from loguru import logger
 
@@ -18,25 +20,25 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from .lib.codegen import generate_random_code
 from .lib.exceptions import InvalidCredentialError
+from .auth.code_errors import parse_code_error
+from .auth.captcha import captcha_detection
 from .lib.types import (
     Browser,
-    CodeError,
+    CodeMode,
     CodeMode_Backup,
     CodeMode_Normal,
     Config,
     ProgramMode,
     SessionStats,
     unwrap,
+    InvalidCode,
+    RateLimited,
+    ServiceUnavailable,
+    TokenExpired,
+    UnknownError,
+    NetworkOffline,
 )
 
-# TODO: Refactor this into an Enum class in the future for type safety
-RATE_LIMIT_ERRORS: tuple[str, ...] = (
-    "The resource is being ratelimited.",
-    "Service resource is being rate-limited.",
-    "Service resource is being rate limited.",
-    "You are being rate limited.",
-    "The resource is being rate limited.",
-)
 
 logger.level(name="SENSITIVE", no=15, color="<m><b>")
 
@@ -50,49 +52,7 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
 
     match config.program.browser:
         case Browser.Chrome:
-            HARDEN_WEB_STORAGE_JS = r"""
-                (function hardenWebStorage() {
-                  if (typeof window === 'undefined') return;
-
-                  function lockProperty(obj, prop) {
-                    if (!obj) return;
-
-                    var desc;
-                    try {
-                      desc = Object.getOwnPropertyDescriptor(obj, prop);
-                    } catch (e) {
-                      return;
-                    }
-
-                    if (!desc || !desc.get) return;
-
-                    if (desc.configurable === false) return;
-
-                    try {
-                      Object.defineProperty(obj, prop, {
-                        get: desc.get,
-                        set: desc.set,
-                        enumerable: desc.enumerable,
-                        configurable: false
-                      });
-                    } catch (e) {
-                      // ignore
-                    }
-                  }
-
-                  try {
-                    lockProperty(window, 'localStorage');
-                    lockProperty(window, 'sessionStorage');
-                  } catch (e) {}
-
-                  try {
-                    if (typeof Window !== 'undefined' && Window.prototype) {
-                      lockProperty(Window.prototype, 'localStorage');
-                      lockProperty(Window.prototype, 'sessionStorage');
-                    }
-                  } catch (e) {}
-                })();
-                """
+            _HARDEN_WEB_STORAGE_JS = (Path(__file__).parent / "lib/js_scripts" / "HardenWebStorage.js").read_text(encoding="utf-8")
 
             arguments = None
             if config.program.headless:
@@ -128,12 +88,32 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
 
             uc_driver.execute_cdp_cmd(
                 "Page.addScriptToEvaluateOnNewDocument",
-                {"source": HARDEN_WEB_STORAGE_JS},
+                {"source": _HARDEN_WEB_STORAGE_JS},
             )
             logger.debug("Fixed compatibility polyfill")
     logger.debug("Started browser")
 
     return uc_driver, config
+
+
+def _get_landing_url(program_mode: ProgramMode, reset_token: str) -> str:
+    match program_mode:
+        case ProgramMode.Login:
+            return "https://discord.com/login"
+        case ProgramMode.Reset:
+            return f"https://discord.com/reset#token={reset_token}"
+        case _ as unreachable:
+            assert_never(unreachable)
+
+
+def _get_code_field(code_mode: CodeMode) -> tuple[ByType, str]:
+    match code_mode:
+        case CodeMode_Backup():
+            return (By.XPATH, "//*[@label='Enter Discord Backup Code']")
+        case CodeMode_Normal():
+            return (By.XPATH, "//*[@label='Enter Discord Auth Code']")
+        case _:
+            raise ValueError(f"Unhandled CodeMode: {code_mode}")
 
 
 def bootstrap_code_page(
@@ -145,13 +125,9 @@ def bootstrap_code_page(
     """
 
     # Go to the appropriate starting page for the mode
-    landing_url: str | None = None
-    match config.program.programMode:
-        case ProgramMode.Login:
-            landing_url = "https://discord.com/login"
-        case ProgramMode.Reset:
-            landing_url = f"https://discord.com/reset#token={config.account.resetToken}"
-    driver.get(unwrap(landing_url))
+    landing_url: str = _get_landing_url(config.program.programMode, config.account.resetToken)
+
+    driver.get(landing_url)
     logger.debug(f"Gone to {config.program.programMode.name} page")
 
     # Log-in with credentials
@@ -169,21 +145,12 @@ def bootstrap_code_page(
     driver.find_element(*password_field).send_keys(Keys.RETURN)
     logger.debug("Found and inputted basic login fields")
 
-    captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "container__8a031")
-
-    # fmt: off
-    while driver.find_elements(*captcha_box): # Check if the captcha exists
-        logger.info("A captcha detected. Please complete the captcha for the program to continue.")
-        driver.implicitly_wait(config.program.elementLoadTolerance) #Waits for the program to detect that the captcha isn't there.
-    # fmt: on
-
-    logger.debug("No captcha detected or has been completed. Moving on to the rest of the script.")
+    captcha_detection(driver)
 
     wait: WebDriverWait[WebDriver] = WebDriverWait(driver, 15)
-    # fmt: off
-    wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
 
     # Select the method
+    wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
     match config.program.codeMode:
         case CodeMode_Normal():
             wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use your authenticator app')]"))).click()
@@ -191,27 +158,20 @@ def bootstrap_code_page(
             wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use a backup code')]"))).click()
             time.sleep(11)
             wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'use a backup code')]"))).click()
-    # fmt: on
 
     # Check if the code filed exists
     try:
-        # fmt: off
         code_field: tuple[ByType, str] = (By.CLASS_NAME, "input__0f084")
-        code_field_test: Element = driver.find_element(*code_field)
-        # fmt: on
+        driver.find_element(*code_field)
     except NoSuchElementException:
         msg: str
         match config.program.programMode:
             case ProgramMode.Login:
-                # fmt: off
-                msg = "Could not log-in to account. Are your email and password correct? Or, you may have to reset your password. Check the wiki/docs for instructions on this"
-                # fmt: on
+                msg = "Could not log-in to account. Are your email and password correct?  You may have to reset your password. Check the wiki/docs for instructions on this"
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
             case ProgramMode.Reset:
-                # fmt: off
-                msg = "Could not enter old password. Is your old password correct? Or, more likely, Your password reset token is expired. Refresh it and fill it in (check the instructions)"
-                # fmt: on
+                msg = "Your password reset token may be expired. Refresh it and fill it in.  Check https://inbydev.codeberg.page/en/user/setup/#how-to-get-your-reset-token"
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
 
@@ -224,18 +184,11 @@ def try_codes(driver: WebDriver, config: Config) -> None:
     # Set up statistics counters
     sessionStats: SessionStats = SessionStats(0, 0, 0, 0, 0, 0)
     start_time: float = time.time()
-    # fmt: off
-    sleep_duration_range: list[int] = list(config.program.usualAttemptDelayRange)
-    # fmt:on
-    secrets
+
+    sleep_duration_range: list[int]
 
     submit_button: tuple[ByType, str] = (By.XPATH, "//*[@type='submit']")
-    code_field: tuple[ByType, str] | None = None
-    # fmt: off
-    match config.program.codeMode:
-        case CodeMode_Backup(): code_field = (By.XPATH, "//*[@label='Enter Discord Backup Code']")
-        case CodeMode_Normal(): code_field = (By.XPATH, "//*[@label='Enter Discord Auth Code']")
-    # fmt: on
+    code_field: tuple[ByType, str] = _get_code_field(config.program.codeMode)
     code_status_elt: tuple[ByType, str] = (By.CLASS_NAME, "error__7c901")
     user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "app__160d8")
 
@@ -274,7 +227,7 @@ def try_codes(driver: WebDriver, config: Config) -> None:
 
             # Attempt the code
             try:
-                code_field_element = wait.until(EC.element_to_be_clickable(unwrap(code_field)))
+                code_field_element = wait.until(EC.element_to_be_clickable(code_field))
                 code_field_element.clear()
                 code_field_element.send_keys(random_code)
                 time.sleep(secrets.choice(sleep_duration_range))
@@ -295,13 +248,9 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                 login_test: Element = driver.find_element(*user_homepage)
                 if login_test:
                     while True:
-                        # fmt: off
                         token = driver.execute_script("return window.localStorage.getItem('token');")
-                        # fmt: on
                         if token is not None:
-                            # fmt: off
                             logger.info("FOUND YOUR ACCOUNT'S TOKEN SAVE IT AND DO NOT LOG OUT OF DISCORD")
-                            # fmt: on
                             logger.success(token)
                             with open("secret/token.txt", "a+") as f:
                                 f.write(token + "\n")
@@ -309,7 +258,6 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                     break
             except NoSuchElementException as login_didnt_work:
                 try:
-                    # fmt:off
                     code_status_fallback_selectors = [
                         (By.XPATH, "//form//div[text()='Invalid two-factor code']"),
                         (By.XPATH, "//form//div[text()='The resource is being ratelimited.']"),
@@ -317,7 +265,6 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                         (By.XPATH, "//form//div[text()='Service resource is being rate limited.']"),
                         (By.XPATH, "//form//div[text()='The resource is being rate limited.']"),
                     ]
-                    # fmt:on
 
                     code_status_msg: str | None = None
 
@@ -342,30 +289,27 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                     if code_status_msg is None:
                         raise NoSuchElementException()
 
-                    match code_status_msg:
-                        case "Invalid two-factor code":
-                            codeError = CodeError.Invalid
-                            # fmt: off
-                            logger.warning(f"{code_status_msg}: {random_code}")
-                            # fmt: on
+                    match parse_code_error(code_status_msg, random_code):
+                        case InvalidCode(attempted_code=code, raw_message=msg):
+                            logger.warning(f"{msg}: {code}")
                             make_new_code = True
-                        case msg if msg in RATE_LIMIT_ERRORS:
-                            codeError = CodeError.Ratelimited
-                            logger.warning(code_status_msg)
+                        case RateLimited(raw_message=msg):
+                            logger.warning(msg)
                             sessionStats.ratelimitCount += 1
                             make_new_code = False
-                        case "POST /auth/reset [400]":
-                            logger.critical(f"{code_status_msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
+                        case TokenExpired(raw_message=msg):
+                            logger.critical(f"{msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
                             sys.exit()
-                        case "POST /auth/mfa/totp [503]":
-                            codeError = CodeError.ServiceUnavailable
-                            logger.warning(f"{code_status_msg}: The service is unavailable, Discord is probably under maintenance.")
+                        case ServiceUnavailable(raw_message=msg):
+                            logger.warning(f"{msg}: The service is unavailable, Discord is probably under maintenance.")
                             sessionStats.serviceUnavailableCount += 1
                             make_new_code = False
-                        case _:
-                            # fmt:off
-                            logger.error(f"Encountered unimplemented status message. Tell the developers about this: {code_status_msg}")
-                            # fmt:on
+                        case NetworkOffline(raw_message=msg):
+                            logger.error("Network disconnection detected. Trying again in 15 seconds...")
+                            time.sleep(15)
+                            make_new_code = False
+                        case UnknownError(raw_message=msg):
+                            logger.error(f"Encountered unimplemented status message. Tell the developers about this: {msg}")
                 except NoSuchElementException as click_didnt_go_through_yet:
                     # fmt:off
                     logger.warning(f"Code taking a long time to get submitted ( > {driver.timeouts.implicit_wait} sec). You may be on a slow network or ratelimited.")
