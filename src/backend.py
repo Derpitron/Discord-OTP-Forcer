@@ -311,6 +311,7 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                     # fmt:off
                     logger.warning(f"Code taking a long time to get submitted ( > {driver.timeouts.implicit_wait} sec). You may be on a slow network or ratelimited.")
                     # fmt:on
+                    make_new_code = True
                     sessionStats.slowDownCount += 1
 
     except KeyboardInterrupt:
