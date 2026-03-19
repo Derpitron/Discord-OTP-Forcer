@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import TypeVar, TypedDict
+from typing import TypeVar, TypedDict, NewType
 
 """
 This is the canonical definition for program and account configuration. all possibilities defined here
@@ -57,6 +57,7 @@ class ProgramConfig:
     codeMode: CodeMode
     browser: Browser
 
+    checkUpdates: bool
     sensitiveDebug: bool
     logCreation: bool
     headless: bool
@@ -66,9 +67,11 @@ class ProgramConfig:
     usualAttemptDelayRange: tuple[int, int]
     ratelimitedAttemptDelayRange: tuple[int, int]
 
+
 class CensoredStr(str):
     def __repr__(self) -> str:
         return "'******'"
+
 
 @dataclass(frozen=True)
 class AccountConfig:
@@ -91,30 +94,15 @@ class Config:
     account: AccountConfig
 
 
-@dataclass
-class SessionStats:
-    attemptedCodeCount: int  # The number of codes attempted in this session
-    # fmt: off
-    attemptedBackupCodeCount: int # The number of backup codes attempted in this session
-    # fmt: on
-    ratelimitCount: int  # The number of times I got ratelimited
-    slowDownCount: int  # The number of times the submit button loaded too slowly, because of a server-side invisible ratelimit or network conditions.
-    serviceUnavailableCount: int  # The number of times discord was unavailable.
-    elapsedTimeSeconds: float  # The time this program ran, in seconds
-
-
-class CodeError(Enum):
-    Invalid = 0
-    Ratelimited = 1
-    ServiceUnavailable = 2
-
 class ProgramConfigDict(TypedDict):
     """
     Raw YAML structure for program configuration.
     """
+
     programMode: str
     codeMode: str
     browser: str
+    checkUpdates: bool
     headless: bool
     logCreation: bool
     sensitiveDebug: bool
@@ -124,3 +112,50 @@ class ProgramConfigDict(TypedDict):
     usualAttemptDelayMax: int
     ratelimitedAttemptDelayMin: int
     ratelimitedAttemptDelayMax: int
+
+
+@dataclass
+class SessionStats:
+    attemptedCodeCount: int  # The number of codes attempted in this session
+    attemptedBackupCodeCount: int  # The number of backup codes attempted in this session
+    ratelimitCount: int  # The number of times I got ratelimited
+    slowDownCount: int  # The number of times the submit button loaded too slowly, because of a server-side invisible ratelimit or network conditions.
+    serviceUnavailableCount: int  # The number of times discord was unavailable.
+    elapsedTimeSeconds: float  # The time this program ran, in seconds
+
+
+@dataclass(frozen=True)
+class InvalidCode:
+    attempted_code: str
+    raw_message: str
+
+
+@dataclass(frozen=True)
+class RateLimited:
+    raw_message: str
+
+
+@dataclass(frozen=True)
+class ServiceUnavailable:
+    raw_message: str
+
+
+@dataclass(frozen=True)
+class TokenExpired:
+    raw_message: str
+
+
+@dataclass(frozen=True)
+class UnknownError:
+    raw_message: str
+
+
+@dataclass(frozen=True)
+class NetworkOffline:
+    raw_message: str
+
+
+CodeError = InvalidCode | RateLimited | ServiceUnavailable | TokenExpired | UnknownError | NetworkOffline
+
+LocalVersion = NewType("LocalVersion", str)
+GitHubVersion = NewType("GitHubVersion", str)
