@@ -40,6 +40,12 @@ sensitiveDebug: True
 # Default: False
 logCreation: False
 
+# Enable check for updates searching the version on pyproject.toml on github.com
+# Valid Options:
+# True, False
+# Default: True
+checkUpdates: True
+
 # Enable headless mode (no browser gui spawned). Very untested and unrecommended unless you set logCreation =  True and save the account token. TODO:save the account token.
 # Valid Options:
 # True, False
