@@ -48,6 +48,8 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
         else:
             accountConfig = AccountConfig(**account_dict)
 
+    check_updates: bool | None = program_config_dict.get("checkUpdates")
+
     # need a custom parser for this cus of custom types.
     # If the user gives a custom regex here i'll assume it's a backup code.
     # fmt: off
@@ -63,6 +65,7 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
                 else CodeMode_Backup(program_config_dict["codeMode"])
             )
         ),
+        checkUpdates=check_updates if check_updates is not None else False,
         browser=Browser[(program_config_dict["browser"])],
         headless=program_config_dict["headless"],
         logCreation=program_config_dict["logCreation"],
@@ -102,6 +105,13 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
         backtrace=True,
         level=programConfig.logLevel,
     )
+
+    if check_updates is None:
+        logger.warning(
+            "Your configuration is not updated. Please check the updated config at: https://github.com/Derpitron/Discord-OTP-Forcer/blob/main/config/program.yml"
+        )
+        logger.warning("Missing configurations: 'checkUpdates'.  Defaulting to False since the configuration doesn't exist.")
+
     logger.debug("Loaded config/account.yml, config/program.yml config files.")
 
     return Config(account=accountConfig, program=programConfig)
@@ -112,6 +122,11 @@ if __name__ == "__main__":
 
     config: Config = load_configuration("config/account.yml", "config/program.yml")
     driver: WebDriver | None = None
+
+    if config.program.checkUpdates:
+        from src.lib.check_updates import check_for_updates
+
+        check_for_updates()
 
     try:
         driver, config = bootstrap_browser(config)
