@@ -3,7 +3,6 @@ import time
 from time import strftime
 
 from loguru import logger
-from selenium.webdriver.remote.webdriver import WebDriver
 from yaml import safe_load as load
 
 from src.backend import bootstrap_browser, bootstrap_code_page, try_codes
@@ -11,6 +10,7 @@ from src.lib.logcreation import formatter, formatter_sensitive
 from src.lib.types import (
     AccountConfig,
     Browser,
+    BrowserSession,
     CodeMode_Backup,
     CodeMode_Normal,
     Config,
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     logger.remove()
 
     config: Config = load_configuration("config/account.yml", "config/program.yml")
-    driver: WebDriver | None = None
+    session: BrowserSession | None = None
 
     if config.program.checkUpdates:
         from src.lib.check_updates import check_for_updates
@@ -129,9 +129,9 @@ if __name__ == "__main__":
         check_for_updates()
 
     try:
-        driver, config = bootstrap_browser(config)
-        driver, config = bootstrap_code_page(driver, config)
-        try_codes(driver, config)
+        session = bootstrap_browser(config)
+        session = bootstrap_code_page(session)
+        try_codes(session)
 
     except Exception as error:
         if config.program.logLevel in ("SENSITIVE", "DEBUG"):
@@ -148,6 +148,6 @@ if __name__ == "__main__":
             print(pygments.highlight(tb, PythonTracebackLexer(), TerminalTrueColorFormatter(style="native")))
 
     finally:
-        if driver:
+        if session:
             input("Press Enter to close the browser...")
-            driver.quit()
+            session.driver.quit()
