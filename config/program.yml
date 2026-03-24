@@ -20,9 +20,9 @@ programMode:
 # Normal, Backup, "<custom regex>" (counts as Backup mode). Make sure to put it in double-quotes or it won't work.
 codeMode:
 
-# Chrome option runs with undetected-chromedriver.
+# Chromium based options runs with undetected-chromedriver.
 # Valid Options:
-# Chrome
+# Chrome, Brave
 browser:
 
 # If True, this option redacts sensitive log info.
