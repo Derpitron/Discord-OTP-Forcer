@@ -3,7 +3,8 @@ log/*
 config/*
 secret/*
 
-# VSCode-generated files
+# IDE-generated files
 *.pyc
-.vscode
-.venv
+.vscode/
+.venv/
+.vs/
