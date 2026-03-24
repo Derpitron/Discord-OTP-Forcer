@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import TypeVar, TypedDict, NewType
+from selenium.webdriver.remote.webdriver import WebDriver
 
 """
 This is the canonical definition for program and account configuration. all possibilities defined here
@@ -40,11 +41,14 @@ class CodeMode_Backup(CodeMode):
     pattern: str = r"[a-z0-9]{8}"
 
 
-class Browser(Enum):
-    Chrome = 0
-    # TODO: IMPLEMENT
-    # Chromium = 1
-    # Firefox = 2
+class Browser(StrEnum):
+    # SeleniumBase uses Chrome as default for "chrome",
+    # if not, uses Chromium it seems.
+    Chrome = "chrome"
+    Brave = "brave"
+    # Imposible for the moment to implement as this program
+    # uses CDP commands and undetected-chromedriver
+    # Firefox = "firefox"
 
 
 @dataclass(frozen=True)
@@ -92,6 +96,12 @@ class AccountConfig:
 class Config:
     program: ProgramConfig
     account: AccountConfig
+
+
+@dataclass(frozen=True)
+class BrowserSession:
+    driver: WebDriver
+    config: Config
 
 
 class ProgramConfigDict(TypedDict):
