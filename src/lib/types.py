@@ -45,6 +45,7 @@ class Browser(StrEnum):
     # SeleniumBase uses Chrome as default for "chrome",
     # if not, uses Chromium it seems.
     Chrome = "chrome"
+    Chromium = "chromium"
     Brave = "brave"
     # Imposible for the moment to implement as this program
     # uses CDP commands and undetected-chromedriver

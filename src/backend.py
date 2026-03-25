@@ -48,7 +48,7 @@ def bootstrap_browser(config: Config) -> BrowserSession:
     """
 
     match config.program.browser:
-        case Browser.Chrome | Browser.Brave:
+        case Browser.Chrome | Browser.Brave | Browser.Chromium:
             _HARDEN_WEB_STORAGE_JS = (Path(__file__).parent / "lib/js_scripts" / "HardenWebStorage.js").read_text(encoding="utf-8")
 
             arguments = None
@@ -56,13 +56,12 @@ def bootstrap_browser(config: Config) -> BrowserSession:
                 arguments = "--log-level=1"
 
             driver = Driver(
-                browser=config.program.browser,
-                # undetected-chromedriver maintained from SeleniumBase.
+                browser="chrome" if config.program.browser is Browser.Chromium else config.program.browser,
                 uc=True,
+                use_chromium=config.program.browser is Browser.Chromium,
                 headless=config.program.headless,
-                # Sets the Language Locale Code for the web browser.
                 locale_code="en-US",
-                chromium_arg=arguments,
+                chromium_arg="--log-level=1" if config.program.headless else None,
             )
 
             driver.implicitly_wait(0)
