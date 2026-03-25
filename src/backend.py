@@ -3,7 +3,6 @@ import secrets
 import time
 import sys
 from pprint import pformat
-from typing import Tuple
 from pathlib import Path
 from typing import assert_never
 
@@ -24,6 +23,7 @@ from .auth.code_errors import parse_code_error
 from .auth.captcha import captcha_detection
 from .lib.types import (
     Browser,
+    BrowserSession,
     CodeMode,
     CodeMode_Backup,
     CodeMode_Normal,
@@ -42,24 +42,21 @@ from .lib.types import (
 logger.level(name="SENSITIVE", no=15, color="<m><b>")
 
 
-def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
+def bootstrap_browser(config: Config) -> BrowserSession:
     """
     bootstrap_browser is a function that prepares a puppetable browser.
     """
 
-    driver: WebDriver | None = None
-
     match config.program.browser:
-        case Browser.Chrome:
+        case Browser.Chrome | Browser.Brave:
             _HARDEN_WEB_STORAGE_JS = (Path(__file__).parent / "lib/js_scripts" / "HardenWebStorage.js").read_text(encoding="utf-8")
 
             arguments = None
             if config.program.headless:
                 arguments = "--log-level=1"
 
-            # fmt: off
             driver = Driver(
-                browser="chrome",
+                browser=config.program.browser,
                 # undetected-chromedriver maintained from SeleniumBase.
                 uc=True,
                 headless=config.program.headless,
@@ -68,9 +65,10 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
                 chromium_arg=arguments,
             )
 
+            driver.implicitly_wait(0)
+
             driver.execute_cdp_cmd("Network.enable", {})
 
-            # fmt: on
             driver.execute_cdp_cmd(
                 "Network.setBlockedURLs",
                 {
@@ -88,9 +86,12 @@ def bootstrap_browser(config: Config) -> Tuple[WebDriver, Config]:
                 {"source": _HARDEN_WEB_STORAGE_JS},
             )
             logger.debug("Fixed compatibility polyfill")
+        case _ as unreachable:
+            assert_never(unreachable)
+
     logger.debug("Started browser")
 
-    return driver, config
+    return BrowserSession(driver=driver, config=config)
 
 
 def _get_landing_url(program_mode: ProgramMode, reset_token: str) -> str:
@@ -113,13 +114,13 @@ def _get_code_field(code_mode: CodeMode) -> tuple[ByType, str]:
             raise ValueError(f"Unhandled CodeMode: {code_mode}")
 
 
-def bootstrap_code_page(
-    driver: WebDriver,
-    config: Config,
-) -> Tuple[WebDriver, Config]:
+def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
     """
     This sets up the code entry page.
     """
+    driver, config = session.driver, session.config
+    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance)
+    wait_longer: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance * 2)
 
     # Go to the appropriate starting page for the mode
     landing_url: str = _get_landing_url(config.program.programMode, config.account.resetToken)
@@ -130,37 +131,58 @@ def bootstrap_code_page(
     # Log-in with credentials
     password_field: tuple[ByType, str] = (By.NAME, "password")
     email_field: tuple[ByType, str] = (By.NAME, "email")
-    # fmt: off
-    driver.implicitly_wait(config.program.elementLoadTolerance)
-    # fmt: on
-    match config.program.programMode:
-        case ProgramMode.Login:
-            driver.find_element(*email_field).send_keys(config.account.email)
-            driver.find_element(*password_field).send_keys(config.account.password)
-        case ProgramMode.Reset:
-            driver.find_element(*password_field).send_keys(config.account.newPassword)
-    driver.find_element(*password_field).send_keys(Keys.RETURN)
+    try:
+        match config.program.programMode:
+            case ProgramMode.Login:
+                wait.until(EC.presence_of_element_located(email_field)).send_keys(config.account.email)
+                wait.until(EC.presence_of_element_located(password_field)).send_keys(config.account.password)
+            case ProgramMode.Reset:
+                wait.until(EC.presence_of_element_located(password_field)).send_keys(config.account.newPassword)
+        wait.until(EC.presence_of_element_located(password_field)).send_keys(Keys.RETURN)
+    except (NoSuchElementException, TimeoutException):
+        logger.critical(
+            "Could not locate the email or password field on the page. "
+            "This may be caused by a low 'elementLoadTolerance' value in your program.yml. "
+            "Try increasing it to 5, 7, or even higher if your internet connection is slow."
+        )
+        logger.critical("If nothing of this works, go to https://github.com/Derpitron/Discord-OTP-Forcer/discussions/ to ask for help.")
+        sys.exit(1)
+
+    wait.until(EC.presence_of_element_located(password_field)).send_keys(Keys.RETURN)
     logger.debug("Found and inputted basic login fields")
 
-    captcha_detection(driver)
+    captcha_detection(session)
 
-    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, 15)
+    wait_for_verify_else: WebDriverWait[WebDriver] = WebDriverWait(driver, 7)
 
     # Select the method
-    wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
-    match config.program.codeMode:
-        case CodeMode_Normal():
-            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use your authenticator app')]"))).click()
-        case CodeMode_Backup():
-            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use a backup code')]"))).click()
-            time.sleep(11)
-            wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'use a backup code')]"))).click()
+    try:
+        wait_for_verify_else.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
 
-    # Check if the code filed exists
+        match config.program.codeMode:
+            case CodeMode_Normal():
+                wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use your authenticator app')]"))).click()
+            case CodeMode_Backup():
+                wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use a backup code')]"))).click()
+                time.sleep(11)
+                wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'use a backup code')]"))).click()
+    except TimeoutException:
+        match config.program.codeMode:
+            case CodeMode_Backup():
+                logger.critical(
+                    "Cannot use backup mode because you likely have no backup codes left. "
+                    "If the 'Verify with something else' button did actually appear, "
+                    "please go to https://github.com/Derpitron/Discord-OTP-Forcer/issues and create an issue."
+                )
+                sys.exit(1)
+            case CodeMode_Normal():
+                pass
+
+    # Check if the code field exists
     try:
         code_field: tuple[ByType, str] = (By.CLASS_NAME, "input__0f084")
-        driver.find_element(*code_field)
-    except NoSuchElementException:
+        wait.until(EC.presence_of_element_located(code_field))
+    except (NoSuchElementException, TimeoutException):
         msg: str
         match config.program.programMode:
             case ProgramMode.Login:
@@ -172,11 +194,15 @@ def bootstrap_code_page(
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
 
-    return driver, config
+    return session
 
 
-def try_codes(driver: WebDriver, config: Config) -> None:
+def try_codes(session: BrowserSession) -> None:
     """Logic to continously enter TOTP/Backup codes"""
+    driver, config = session.driver, session.config
+
+    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance)
+    wait_longer: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance * 3)
 
     # Set up statistics counters
     sessionStats: SessionStats = SessionStats(0, 0, 0, 0, 0, 0)
@@ -195,8 +221,6 @@ def try_codes(driver: WebDriver, config: Config) -> None:
     logger.info("Starting a Forcer session")
     logger.debug("\n" + pformat(config.program))
     logger.log("SENSITIVE", "\n" + pformat(config.account))
-
-    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, 15)
 
     # Generate a new code.
     try:
@@ -224,11 +248,11 @@ def try_codes(driver: WebDriver, config: Config) -> None:
 
             # Attempt the code
             try:
-                code_field_element = wait.until(EC.element_to_be_clickable(code_field))
+                code_field_element = wait_longer.until(EC.element_to_be_clickable(code_field))
                 code_field_element.clear()
                 code_field_element.send_keys(random_code)
                 time.sleep(secrets.choice(sleep_duration_range))
-                submit_button_element = wait.until(EC.element_to_be_clickable(submit_button))
+                submit_button_element = wait_longer.until(EC.element_to_be_clickable(submit_button))
                 submit_button_element.click()
                 sessionStats.attemptedCodeCount += 1
                 if isinstance(config.program.codeMode, CodeMode_Backup):
@@ -242,6 +266,7 @@ def try_codes(driver: WebDriver, config: Config) -> None:
             # Success check. Break out if I succeed.
             try:
                 # CRITICAL PATH
+                # We want to know immediately if the homepage is present or not
                 login_test: Element = driver.find_element(*user_homepage)
                 if login_test:
                     while True:
@@ -267,10 +292,9 @@ def try_codes(driver: WebDriver, config: Config) -> None:
 
                     # Try first with the Code Status Element Class, if not, fallback to the text.
                     try:
-                        code_status_msg = driver.find_element(*code_status_elt).text
+                        code_status_element = wait.until(EC.visibility_of_element_located(code_status_elt))
+                        code_status_msg = code_status_element.text
                     except NoSuchElementException:
-                        driver.implicitly_wait(0)
-
                         for selector in code_status_fallback_selectors:
                             try:
                                 code_status_msg = driver.find_element(*selector).text
@@ -280,8 +304,6 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                                 break
                             except NoSuchElementException:
                                 continue
-
-                        driver.implicitly_wait(config.program.elementLoadTolerance)
 
                     if code_status_msg is None:
                         raise NoSuchElementException()
@@ -309,7 +331,7 @@ def try_codes(driver: WebDriver, config: Config) -> None:
                             logger.error(f"Encountered unimplemented status message. Tell the developers about this: {msg}")
                 except NoSuchElementException as click_didnt_go_through_yet:
                     # fmt:off
-                    logger.warning(f"Code taking a long time to get submitted ( > {driver.timeouts.implicit_wait} sec). You may be on a slow network or ratelimited.")
+                    logger.warning(f"Code taking a long time to get submitted ( > {config.program.elementLoadTolerance} sec). You may be on a slow network or ratelimited.")
                     # fmt:on
                     make_new_code = True
                     sessionStats.slowDownCount += 1
@@ -323,5 +345,5 @@ def try_codes(driver: WebDriver, config: Config) -> None:
     print_session_statistics(sessionStats)
 
 
-def print_session_statistics(SessionStats):
-    logger.info("\n" + pformat(SessionStats))
+def print_session_statistics(sessionStats: SessionStats) -> None:
+    logger.info("\n" + pformat(sessionStats))
