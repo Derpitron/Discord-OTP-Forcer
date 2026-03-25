@@ -1,6 +1,6 @@
 [project]
 name = "Discord-OTP-Forcer"
-version = "0.3.0"
+version = "0.3.1"
 description = "Selenium based discord OTP forcer"
 requires-python = ">=3.11"
 dependencies = [
