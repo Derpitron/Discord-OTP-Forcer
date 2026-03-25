@@ -22,7 +22,7 @@ codeMode:
 
 # Chromium based options runs with undetected-chromedriver.
 # Valid Options:
-# Chrome, Brave
+# Chrome, Chromium (also for Thorium), Brave
 browser:
 
 # If True, this option redacts sensitive log info.
@@ -40,7 +40,9 @@ sensitiveDebug: True
 # Default: False
 logCreation: False
 
-# Enable check for updates searching the version on pyproject.toml on github.com
+# Enable the update checker.
+# If True, fetches pyproject.toml from github.com to check for updates.
+# If False, the program does not make this network request.
 # Valid Options:
 # True, False
 # Default: True
