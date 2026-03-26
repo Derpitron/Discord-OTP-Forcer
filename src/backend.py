@@ -19,14 +19,18 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from .lib.codegen import generate_random_code
 from .lib.exceptions import InvalidCredentialError
-from .auth.code_errors import parse_code_error
+from .auth.code_errors import parse_code_error, get_code_status
+from .lib.thorium_binary import find_thorium_binary, register_thorium_browser
 from .auth.captcha import captcha_detection
 from .lib.types import (
+    BinaryPath,
     Browser,
     BrowserSession,
     CodeMode,
     CodeMode_Backup,
     CodeMode_Normal,
+    CodeStatusFound,
+    CodeStatusNotFound,
     Config,
     ProgramMode,
     SessionStats,
@@ -42,22 +46,29 @@ from .lib.types import (
 logger.level(name="SENSITIVE", no=15, color="<m><b>")
 
 
+def _resolve_and_register_binary_location(browser: Browser) -> BinaryPath | None:
+    """
+    Returns the binary path for browsers not natively recognized by SeleniumBase, or None if not needed.
+    """
+    if browser is Browser.Thorium:
+        register_thorium_browser()
+        return find_thorium_binary()
+    return None
+
+
 def bootstrap_browser(config: Config) -> BrowserSession:
     """
     bootstrap_browser is a function that prepares a puppetable browser.
     """
 
     match config.program.browser:
-        case Browser.Chrome | Browser.Brave | Browser.Chromium:
+        case Browser.Chrome | Browser.Brave | Browser.Chromium | Browser.Thorium:
             _HARDEN_WEB_STORAGE_JS = (Path(__file__).parent / "lib/js_scripts" / "HardenWebStorage.js").read_text(encoding="utf-8")
 
-            arguments = None
-            if config.program.headless:
-                arguments = "--log-level=1"
-
             driver = Driver(
-                browser="chrome" if config.program.browser is Browser.Chromium else config.program.browser,
+                browser="chrome" if config.program.browser in (Browser.Chromium, Browser.Thorium) else config.program.browser,
                 uc=True,
+                binary_location=_resolve_and_register_binary_location(config.program.browser),
                 use_chromium=config.program.browser is Browser.Chromium,
                 headless=config.program.headless,
                 locale_code="en-US",
@@ -138,7 +149,7 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
             case ProgramMode.Reset:
                 wait.until(EC.presence_of_element_located(password_field)).send_keys(config.account.newPassword)
         wait.until(EC.presence_of_element_located(password_field)).send_keys(Keys.RETURN)
-    except (NoSuchElementException, TimeoutException):
+    except TimeoutException:
         logger.critical(
             "Could not locate the email or password field on the page. "
             "This may be caused by a low 'elementLoadTolerance' value in your program.yml. "
@@ -181,7 +192,7 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
     try:
         code_field: tuple[ByType, str] = (By.CLASS_NAME, "input__0f084")
         wait.until(EC.presence_of_element_located(code_field))
-    except (NoSuchElementException, TimeoutException):
+    except TimeoutException:
         msg: str
         match config.program.programMode:
             case ProgramMode.Login:
@@ -278,62 +289,39 @@ def try_codes(session: BrowserSession) -> None:
                             break
                     break
             except NoSuchElementException as login_didnt_work:
-                try:
-                    code_status_fallback_selectors = [
-                        (By.XPATH, "//form//div[text()='Invalid two-factor code']"),
-                        (By.XPATH, "//form//div[text()='The resource is being ratelimited.']"),
-                        (By.XPATH, "//form//div[text()='Service resource is being rate-limited.']"),
-                        (By.XPATH, "//form//div[text()='Service resource is being rate limited.']"),
-                        (By.XPATH, "//form//div[text()='The resource is being rate limited.']"),
-                    ]
-
-                    code_status_msg: str | None = None
-
-                    # Try first with the Code Status Element Class, if not, fallback to the text.
-                    try:
-                        code_status_element = wait.until(EC.visibility_of_element_located(code_status_elt))
-                        code_status_msg = code_status_element.text
-                    except NoSuchElementException:
-                        for selector in code_status_fallback_selectors:
-                            try:
-                                code_status_msg = driver.find_element(*selector).text
-                                # fmt:off
-                                logger.warning(f"Code Status Element '{code_status_elt[1]}' not found, using fallback selectors. Please report this to the developers.")
-                                # fmt:on
-                                break
-                            except NoSuchElementException:
-                                continue
-
-                    if code_status_msg is None:
-                        raise NoSuchElementException()
-
-                    match parse_code_error(code_status_msg, random_code):
-                        case InvalidCode(attempted_code=code, raw_message=msg):
-                            logger.warning(f"{msg}: {code}")
-                            make_new_code = True
-                        case RateLimited(raw_message=msg):
-                            logger.warning(msg)
-                            sessionStats.ratelimitCount += 1
-                            make_new_code = False
-                        case TokenExpired(raw_message=msg):
-                            logger.critical(f"{msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
-                            sys.exit()
-                        case ServiceUnavailable(raw_message=msg):
-                            logger.warning(f"{msg}: The service is unavailable, Discord is probably under maintenance.")
-                            sessionStats.serviceUnavailableCount += 1
-                            make_new_code = False
-                        case NetworkOffline(raw_message=msg):
-                            logger.error("Network disconnection detected. Trying again in 15 seconds...")
-                            time.sleep(15)
-                            make_new_code = False
-                        case UnknownError(raw_message=msg):
-                            logger.error(f"Encountered unimplemented status message. Tell the developers about this: {msg}")
-                except NoSuchElementException as click_didnt_go_through_yet:
-                    # fmt:off
-                    logger.warning(f"Code taking a long time to get submitted ( > {config.program.elementLoadTolerance} sec). You may be on a slow network or ratelimited.")
-                    # fmt:on
-                    make_new_code = True
-                    sessionStats.slowDownCount += 1
+                match get_code_status(driver, wait, code_status_elt):
+                    case CodeStatusFound(message=code_status_msg, used_fallback=used_fallback):
+                        if used_fallback:
+                            # fmt:off
+                            logger.warning(f"Code Status Element '{code_status_elt[1]}' not found, using fallback selectors. Please report this to the developers.")
+                            # fmt:on
+                        match parse_code_error(code_status_msg, random_code):
+                            case InvalidCode(attempted_code=code, raw_message=msg):
+                                logger.warning(f"{msg}: {code}")
+                                make_new_code = True
+                            case RateLimited(raw_message=msg):
+                                logger.warning(msg)
+                                sessionStats.ratelimitCount += 1
+                                make_new_code = False
+                            case TokenExpired(raw_message=msg):
+                                logger.critical(f"{msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
+                                sys.exit()
+                            case ServiceUnavailable(raw_message=msg):
+                                logger.warning(f"{msg}: The service is unavailable, Discord is probably under maintenance.")
+                                sessionStats.serviceUnavailableCount += 1
+                                make_new_code = False
+                            case NetworkOffline(raw_message=msg):
+                                logger.error("Network disconnection detected. Trying again in 15 seconds...")
+                                time.sleep(15)
+                                make_new_code = False
+                            case UnknownError(raw_message=msg):
+                                logger.error(f"Encountered unimplemented status message. Tell the developers about this: {msg}")
+                    case CodeStatusNotFound():
+                        # fmt:off
+                        logger.warning(f"Code taking a long time to get submitted ( > {config.program.elementLoadTolerance} sec). You may be on a slow network or ratelimited.")
+                        # fmt:on
+                        make_new_code = True
+                        sessionStats.slowDownCount += 1
 
     except KeyboardInterrupt:
         logger.critical("Stopping the program on KeyboardInterrupt!")
