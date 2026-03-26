@@ -22,7 +22,7 @@ codeMode:
 
 # Chromium based options runs with undetected-chromedriver.
 # Valid Options:
-# Chrome, Chromium (also for Thorium), Brave
+# Chrome, Chromium, Thorium, Brave
 browser:
 
 # If True, this option redacts sensitive log info.
