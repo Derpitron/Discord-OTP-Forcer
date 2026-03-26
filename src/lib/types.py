@@ -46,6 +46,7 @@ class Browser(StrEnum):
     # if not, uses Chromium it seems.
     Chrome = "chrome"
     Chromium = "chromium"
+    Thorium = "thorium"
     Brave = "brave"
     # Imposible for the moment to implement as this program
     # uses CDP commands and undetected-chromedriver
@@ -135,13 +136,16 @@ class SessionStats:
     elapsedTimeSeconds: float  # The time this program ran, in seconds
 
 
-@dataclass(frozen=True)
+BinaryPath = NewType("BinaryPath", str)
+
+
+@dataclass(frozen=True, slots=True)
 class InvalidCode:
     attempted_code: str
     raw_message: str
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class RateLimited:
     raw_message: str
 
@@ -167,6 +171,20 @@ class NetworkOffline:
 
 
 CodeError = InvalidCode | RateLimited | ServiceUnavailable | TokenExpired | UnknownError | NetworkOffline
+
+
+@dataclass(frozen=True, slots=True)
+class CodeStatusFound:
+    message: str
+    used_fallback: bool
+
+
+@dataclass(frozen=True, slots=True)
+class CodeStatusNotFound:
+    pass
+
+
+CodeStatusResult = CodeStatusFound | CodeStatusNotFound
 
 
 @dataclass(frozen=True)
