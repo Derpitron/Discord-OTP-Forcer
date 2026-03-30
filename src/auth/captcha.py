@@ -8,11 +8,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-from src.lib.types import BrowserSession
+from src.lib.types import BrowserSession, Config
 
 
 def captcha_detection(session: BrowserSession) -> None:
-    driver, config = session.driver, session.config
+    driver: WebDriver = session.driver
+    config: Config = session.config
 
     captcha_box: tuple[ByType, str] = (By.CLASS_NAME, "container__8a031")
     wait: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance)
