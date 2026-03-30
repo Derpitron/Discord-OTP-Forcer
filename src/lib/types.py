@@ -15,6 +15,7 @@ camelCase for objects, variables, instances, members
 T = TypeVar("T")
 
 
+# Not used anymore
 def unwrap(x: T | None) -> T:
     if x is None:
         raise TypeError("Expected actual variable, got None")
