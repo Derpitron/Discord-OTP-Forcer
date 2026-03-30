@@ -1,4 +1,5 @@
 from pathlib import Path
+from shutil import which
 from platform import system
 from seleniumbase.fixtures import constants as sb_constants
 
@@ -58,8 +59,6 @@ def find_thorium_binary() -> BinaryPath:
             return path
 
     # Fallback
-    from shutil import which
-
     found_in_path = which("thorium-browser") or which("thorium")
     if found_in_path:
         return BinaryPath(found_in_path)
