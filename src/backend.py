@@ -202,7 +202,7 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
             case ProgramMode.Reset:
-                msg = "Your password reset token may be expired. Refresh it and fill it in.  Check https://inbydev.codeberg.page/en/user/setup/#how-to-get-your-reset-token"
+                msg = "Your password reset token may be expired. Refresh it and fill it in.  Check https://discord-otp-forcer.codeberg.page/en/user/setup/#how-to-get-your-reset-token"
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
 

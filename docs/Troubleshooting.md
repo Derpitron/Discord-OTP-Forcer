@@ -20,7 +20,7 @@ Extract the files from the .zip file which you downloaded. This program cannot r
 Try and check if your config file is incorrectly formatted or you filled in a wrong option. If you did that, and it's still not working, file an issue with the details. Remember to redact all personal details when reporting
 
 ## In programMode: reset, The browser is frozen/not moving past the password reset screen. Pressing the password reset button does nothing, when the program is in `reset` programMode.
-Re-do the password reset steps. https://inbydev.codeberg.page/en/user/setup/#how-to-get-your-reset-token
+Re-do the password reset steps. https://discord-otp-forcer.codeberg.page/en/user/setup/#how-to-get-your-reset-token
 
 ## I'm using my system/browser in a language other than English (USA), and the program isn't working for me
 To fix this, change your system/browser language to English (US). The locale for the browser should be `en-US`.

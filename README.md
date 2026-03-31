@@ -3,7 +3,7 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 ![image](./docs/assets/readme/normal-log.png)
 *Look at him go!*
 
-Instructions on how to setup and use this program can be found on the [Documentation](https://inbydev.codeberg.page/en/user/setup/)
+Instructions on how to setup and use this program can be found on the [Documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/)
 
 > [!NOTE]  
 > Going forward I am not maintaining this program personally anymore due to circumstances. Everyone is free to maintain, fix, update the program and if you add PRs to this repo I'll merge them every now and then, or if you are interested and worthy for maintainership I'll add you as co-owner of the repo so you can merge and maintain it easily. Consider this program only community-maintained now. Much love to all the users, maintainers, bugfixers, and contributors, you've been real ones!
@@ -21,7 +21,7 @@ Instructions on how to setup and use this program can be found on the [Documenta
 - User friendly
 
 # How to use:
-See this repo's Documentation for the user or the `docs` folder for this section. https://inbydev.codeberg.page/en/user/setup/
+See this repo's Documentation for the user or the `docs` folder for this section. https://discord-otp-forcer.codeberg.page/en/user/setup/
 Here's a video tutorial: https://www.youtube.com/watch?v=v4skgYVmvQg
 
 # Dependencies
