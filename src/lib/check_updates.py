@@ -98,6 +98,7 @@ def _fetch_latest_commit_hash() -> str | None:
     """
     Fetches the latest commit hash from the main branch on GitHub.
     """
+    # BROKEN
     data = _fetch_json("https://api.github.com/repos/Derpitron/Discord-OTP-Forcer/git/ref/heads/main")
     if isinstance(data, NetworkError):
         return None
