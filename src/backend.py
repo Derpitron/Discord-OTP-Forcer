@@ -2,6 +2,7 @@
 import secrets
 import time
 import sys
+import threading
 from pprint import pformat
 from pathlib import Path
 from typing import assert_never
@@ -128,7 +129,8 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
     """
     This sets up the code entry page.
     """
-    driver, config = session.driver, session.config
+    driver: WebDriver = session.driver
+    config: Config = session.config
     wait: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance)
     wait_longer: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance * 2)
 
@@ -207,12 +209,17 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
     return session
 
 
+def _code_taking_long() -> None:
+    logger.warning("Code taking longer than 15s, you may be on a slow network or ratelimited. Still waiting for status...")
+
+
 def try_codes(session: BrowserSession) -> None:
     """Logic to continously enter TOTP/Backup codes"""
-    driver, config = session.driver, session.config
+    driver: WebDriver = session.driver
+    config: Config = session.config
 
-    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance)
-    wait_longer: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance * 3)
+    wait_60s: WebDriverWait[WebDriver] = WebDriverWait(driver, 60)
+    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance * 3)
 
     # Set up statistics counters
     sessionStats: SessionStats = SessionStats(0, 0, 0, 0, 0, 0)
@@ -226,6 +233,7 @@ def try_codes(session: BrowserSession) -> None:
     user_homepage: tuple[ByType, str] = (By.CLASS_NAME, "app__160d8")
 
     make_new_code: bool = False
+    rate_limited: bool = False
     random_code: str = generate_random_code(config.program.codeMode)
 
     logger.info("Starting a Forcer session")
@@ -235,11 +243,11 @@ def try_codes(session: BrowserSession) -> None:
     # Generate a new code.
     try:
         while True:
-            sleep_duration_range = list(config.program.usualAttemptDelayRange)
-            # only if I didn't get ratelimited last time.
-            if make_new_code:
-                random_code = generate_random_code(config.program.codeMode)
+            if not rate_limited:
+                sleep_duration_range = list(config.program.usualAttemptDelayRange)
+            else:
                 sleep_duration_range = list(config.program.ratelimitedAttemptDelayRange)
+                rate_limited = False
 
             # Use the gen'd backup code only if it's not in the used_backup_codes.txt list. Add the code to the list if I use it.
             # the thing that really sucks here is even if a backup code is valid, by trying it here and logging in, I invalidate it. (backup codes expire on use)
@@ -255,25 +263,28 @@ def try_codes(session: BrowserSession) -> None:
                             logger.warning(f"Backup code {random_code} wasn't tested. Will test once the ratelimiting is over.")
                     else:
                         f.write(f"{random_code}\n")
+            else:
+                random_code = generate_random_code(config.program.codeMode)
 
             # Attempt the code
             try:
-                code_field_element = wait_longer.until(EC.element_to_be_clickable(code_field))
+                code_field_element = wait.until(EC.element_to_be_clickable(code_field))
                 code_field_element.clear()
                 code_field_element.send_keys(random_code)
                 time.sleep(secrets.choice(sleep_duration_range))
-                submit_button_element = wait_longer.until(EC.element_to_be_clickable(submit_button))
+                submit_button_element = wait.until(EC.element_to_be_clickable(submit_button))
                 submit_button_element.click()
-                sessionStats.attemptedCodeCount += 1
                 if isinstance(config.program.codeMode, CodeMode_Backup):
                     sessionStats.attemptedBackupCodeCount += 1
+                else:
+                    sessionStats.attemptedCodeCount += 1
             except TimeoutException as element_isnt_clickable:
-                logger.warning("Element isn't clickable yet after 15 sec. You may be on a slow network or ratelimited.")
+                logger.warning(f"Element isn't clickable yet after {config.program.elementLoadTolerance * 3} sec. You may be on a slow network or ratelimited.")
                 sessionStats.slowDownCount += 1
                 make_new_code = False
                 continue
 
-            # Success check. Break out if I succeed.
+            # Success check. Break out if it succeeded.
             try:
                 # CRITICAL PATH
                 # We want to know immediately if the homepage is present or not
@@ -289,39 +300,44 @@ def try_codes(session: BrowserSession) -> None:
                             break
                     break
             except NoSuchElementException as login_didnt_work:
-                match get_code_status(driver, wait, code_status_elt):
-                    case CodeStatusFound(message=code_status_msg, used_fallback=used_fallback):
-                        if used_fallback:
-                            # fmt:off
-                            logger.warning(f"Code Status Element '{code_status_elt[1]}' not found, using fallback selectors. Please report this to the developers.")
-                            # fmt:on
-                        match parse_code_error(code_status_msg, random_code):
-                            case InvalidCode(attempted_code=code, raw_message=msg):
-                                logger.warning(f"{msg}: {code}")
-                                make_new_code = True
-                            case RateLimited(raw_message=msg):
-                                logger.warning(msg)
-                                sessionStats.ratelimitCount += 1
-                                make_new_code = False
-                            case TokenExpired(raw_message=msg):
-                                logger.critical(f"{msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
-                                sys.exit()
-                            case ServiceUnavailable(raw_message=msg):
-                                logger.warning(f"{msg}: The service is unavailable, Discord is probably under maintenance.")
-                                sessionStats.serviceUnavailableCount += 1
-                                make_new_code = False
-                            case NetworkOffline(raw_message=msg):
-                                logger.error("Network disconnection detected. Trying again in 15 seconds...")
-                                time.sleep(15)
-                                make_new_code = False
-                            case UnknownError(raw_message=msg):
-                                logger.error(f"Encountered unimplemented status message. Tell the developers about this: {msg}")
-                    case CodeStatusNotFound():
-                        # fmt:off
-                        logger.warning(f"Code taking a long time to get submitted ( > {config.program.elementLoadTolerance} sec). You may be on a slow network or ratelimited.")
-                        # fmt:on
-                        make_new_code = True
-                        sessionStats.slowDownCount += 1
+                timer_code_taking_long = threading.Timer(15.0, _code_taking_long)
+                timer_code_taking_long.start()
+
+                try:
+                    match get_code_status(driver, wait_60s, code_status_elt):
+                        case CodeStatusFound(message=code_status_msg, used_fallback=used_fallback):
+                            if used_fallback:
+                                # fmt:off
+                                logger.warning(f"Code Status Element '{code_status_elt[1]}' not found, using fallback selectors. Please report this to the developers.")
+                                # fmt:on
+                            match parse_code_error(code_status_msg, random_code):
+                                case InvalidCode(attempted_code=code, raw_message=msg):
+                                    logger.warning(f"{msg}: {code}")
+                                    make_new_code = True
+                                case RateLimited(raw_message=msg):
+                                    logger.warning(msg)
+                                    sessionStats.ratelimitCount += 1
+                                    make_new_code = False
+                                    rate_limited = True
+                                case TokenExpired(raw_message=msg):
+                                    logger.critical(f"{msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
+                                    sys.exit()
+                                case ServiceUnavailable(raw_message=msg):
+                                    logger.warning(f"{msg}: The service is unavailable, Discord is probably under maintenance.")
+                                    sessionStats.serviceUnavailableCount += 1
+                                    make_new_code = False
+                                case NetworkOffline(raw_message=msg):
+                                    logger.error("Network disconnection detected. Trying again in 15 seconds...")
+                                    time.sleep(15)
+                                    make_new_code = False
+                                case UnknownError(raw_message=msg):
+                                    logger.error(f"Encountered unimplemented status message. Tell the developers about this: {msg}")
+                        case CodeStatusNotFound():
+                            logger.warning("Status never arrived after 60 sec. Skipping.")
+                            make_new_code = True
+                            sessionStats.slowDownCount += 1
+                finally:
+                    timer_code_taking_long.cancel()
 
     except KeyboardInterrupt:
         logger.critical("Stopping the program on KeyboardInterrupt!")
