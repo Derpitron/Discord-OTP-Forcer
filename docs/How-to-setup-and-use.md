@@ -5,13 +5,13 @@
 ### Windows
 
 1. Clone/download the repository.
-    - Download repository (https://codeberg.org/Derpitron/Discord-OTP-Forcer/archive/refs/heads/main.zip)
+    - Download repository (https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/archive/refs/heads/main.zip)
 
     *Or,*
     
     - Clone with Git
     ```
-      git clone https://codeberg.org/Derpitron/Discord-OTP-Forcer.git
+      git clone https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer.git
       ```
 2. Go to the location you installed the repository and run `scripts/Windows/setup.cmd`.
 3. The requisite dependencies will install then the `config/account.yml` and `config/program.yml` files will open, fill out the necessary details then save the files and close Notepad. If you are ready to start a forcer session now, type `Y` at the prompt. A new window will open starting a forcer session.
@@ -22,7 +22,7 @@
 ### Mac OS, Linux, other Non Windows based OS
 1. Clone/download the repository, and `cd` to it
 ```
-git clone https://codeberg.org/Derpitron/Discord-OTP-Forcer.git
+git clone https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer.git
 cd Discord-OTP-Forcer
 python -m venv .venv
 # Replace the below step with however you activate a virtualenv in your OS: https://docs.python.org/3/library/venv.html#creating-virtual-environments
@@ -74,14 +74,14 @@ If you plan on using the `Reset` mode you'll need to fill out the `newPassword` 
 ### How to get your token
 1. Go to https://discord.com/login and enter the email for the account and click forgot password.
 
-![plot](https://codeberg.org/Derpitron/Discord-OTP-Forcer/blob/main/docs/assets/passreset-token-instructions/readme(1).png)
+![plot](https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/raw/branch/main/docs/assets/passreset-token-instructions/readme(1).png)
 
 2. Find the password reset email and click reset password.
 
-![plot](https://codeberg.org/Derpitron/Discord-OTP-Forcer/blob/main/docs/assets/passreset-token-instructions/readme(2).png)
+![plot](https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/raw/branch/main/docs/assets/passreset-token-instructions/readme(2).png)
 
 3. Your token will be in the URL for the password reset page.
 
-![plot](https://codeberg.org/Derpitron/Discord-OTP-Forcer/blob/main/docs/assets/passreset-token-instructions/readme(3).png)
+![plot](https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/raw/branch/main/docs/assets/passreset-token-instructions/readme(3).png)
 
 _**You only need the part after `https://discord.com/reset#token=` the program will not work if you put the entire URL.**

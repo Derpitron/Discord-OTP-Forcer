@@ -157,7 +157,7 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
             "This may be caused by a low 'elementLoadTolerance' value in your program.yml. "
             "Try increasing it to 5, 7, or even higher if your internet connection is slow."
         )
-        logger.critical("If nothing of this works, go to https://codeberg.org/Derpitron/Discord-OTP-Forcer/discussions/ to ask for help.")
+        logger.critical("If nothing of this works, go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues to ask for help.")
         sys.exit(1)
 
     wait.until(EC.presence_of_element_located(password_field)).send_keys(Keys.RETURN)
@@ -184,7 +184,7 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
                 logger.critical(
                     "Cannot use backup mode because you likely have no backup codes left. "
                     "If the 'Verify with something else' button did actually appear, "
-                    "please go to https://codeberg.org/Derpitron/Discord-OTP-Forcer/issues and create an issue."
+                    "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues and create an issue."
                 )
                 sys.exit(1)
             case CodeMode_Normal():
