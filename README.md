@@ -1,12 +1,14 @@
 # Discord-OTP-Forcer
 This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8 digit codes with a random delay between each attempt.
+
 ![image](./docs/assets/readme/normal-log.png)
+
 *Look at him go!*
 
 Instructions on how to setup and use this program can be found on the [Documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/)
 
 > [!NOTE]  
-> Going forward I am not maintaining this program personally anymore due to circumstances. Everyone is free to maintain, fix, update the program and if you add PRs to this repo I'll merge them every now and then, or if you are interested and worthy for maintainership I'll add you as co-owner of the repo so you can merge and maintain it easily. Consider this program only community-maintained now. Much love to all the users, maintainers, bugfixers, and contributors, you've been real ones!
+> This program has now shifted to a community-based maintainership model. Anyone can participate, fork, make fixes by filing pull requests, tutorials, update documentation and tutorials, etc. However, no guaranty is provided on its' security, functionality, or viability.
 
 # Features
 - Brute forces 6 digit TOTP codes (1 million possible codes) and 8 digit Backup codes (2.82 trillion possible codes)
@@ -36,11 +38,13 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
 - Depends on HTML element class names, and en-US localised strings on the screen in order to detect failure/success
 
 # Credits
+- [Derpitron](https://codeberg.org/derpitron) for creating and maintaining the program at first
 - [SpaghettDev](https://github.com/SpaghettDev) for their [frick-discord-2fa](https://github.com/SpaghettDev/frick-discord-2fa) script, which gave me the base for the codegen.py and textcolor.py libraries. This program wouldn't exist without his inspiration ❤️
 - [Luminaex](https://github.com/Luminaex) for implementing 8-char Backup OTP code brute-forcing, Password Reset OTP forcing, various bug fixes, and maintaining this program when I couldn't ❤️
 - [progressEdd](https://github.com/progressEdd) for fixing a chromedriver installation bug a while ago ❤️
 - [nyathea](https://github.com/nyathea) for adding a missing config option ❤️
 - [ultrafunkamsterdam](https://github.com/ultrafunkamsterdam) for making and maintaining the `undetected-chromedriver` library that this program uses. ❤️
+- [inbydev](https://codeberg.org/inbydev) for maintaining the program for now
 
 ---
 # Disclaimer
