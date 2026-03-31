@@ -8,7 +8,7 @@ Discord OTP Forcer Wiki
 
 ---
 
-Instructions on how to setup and use this program can be found on the [Documentation](https://inbydev.codeberg.page/en/user/setup/)
+Instructions on how to setup and use this program can be found on the [Documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/)
 
 ---
 
