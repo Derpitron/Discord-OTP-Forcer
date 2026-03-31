@@ -83,7 +83,7 @@ def _fetch_github_version() -> GitHubVersion | VersionCheckError:
     """
     Fetches the remote pyproject.toml from GitHub and extracts the version.
     """
-    content = _fetch_url("https://raw.githubusercontent.com/Derpitron/Discord-OTP-Forcer/refs/heads/main/pyproject.toml")
+    content = _fetch_url("https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/raw/branch/main/pyproject.toml")
     if isinstance(content, NetworkError):
         return content
 
@@ -98,8 +98,8 @@ def _fetch_latest_commit_hash() -> str | None:
     """
     Fetches the latest commit hash from the main branch on GitHub.
     """
-    # BROKEN
-    data = _fetch_json("https://api.github.com/repos/Derpitron/Discord-OTP-Forcer/git/ref/heads/main")
+    # Maybe not broken? need to be tested
+    data = _fetch_json("https://codeberg.org/api/v1/repos/Discord-OTP-Forcer/Discord-OTP-Forcer/git/refs/heads/main")
     if isinstance(data, NetworkError):
         return None
 

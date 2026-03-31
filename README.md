@@ -3,7 +3,7 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 ![image](./docs/assets/readme/normal-log.png)
 *Look at him go!*
 
-Instructions on how to setup and use this program can be found on the [wiki](https://codeberg.org/Derpitron/Discord-OTP-Forcer/wiki/How-to-setup-and-use)
+Instructions on how to setup and use this program can be found on the [Documentation](https://inbydev.codeberg.page/en/user/setup/)
 
 > [!NOTE]  
 > Going forward I am not maintaining this program personally anymore due to circumstances. Everyone is free to maintain, fix, update the program and if you add PRs to this repo I'll merge them every now and then, or if you are interested and worthy for maintainership I'll add you as co-owner of the repo so you can merge and maintain it easily. Consider this program only community-maintained now. Much love to all the users, maintainers, bugfixers, and contributors, you've been real ones!
@@ -58,4 +58,4 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-Tldr; I am not responsible for anything you do with this script, and I do not condone (but cannot prevent) the usage of this script to hack into accounts which you do not properly own. The onus is on you to not be evil. Read the [License](https://codeberg.org/Derpitron/Discord-OTP-Forcer/blob/main/LICENSE) for full information on your rights and responsibilities which pertain to this program.
+Tldr; I am not responsible for anything you do with this script, and I do not condone (but cannot prevent) the usage of this script to hack into accounts which you do not properly own. The onus is on you to not be evil. Read the [License](https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/src/branch/main/LICENSE) for full information on your rights and responsibilities which pertain to this program.
