@@ -252,6 +252,9 @@ def try_codes(session: BrowserSession) -> None:
             # Use the gen'd backup code only if it's not in the used_backup_codes.txt list. Add the code to the list if I use it.
             # the thing that really sucks here is even if a backup code is valid, by trying it here and logging in, I invalidate it. (backup codes expire on use)
             if isinstance(config.program.codeMode, CodeMode_Backup):
+                if make_new_code:
+                    random_code = generate_random_code(config.program.codeMode)
+
                 with open("secret/used_backup_codes.txt", "a+") as f:
                     f.seek(0)
                     used_backup_codes: list[str] = f.read().splitlines()
@@ -334,7 +337,7 @@ def try_codes(session: BrowserSession) -> None:
                                     logger.error(f"Encountered unimplemented status message. Tell the developers about this: {msg}")
                         case CodeStatusNotFound():
                             logger.warning("Status never arrived after 60 sec. Skipping.")
-                            make_new_code = True
+                            make_new_code = False
                             sessionStats.slowDownCount += 1
                 finally:
                     timer_code_taking_long.cancel()
