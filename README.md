@@ -6,7 +6,7 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 *Look at him go!*
 
 > [!NOTE]
-> This program has now shifted to a community-based maintainership model. Anyone can participate, fork, make fixes by filing pull requests, tutorials, update documentation, etc. However, no guaranty is provided on its' security, functionality, or viability.
+> This program has now shifted to a community-based maintainership model. Anyone can participate, fork, make fixes by filing pull requests, tutorials, update documentation, etc. However, no guarantee is provided on its' security, functionality, or viability.
 
 # Features
 - Brute forces 6 digit TOTP codes (1 million possible codes) and 8 digit Backup codes (2.82 trillion possible codes)
