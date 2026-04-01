@@ -1,14 +1,12 @@
 # Discord-OTP-Forcer
 This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8 digit codes with a random delay between each attempt.
 
-![image](./docs/assets/readme/normal-log.png)
+![Screenshot of how the program looks running with the logs](./docs/assets/readme/normal-log.png)
 
 *Look at him go!*
 
-Instructions on how to setup and use this program can be found on the [Documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/)
-
-> [!NOTE]  
-> This program has now shifted to a community-based maintainership model. Anyone can participate, fork, make fixes by filing pull requests, tutorials, update documentation and tutorials, etc. However, no guaranty is provided on its' security, functionality, or viability.
+> [!NOTE]
+> This program has now shifted to a community-based maintainership model. Anyone can participate, fork, make fixes by filing pull requests, tutorials, update documentation, etc. However, no guaranty is provided on its' security, functionality, or viability.
 
 # Features
 - Brute forces 6 digit TOTP codes (1 million possible codes) and 8 digit Backup codes (2.82 trillion possible codes)
@@ -22,8 +20,8 @@ Instructions on how to setup and use this program can be found on the [Documenta
 - Robust easy to read log formatting
 - User friendly
 
-# How to use:
-See this repo's Documentation for the user or the `docs` folder for this section. https://discord-otp-forcer.codeberg.page/en/user/setup/
+# How to use
+Instructions on how to set up and use this program can be found in the [Documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/) or in the Wiki tab in the repository.
 Here's a video tutorial: https://www.youtube.com/watch?v=v4skgYVmvQg
 
 # Dependencies
@@ -34,17 +32,16 @@ Here's a video tutorial: https://www.youtube.com/watch?v=v4skgYVmvQg
 # Why did I make this?
 In December 2021, I lost access to my passwords and OTP list due to a file syncing issue. I was able to recover most of the credentials, except for my Discord Alt. When I contacted Discord Support, they informed me that due to their security policy, they could not disable 2FA for that account, which while it is understandable, is unfortunate. As a proof-of-concept program, I hacked together this crude script which simply brute forces randomly generated 6 digit numbers to the Discord login's TOTP field.
 
-# Known Issues
-- Depends on HTML element class names, and en-US localised strings on the screen in order to detect failure/success
-
 # Credits
-- [Derpitron](https://codeberg.org/derpitron) for creating and maintaining the program at first
-- [SpaghettDev](https://github.com/SpaghettDev) for their [frick-discord-2fa](https://github.com/SpaghettDev/frick-discord-2fa) script, which gave me the base for the codegen.py and textcolor.py libraries. This program wouldn't exist without his inspiration ❤️
+- [Derpitron](https://codeberg.org/derpitron): Creator and Maintainer from April, 2022 to March, 2026
+- [SpaghettDev](https://github.com/SpaghettDev): Creator of [frick-discord-2fa](https://github.com/SpaghettDev/frick-discord-2fa) script. Which gave me the base for the codegen.py and textcolor.py libraries. This program wouldn't exist without his inspiration ❤️
 - [Luminaex](https://github.com/Luminaex) for implementing 8-char Backup OTP code brute-forcing, Password Reset OTP forcing, various bug fixes, and maintaining this program when I couldn't ❤️
 - [progressEdd](https://github.com/progressEdd) for fixing a chromedriver installation bug a while ago ❤️
 - [nyathea](https://github.com/nyathea) for adding a missing config option ❤️
-- [ultrafunkamsterdam](https://github.com/ultrafunkamsterdam) for making and maintaining the `undetected-chromedriver` library that this program uses. ❤️
-- [inbydev](https://codeberg.org/inbydev) for maintaining the program for now
+- [ultrafunkamsterdam](https://github.com/ultrafunkamsterdam): Creator and former maintainer of the `undetected-chromedriver` library that this program was using before ❤️
+- [mdmintz](https://github.com/mdmintz) for making and maintaining [SeleniumBase] library that this program relies on!
+- [MicXDev](https://codeberg.org/MicXDev): Maintainer of cmd files for Windows!
+- [inbydev](https://codeberg.org/inbydev): Maintainer since February, 2026
 
 ---
 # Disclaimer
