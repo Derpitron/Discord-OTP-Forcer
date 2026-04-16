@@ -1,0 +1,32 @@
+name: "Missing Test"
+description: "Report a missing test or coverage gap in the project"
+labels:
+  - testing
+body:
+  - type: dropdown
+    attributes:
+      label: Test Type
+      description: What kind of test needs to be added?
+      options:
+        - Unit (Pytest)
+        - E2E (SeleniumBase)
+        - Integration
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: What needs to be tested?
+      description: Specify the exact function, class, type, etc. that lacks coverage.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Suggested approach
+      description: If you have an idea of how to write the test, describe it here.
+
+  - type: textarea
+    attributes:
+      label: Context
+      description: Links to relevant files, functions or edge cases.
