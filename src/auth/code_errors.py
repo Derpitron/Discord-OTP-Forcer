@@ -42,6 +42,13 @@ _RATE_LIMIT_MESSAGES: frozenset[str] = frozenset(
     }
 )
 
+_SERVICE_UNAVAILABLE_MESSAGES: frozenset[str] = frozenset(
+    {
+        "POST /auth/mfa/totp [503]",
+        "503: Service Unavailable",
+    }
+)
+
 
 def get_code_status(
     driver: WebDriver,
@@ -78,7 +85,7 @@ def parse_code_error(raw_message: str, attempted_code: str) -> CodeError:
             return RateLimited(raw_message=raw_message)
         case "POST /auth/reset [400]":
             return TokenExpired(raw_message=raw_message)
-        case "POST /auth/mfa/totp [503]":
+        case msg if msg in _SERVICE_UNAVAILABLE_MESSAGES:
             return ServiceUnavailable(raw_message=raw_message)
         case msg if "the network is offline" in msg:
             return NetworkOffline(raw_message=raw_message)
