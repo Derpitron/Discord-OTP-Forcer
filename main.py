@@ -108,11 +108,11 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
 
     if check_updates is None:
         logger.warning(
-            "Your configuration is not updated. Please check the updated config at: https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/src/branch/main/config/program.yml"
+            "Your configuration is not up to date. Please use the updated config at: https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/src/branch/main/config/program.yml"
         )
-        logger.warning("Missing configurations: 'checkUpdates'.  Defaulting to False since the configuration doesn't exist.")
+        logger.warning("Missing configuration: 'checkUpdates' - Defaulting to False since the configuration doesn't exist.")
 
-    logger.debug("Loaded config/account.yml, config/program.yml config files.")
+    logger.debug("Loaded config/account.yml and config/program.yml config files.")
 
     return Config(account=accountConfig, program=programConfig)
 

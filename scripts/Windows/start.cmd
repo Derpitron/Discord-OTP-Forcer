@@ -1,4 +1,54 @@
 @echo off
 cd /d "%~dp0..\..\"
-python main.py
+where python >nul 2>&1
+if not errorlevel 1 (
+    python.exe main.py
+    if errorlevel 1 (
+        echo Failed to start.
+        pause
+        exit /b 1
+    )
+)
+
+echo Python not found in environment variables, checking explicitly...
+
+set "foundPython="
+
+for /d %%D in ("%LocalAppData%\Programs\Python\Python*") do (
+    if exist "%%D\python.exe" (
+        set "foundPython=%%D\python.exe"
+        goto :runPython
+    )
+)
+
+for /d %%D in ("%ProgramFiles%\Python*") do (
+    if exist "%%D\python.exe" (
+        set "foundPython=%%D\python.exe"
+        goto :runPython
+    )
+)
+
+echo Failed to find a Python installation. Make sure Python is installed in Local AppData or Program Files
+echo If you don't have it, you can download Python from: https://www.python.org/downloads/windows/ and click Latest Python 3 Release
+choice /m "Would you like to open your browser to download it?"
+  if errorlevel 2 goto failureEnd
+  if errorlevel 1 (
+    echo Opening default browser
+    start "" https://www.python.org/downloads/windows/
+    exit
+  )
+
+:failureEnd
+echo Closing...
+timeout /t 2 >nul
+exit /b 1
+
+:runPython
+"%foundPython%" main.py
+if errorlevel 1 (
+    echo Failed to start.
+    pause
+    exit /b 1
+)
+
 pause
