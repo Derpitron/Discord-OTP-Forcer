@@ -103,7 +103,7 @@ def _fetch_latest_commit_hash() -> str | None:
     if isinstance(data, NetworkError):
         return None
 
-    commit_hash = data.get("object", {}).get("sha", "")
+    commit_hash = data[0].get("object", {}).get("sha", "")
     return commit_hash[:7] if commit_hash else None
 
 
