@@ -206,4 +206,4 @@ class NetworkError:
 VersionCheckError = TomlNotFound | TomlParseError | NetworkError
 
 LocalVersion = NewType("LocalVersion", str)
-GitHubVersion = NewType("GitHubVersion", str)
+CodebergVersion = NewType("CodebergVersion", str)
