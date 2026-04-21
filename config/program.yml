@@ -3,10 +3,10 @@
 # If an option is invalid you should input it exactly like how it appears below in the comments, or in the src.lib.types.py file.
 # Note: put a space after the `:` for all the config options, or else the config format will be wrong.
 
-# Program mode configuration. Login is for a normal login, Reset is for when you want/need to reset your password and then Force codes, e.g discord forces you to reset the password.
+# Program mode configuration. Login is for normal login, Reset is for when you want/need to reset your password and then Force codes, e.g Discord forces you to reset the password.
 # Valid Modes:
 # Login, Reset
-programMode:
+programMode: 
 
 # This can be "normal" for 6 digit OTP codes that change every 30 seconds, or "Backup" for 8 digit alphanumeric codes (that take quite more time.)
 # There are 10^6 possible "normal" codes, and 36^8 possible "Backup" codes.
@@ -18,12 +18,12 @@ programMode:
 
 # Valid Options:
 # Normal, Backup, "<custom regex>" (counts as Backup mode). Make sure to put it in double-quotes or it won't work.
-codeMode:
+codeMode: 
 
 # Chromium based options runs with undetected-chromedriver.
 # Valid Options:
 # Chrome, Chromium, Thorium, Brave
-browser:
+browser: 
 
 # If True, this option redacts sensitive log info.
 # If False, this option reveals sensitive log info like your password, resetToken, and email address.
@@ -41,7 +41,7 @@ sensitiveDebug: True
 logCreation: False
 
 # Enable the update checker.
-# If True, fetches pyproject.toml from github.com to check for updates.
+# If True, fetches pyproject.toml from codeberg.org to check for updates.
 # If False, the program does not make this network request.
 # Valid Options:
 # True, False

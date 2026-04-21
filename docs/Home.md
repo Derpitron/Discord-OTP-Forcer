@@ -3,12 +3,12 @@ Discord OTP Forcer Wiki
 </h1>
 
 <p align="center">
-<b>This wiki should have all the information you'll need to setup and run the discord OTP forcer code.</b>
+<b>This wiki should have all the information you'll need to setup and run Discord OTP Forcer</b>
 </p>
 
 ---
 
-Instructions on how to setup and use this program can be found on the [Documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/)
+**NEW**: Instructions on how to setup and use this program can be found on the new [documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/). You can still use this wiki though - just click the Page button at the top!
 
 ---
 
@@ -47,6 +47,9 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
 - [progressEdd](https://github.com/progressEdd) for fixing a chromedriver installation bug a while ago ❤️
 - [nyathea](https://github.com/nyathea) for adding a missing config option ❤️
 - [ultrafunkamsterdam](https://github.com/ultrafunkamsterdam) for making and maintaining the `undetected-chromedriver` library that this program uses.
+- [mdmintz](https://github.com/mdmintz) for making and maintaining [SeleniumBase](https://github.com/seleniumbase/SeleniumBase) library that this program relies on!
+- [MicXDev](https://codeberg.org/MicXDev): Maintainer of cmd files for Windows!
+- [inbydev](https://codeberg.org/inbydev): Maintainer since February, 2026
 
 ---
 # Disclaimer

@@ -153,15 +153,15 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
         wait.until(EC.presence_of_element_located(password_field)).send_keys(Keys.RETURN)
     except TimeoutException:
         logger.critical(
-            "Could not locate the email or password field on the page. "
-            "This may be caused by a low 'elementLoadTolerance' value in your program.yml. "
-            "Try increasing it to 5, 7, or even higher if your internet connection is slow."
+            "Could not locate the email or password field on the page."
+            "This may be caused by a low 'elementLoadTolerance' value in your config/program.yml file."
+            "Try increasing it to 5, 7 or even higher if your internet connection or computer is slow."
         )
-        logger.critical("If nothing of this works, go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues to ask for help.")
+        logger.critical("If that does not fix the issue, go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues to ask for help.")
         sys.exit(1)
 
     wait.until(EC.presence_of_element_located(password_field)).send_keys(Keys.RETURN)
-    logger.debug("Found and inputted basic login fields")
+    logger.debug("Found and entered basic login fields")
 
     captcha_detection(session)
 
@@ -182,8 +182,8 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
         match config.program.codeMode:
             case CodeMode_Backup():
                 logger.critical(
-                    "Cannot use backup mode because you likely have no backup codes left. "
-                    "If the 'Verify with something else' button did actually appear, "
+                    "Cannot use backup mode - you likely have no backup codes left."
+                    "If the 'Verify with something else' button did actually appear,"
                     "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues and create an issue."
                 )
                 sys.exit(1)
@@ -198,11 +198,11 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
         msg: str
         match config.program.programMode:
             case ProgramMode.Login:
-                msg = "Could not log-in to account. Are your email and password correct?  You may have to reset your password. Check the wiki/docs for instructions on this"
+                msg = "Could not log in to your account. Is your email and password correct? You may have to reset your password. Check the wiki/docs for more information."
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
             case ProgramMode.Reset:
-                msg = "Your password reset token may be expired. Refresh it and fill it in.  Check https://discord-otp-forcer.codeberg.page/en/user/setup/#how-to-get-your-reset-token"
+                msg = "Your password reset token may have expired. Refresh it and fill it in your config/account.yml file. See https://discord-otp-forcer.codeberg.page/en/user/setup/#how-to-get-your-reset-token for more information."
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
 
@@ -210,7 +210,7 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
 
 
 def _code_taking_long() -> None:
-    logger.warning("Code taking longer than 15s, you may be on a slow network or ratelimited. Still waiting for status...")
+    logger.warning("Code taking longer than 15s to submit, you may be on a slow network or rate-limited. Waiting for status...")
 
 
 def try_codes(session: BrowserSession) -> None:
@@ -323,7 +323,7 @@ def try_codes(session: BrowserSession) -> None:
                                     make_new_code = False
                                     rate_limited = True
                                 case TokenExpired(raw_message=msg):
-                                    logger.critical(f"{msg}: The reset token has expired. Please create a new reset token and update it in account.yml")
+                                    logger.critical(f"{msg}: The reset token has expired. Please create a new reset token and update it in config/account.yml")
                                     sys.exit()
                                 case ServiceUnavailable(raw_message=msg):
                                     logger.warning(f"{msg}: The service is unavailable, Discord is probably under maintenance.")

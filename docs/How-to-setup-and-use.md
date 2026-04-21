@@ -1,5 +1,14 @@
+> [!NOTE]
+> This wiki has been moved to a documentation website which should make it easier to follow. This wiki may not be as up to date or may even be removed at some point. It is recommended to go to the [new site](https://discord-otp-forcer.codeberg.page/en/user/setup/) instead.
+
+### Video Walkthorugh
+[Aglitar](https://github.com/Aglitar) made this video tutorial on how to use it. You can follow this if the instructions below or on the new documentation don't help you:
+<br>
+https://www.youtube.com/watch?v=v4skgYVmvQg
+
 ### Requirements
 - Python >= 3.13 (https://www.python.org/downloads)
+  - On Windows, make sure you tick 'Add to PATH' upon installing to prevent issues!
 - Google Chrome (https://www.google.com/chrome)
 ---
 ### Windows
@@ -14,12 +23,12 @@
       git clone https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer.git
       ```
 2. Go to the location you installed the repository and run `scripts/Windows/setup.cmd`.
-3. The requisite dependencies will install then the `config/account.yml` and `config/program.yml` files will open, fill out the necessary details then save the files and close Notepad. If you are ready to start a forcer session now, type `Y` at the prompt. A new window will open starting a forcer session.
+3. The requisite dependencies will install. After installation, the `config/account.yml` and `config/program.yml` files will open. Fill out the necessary details, then save the files and close Notepad. If you are ready to start a forcer session now, type `Y` at the prompt. A new window will open starting a forcer session.
 4. If you chose 'No' to starting a forcer session on the setup script, when you are ready, run `scripts/Windows/start.cmd` and follow the instructions in the command prompt. 
-5. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
+5. An automated Google Chrome window will open. If and when the hCaptcha appears, complete it as normal.
 6. Wait for either a successful login, or a closed browser window (Failure to brute force codes). Go to the "Running the program" section for the main instructions.
 ---
-### Mac OS, Linux, other Non Windows based OS
+### macOS, Linux, other Non-Windows-based OS
 1. Clone/download the repository, and `cd` to it
 ```
 git clone https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer.git
@@ -41,7 +50,7 @@ pip install -r dependencies.txt
 ```
 python main.py
 ```
-7. An automated Google Chrome window will open. When the hCaptcha appears, complete it as normal.
+7. An automated Google Chrome window will open. If and when the hCaptcha appears, complete it as normal.
 8. **Wait for either a successful login**, or a closed browser window (Failure to brute force codes)
 9. If it succeeds, **The program will PRINT YOUR ACCOUNT TOKEN TO CONSOLE**. Be warned and don't run this where someone else could access the log. **It will also save it to a file in `secret/token.txt`**. If there were multiple codes there, the latest, only-valid code is at the bottom of the file. Save this token 13 times safely and write it on a piece of paper.
 10. **do NOT log out, log in from a different device, or change account setting**. Under any circumstances or the token will be regenerated, making your currently obtained token invalid. Even if the browser closes, that's fine, the latest token will be active and usable to log-in. If you're logged in and secure on the browser though, you won't be signed out and will be able to use Discord like normal, so be very wary when doing this.
@@ -54,7 +63,7 @@ python main.py
 
 ---
 ### Filling out the program.yml file
-The program has two modes `Reset` and `Login` we'll need to set `programMode` to one of these.
+The program has two modes `Reset` and `Login`. You will need to set `programMode` to one of these.
  * `programMode: Reset` Will set the program to password reset mode. It'll log in to your account using the password reset token `resetToken`, enter your desired `newPassword`, and then Force codes.
  * `programMode: Login` Will set the program to login mode. This is a normal email+password login which will then (usually) ask you for a Captcha, then start Forcing codes.
 
