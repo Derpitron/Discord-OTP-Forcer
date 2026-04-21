@@ -4,7 +4,7 @@ import requests
 
 from .types import (
     LocalVersion,
-    GitHubVersion,
+    CodebergVersion,
     VersionCheckError,
     TomlNotFound,
     TomlParseError,
@@ -79,9 +79,9 @@ def _get_local_version() -> LocalVersion | VersionCheckError:
         return TomlNotFound()
 
 
-def _fetch_github_version() -> GitHubVersion | VersionCheckError:
+def _fetch_codeberg_version() -> CodebergVersion | VersionCheckError:
     """
-    Fetches the remote pyproject.toml from GitHub and extracts the version.
+    Fetches the remote pyproject.toml from Codeberg and extracts the version.
     """
     content = _fetch_url("https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/raw/branch/main/pyproject.toml")
     if isinstance(content, NetworkError):
@@ -91,12 +91,12 @@ def _fetch_github_version() -> GitHubVersion | VersionCheckError:
     if isinstance(extracted_version, TomlParseError):
         return extracted_version
 
-    return GitHubVersion(extracted_version)
+    return CodebergVersion(extracted_version)
 
 
 def _fetch_latest_commit_hash() -> str | None:
     """
-    Fetches the latest commit hash from the main branch on GitHub.
+    Fetches the latest commit hash from the main branch on Codeberg.
     """
     # Maybe not broken? need to be tested
     data = _fetch_json("https://codeberg.org/api/v1/repos/Discord-OTP-Forcer/Discord-OTP-Forcer/git/refs/heads/main")
@@ -119,32 +119,32 @@ def _log_version_error(error: VersionCheckError, source: str) -> None:
 
 def check_for_updates() -> None:
     """
-    Compares the local version against the latest GitHub version and logs the result.
+    Compares the local version against the latest Codeberg version and logs the result.
     """
     local_version = _get_local_version()
     if isinstance(local_version, (TomlNotFound, TomlParseError, NetworkError)):
         _log_version_error(local_version, "local")
         return
 
-    github_version = _fetch_github_version()
-    if isinstance(github_version, (TomlNotFound, TomlParseError, NetworkError)):
-        _log_version_error(github_version, "GitHub")
+    codeberg_version = _fetch_codeberg_version()
+    if isinstance(codeberg_version, (TomlNotFound, TomlParseError, NetworkError)):
+        _log_version_error(codeberg_version, "Codeberg")
         return
 
     local = _parse_version(local_version)
-    github = _parse_version(github_version)
+    codeberg = _parse_version(codeberg_version)
 
-    # github > local  → 1 - 0 =  1  (github is newer)
-    # github < local  → 0 - 1 = -1  (local is newer)
-    # github == local → 0 - 0 =  0  (same version)
-    result = (github > local) - (github < local)
+    # codeberg > local  → 1 - 0 =  1  (codeberg is newer)
+    # codeberg < local  → 0 - 1 = -1  (local is newer)
+    # codeberg == local → 0 - 0 =  0  (same version)
+    result = (codeberg > local) - (codeberg < local)
 
     match result:
         case 1:
-            logger.warning(f"New version available: {github_version} (Current: {local_version})")
+            logger.warning(f"New version available: {codeberg_version} (Current: {local_version})")
             if commit_hash := _fetch_latest_commit_hash():
                 logger.warning(f"Latest commit on main: {commit_hash}")
         case -1:
-            logger.info(f"Local version {local_version} is ahead of GitHub: {github_version}")
+            logger.info(f"Local version {local_version} is ahead of Codeberg: {codeberg_version}")
         case 0:
             logger.info(f"You are on the latest version: {local_version}")

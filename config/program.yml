@@ -1,32 +1,32 @@
 # All config validation/parsing logic lives in main.py
 # All valid options live in src.lib.types.py
-# If an option is invalid you should input it exactly like how it appears below in the comments, or in the src.lib.types.py file.
-# Note: put a space after the `:` for all the config options, or else the config format will be wrong.
+# If an option is invalid you should input it exactly like how it appears below in the comments or in the src.lib.types.py file.
+# Note: put a space after the `:` for all the config options or else the config format will be wrong.
 
-# Program mode configuration. Login is for a normal login, Reset is for when you want/need to reset your password and then Force codes, e.g discord forces you to reset the password.
+# Program mode configuration. Login is for normal login, Reset is for when you want/need to reset your password and then Force codes, e.g Discord forces you to reset the password.
 # Valid Modes:
 # Login, Reset
-programMode:
+programMode: 
 
-# This can be "normal" for 6 digit OTP codes that change every 30 seconds, or "Backup" for 8 digit alphanumeric codes (that take quite more time.)
+# This can be "normal" for 6 digit OTP codes that change every 30 seconds or "Backup" for 8 digit alphanumeric codes (that take quite more time.)
 # There are 10^6 possible "normal" codes, and 36^8 possible "Backup" codes.
 # While the normal codes change every 30 seconds (i.e the code that might not work now, may have worked 1 second after we entered it because it was on the 30 second interval),
 # It's still a good bet to use them because bruteforcing 36^8 possible codes could take more time than the heat death of the universe.
 # You can also put a CUSTOM REGEX here in case you remember half of your Backup code but wanna bruteforce the rest. In this case you'd be REDUCING the possible max amount of time
 # To bruteforce all the codes. Very useful if you remember half your code. To create a proper regex for what you remember, check out https://regex101.com.
-# If you use the regex mode, it'll be counted as a Backup code.
+# If you use the regex mode, it will be counted as a Backup code.
 
 # Valid Options:
 # Normal, Backup, "<custom regex>" (counts as Backup mode). Make sure to put it in double-quotes or it won't work.
-codeMode:
+codeMode: 
 
 # Chromium based options runs with undetected-chromedriver.
 # Valid Options:
 # Chrome, Chromium, Thorium, Brave
-browser:
+browser: 
 
 # If True, this option redacts sensitive log info.
-# If False, this option reveals sensitive log info like your password, resetToken, and email address.
+# If False, this option reveals sensitive log info like your password, resetToken and email address.
 # Unless you know what you're doing you should probably keep this at True.
 # If the logLevel is higher than DEBUG or SENSITIVE_DEBUG, this will have no effect as credentials wouldn't be printed in those levels.
 # Valid Options:
@@ -41,14 +41,14 @@ sensitiveDebug: True
 logCreation: False
 
 # Enable the update checker.
-# If True, fetches pyproject.toml from github.com to check for updates.
+# If True, fetches pyproject.toml from codeberg.org to check for updates.
 # If False, the program does not make this network request.
 # Valid Options:
 # True, False
 # Default: True
 checkUpdates: True
 
-# Enable headless mode (no browser gui spawned). Very untested and unrecommended unless you set logCreation =  True and save the account token. TODO:save the account token.
+# Enable headless mode (no browser gui spawned). Very untested and unrecommended unless you set logCreation = True and save the account token. TODO:save the account token.
 # Valid Options:
 # True, False
 # Default: False
@@ -60,26 +60,26 @@ headless: False
 # Default: INFO
 logLevel: INFO
 
-# The maximum amount of seconds to wait for a HTML element (e.g password entry field, code submission button) to load in, before crashing.
+# The maximum amount of seconds to wait for a HTML element (e.g password entry field, code submission button) to load in before crashing.
 # If the element is found before the time elapses, it works as normal and doesn't crash.
-# If the element is not found though, it will usually either trigger various internal points in the code that automatically handle it, or will crash, if we really need the element.
+# If the element is not found though, it will usually either trigger various internal points in the code that automatically handles it (or will crash if we really need the element).
 # Refer https://www.selenium.dev/documentation/webdriver/waits/ "Implicit Wait" section here for how it works.
 # This is in seconds unit and can take a float value.
 # Default: 3
 elementLoadTolerance: 3
 
-# Set the range for the minimum and maximum "amount of seconds" to wait, after I attempt a code.
+# Set the range for the minimum and maximum "amount of seconds" to wait after attempting a code.
 # This is so we don't unnecessarily tax Discord's infrastructure by spamming them.
-# Please do not lower the min-bound any more than "6", from my testing.
+# Please do not lower the min-bound any more than "6", from testing.
 # The range this takes is in the form [min, max)
 # This is in seconds unit and takes only integer value.
 # Default: Min: 6, Max: 8
 usualAttemptDelayMin: 6
 usualAttemptDelayMax: 8
 
-# Set the range for the minimum and maximum "amount of seconds" to wait, after I attempt a code and we get ratelimited by Discord.
+# Set the range for the minimum and maximum "amount of seconds" to wait after attempting a code and getting rate-limited by Discord.
 # This is so we don't unnecessarily tax Discord's infrastructure by spamming them and don't trigger spam-detection blocks by giving them some time to recover.
-# Please do not lower the min-bound any more than "7", from my testing. Lowering this might cause you to get temp or perma IP banned for repeated spam
+# Please do not lower the min-bound any more than "7" from testing. Lowering this might cause you to get temp or perma IP banned for repeated spam
 # The range this takes is in the form [min, max)
 # This is in seconds unit and takes only integer value.
 # Default: Min: 6, Max: 8

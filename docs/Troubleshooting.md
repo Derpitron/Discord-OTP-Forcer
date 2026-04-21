@@ -4,13 +4,17 @@ Troubleshooting
 
 <p align="center">
 <b>This part of the wiki should hopefully help you when something isn't working right.</b> The first thing to do before filing an issue is<br>1. check here for any issues you might face, <br>2. search the web for the error and try to solve it yourself.<br> If that doesn't work for you, feel free to file an issue with the details.
+
+You might also want to check out these pages for fixes:
+- https://github.com/Derpitron/Discord-OTP-Forcer/discussions/categories/tips-tricks-hacks
+- https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/wiki/Useful-hacks
 </p>
 
 ---
 
 | Issue | Possible solution |
 |     :---:      |     :---:     |
-| `'pip' is not recognized as an internal or external command` | [https://stackoverflow.com/a/56678271/19195633](https://stackoverflow.com/a/56678271/19195633)    |
+| `'pip' is not recognized as an internal or external command` | Make sure that you included pip with your Python installation. If you have and it's still not working, try running pip like this: `python.exe -m pip [command]`    |
 | `The script is installed in directory, which is not PATH` | [https://superuser.com/questions/1372793/the-script-is-installed-in-directory-which-is-not-path](https://superuser.com/questions/1372793/the-script-is-installed-in-directory-which-is-not-path)
 
 ## Error when running the program in the temp directory

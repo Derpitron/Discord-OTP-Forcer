@@ -21,7 +21,7 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 - User friendly
 
 # How to use
-Instructions on how to set up and use this program can be found in the [Documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/) or in the Wiki tab in the repository.
+Instructions on how to set up and use this program can be found in the new [documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/) or the Wiki tab in the repository.<br>
 Here's a video tutorial: https://www.youtube.com/watch?v=v4skgYVmvQg
 
 # Dependencies

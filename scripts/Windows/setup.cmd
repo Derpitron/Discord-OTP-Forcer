@@ -60,6 +60,7 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
+goto :success
 
 :success
 echo Dependencies installed successfully!
@@ -95,4 +96,3 @@ echo -----------
 echo Closing...
 timeout /t 2 >nul
 exit
-
