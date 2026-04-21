@@ -4,7 +4,7 @@ version = "0.3.5"
 description = "Selenium based discord OTP forcer"
 requires-python = ">=3.11"
 dependencies = [
-    "seleniumbase==4.48.0",
+    "seleniumbase==4.48.2",
     "PyYAML==6.0.3",
     "stackprinter==0.2.12",
     "loguru==0.7.3",
