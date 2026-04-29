@@ -8,7 +8,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from ..lib.types import (
+from src.lib.types import (
     CodeStatusFound,
     CodeStatusNotFound,
     CodeStatusResult,
