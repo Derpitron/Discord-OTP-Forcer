@@ -21,7 +21,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from .lib.codegen import generate_random_code
 from .lib.exceptions import InvalidCredentialError
 from .auth.code_errors import parse_code_error, get_code_status
-from .lib.thorium_binary import find_thorium_binary, register_thorium_browser
+from src.binary_finder.find_thorium import find_thorium_binary, register_thorium_browser
+from src.binary_finder.find_chromium import find_chromium_binary, register_chromium_browser
 from .auth.captcha import captcha_detection
 from .lib.types import (
     BinaryPath,
@@ -51,9 +52,14 @@ def _resolve_and_register_binary_location(browser: Browser) -> BinaryPath | None
     """
     Returns the binary path for browsers not natively recognized by SeleniumBase, or None if not needed.
     """
-    if browser is Browser.Thorium:
-        register_thorium_browser()
-        return find_thorium_binary()
+    match browser:
+        case Browser.Thorium:
+            register_thorium_browser()
+            return find_thorium_binary()
+        case Browser.Chromium:
+            register_chromium_browser()
+            return find_chromium_binary()
+
     return None
 
 
@@ -70,7 +76,6 @@ def bootstrap_browser(config: Config) -> BrowserSession:
                 browser="chrome" if config.program.browser in (Browser.Chromium, Browser.Thorium) else config.program.browser,
                 uc=True,
                 binary_location=_resolve_and_register_binary_location(config.program.browser),
-                use_chromium=config.program.browser is Browser.Chromium,
                 headless=config.program.headless,
                 locale_code="en-US",
                 chromium_arg="--log-level=1" if config.program.headless else None,
