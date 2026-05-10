@@ -294,7 +294,7 @@ wheels = [
 
 [[package]]
 name = "discord-otp-forcer"
-version = "0.4.0"
+version = "0.5.0"
 source = { virtual = "." }
 dependencies = [
     { name = "loguru" },
@@ -319,7 +319,7 @@ requires-dist = [
     { name = "pytest-mock", marker = "extra == 'testing'", specifier = "==3.15.1" },
     { name = "pyyaml", specifier = "==6.0.3" },
     { name = "regex-string-generator", specifier = "==0.1.0" },
-    { name = "seleniumbase", specifier = "==4.48.3" },
+    { name = "seleniumbase", specifier = "==4.48.4" },
     { name = "stackprinter", specifier = "==0.2.12" },
 ]
 provides-extras = ["testing"]
@@ -1046,7 +1046,7 @@ wheels = [
 
 [[package]]
 name = "seleniumbase"
-version = "4.48.3"
+version = "4.48.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
@@ -1109,9 +1109,9 @@ dependencies = [
     { name = "wheel" },
     { name = "wsproto" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fa/9e/942f7960c1819705a92e1e3e16082dd894e9bc86ce2e6b0ef625ed169ebe/seleniumbase-4.48.3.tar.gz", hash = "sha256:9587ef8467a287219d2d13b281311c2cb5c1ae1535fcb3bc3fc3f3baf7a0b2fd", size = 656769, upload-time = "2026-04-28T21:00:21.25Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b4/bc/08d186179157ffb214c483da88c061145ac86207829565b320de86d6375e/seleniumbase-4.48.4.tar.gz", hash = "sha256:014b5303914aa18d83467bf1866a3598a35a58cccf039d051e4bd693b217bd18", size = 656881, upload-time = "2026-04-30T19:26:55.055Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/40/3a/3eb3ddc74d671c003219c60442f2f8a1259fd7cb6c2aa2067d09b62e5341/seleniumbase-4.48.3-py3-none-any.whl", hash = "sha256:6f2163e3cf4e0a244ecee8bcf5bf86417d8661fcf38a2362d7680e6115e17827", size = 663637, upload-time = "2026-04-28T21:00:17.205Z" },
+    { url = "https://files.pythonhosted.org/packages/f1/b2/d284f5b740cf4cb605d653c0d3b6792cf1b931d573af274d46bef08bede9/seleniumbase-4.48.4-py3-none-any.whl", hash = "sha256:900763122c82b14372698580b19fb39d3d86e958bffc16c5206f5554f8f7c7ed", size = 663699, upload-time = "2026-04-30T19:26:51.658Z" },
 ]
 
 [[package]]
