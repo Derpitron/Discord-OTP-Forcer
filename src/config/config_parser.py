@@ -24,7 +24,7 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
     validate_program_config(program_config_path)
     # account validation needs programMode, so we read program config first
     with open(program_config_path, "r") as _f:
-        _mode: str = load(_f).get("programMode", "")
+        _mode: ProgramMode = ProgramMode[load(_f).get("programMode", "")]
     validate_account_config(account_config_path, _mode)
 
     # We first read the program_config_file so we know if sensitiveDebug is active or not
