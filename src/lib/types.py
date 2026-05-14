@@ -207,3 +207,48 @@ VersionCheckError = TomlNotFound | TomlParseError | NetworkError
 
 LocalVersion = NewType("LocalVersion", str)
 CodebergVersion = NewType("CodebergVersion", str)
+
+
+@dataclass(frozen=True)
+class ValidationOk:
+    pass
+
+
+@dataclass(frozen=True)
+class ValidationError:
+    message: str
+
+
+ValidationResult = ValidationOk | ValidationError
+
+
+class FileRef(StrEnum):
+    config = "config"
+    account = "account"
+
+
+@dataclass(frozen=True)
+class FileRead:
+    raw: str
+    lines: list[str]
+
+
+@dataclass(frozen=True)
+class FileReadError:
+    message: str
+
+
+FileReadResult = FileRead | FileReadError
+
+
+@dataclass(frozen=True)
+class YamlParsed:
+    data: dict
+
+
+@dataclass(frozen=True)
+class YamlParseError:
+    message: str
+
+
+YamlParseResult = YamlParsed | YamlParseError
