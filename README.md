@@ -12,7 +12,7 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 - Brute forces 6-digit TOTP codes (1 million possible codes) and 8 digit Backup codes (2.82 trillion possible codes)
 - If you know part of a valid backup code, you can fill it in using a [regex template](https://docs.python.org/3/library/re.html#regular-expression-syntax)
 - Avoids rate limiting with a configurable cooldown between each code attempt
-- Can brute force TOTP and backup codes on the password reset page.
+- Can brute force TOTP and backup codes on the password reset page
 - Waits for you to complete the CAPTCHA, if necessary
 - Saves your account token to a file if the code was correct and it succesfully logs you in (no lost account just because you accidentally closed the program/browser!)
 - Automatically prints useful info such as time taken, number of codes attempted and when the program finishes
