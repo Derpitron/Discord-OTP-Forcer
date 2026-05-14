@@ -7,8 +7,8 @@ from src.lib.types import (
 
 if __name__ == "__main__":
     initialize_check_logger()
-    config, check_updates_missing = load_configuration("config/account.yml", "config/program.yml")
-    initialize_logger(config.program, check_updates_missing)
+    config = load_configuration("config/account.yml", "config/program.yml")
+    initialize_logger(config.program)
     session: BrowserSession | None = None
 
     if config.program.checkUpdates:

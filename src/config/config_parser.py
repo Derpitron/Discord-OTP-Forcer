@@ -13,7 +13,7 @@ from src.lib.types import (
 )
 
 
-def load_configuration(account_config_path: str, program_config_path: str) -> tuple[Config, bool]:
+def load_configuration(account_config_path: str, program_config_path: str) -> Config:
     """
     Parses the config files into our Python objects.
     Validation (syntax + values) is done before any parsing attempt.
@@ -80,4 +80,4 @@ def load_configuration(account_config_path: str, program_config_path: str) -> tu
         ),
     )
     # fmt: on
-    return Config(account=accountConfig, program=programConfig), check_updates is None
+    return Config(account=accountConfig, program=programConfig)
