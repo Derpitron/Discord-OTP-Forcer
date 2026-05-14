@@ -1,33 +1,33 @@
 # Discord-OTP-Forcer
-This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8 digit codes with a random delay between each attempt.
+This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8-digit codes with a random delay between each attempt.
 
 ![Screenshot of how the program looks running with the logs](./docs/assets/readme/normal-log.png)
 
 *Look at him go!*
 
 > [!NOTE]
-> This program has now shifted to a community-based maintainership model. Anyone can participate, fork, make fixes by filing pull requests, tutorials, update documentation, etc. However, no guarantee is provided on its' security, functionality, or viability.
+> This program has now shifted to a community-based maintainership model. Anyone can contribute by forking the project, submitting pull requests, creating tutorials or updating documentation. However, no guarantee is provided regarding its security, functionality or continued maintenance.
 
 # Features
-- Brute forces 6 digit TOTP codes (1 million possible codes) and 8 digit Backup codes (2.82 trillion possible codes)
-- If you know part of a valid backup code, you can fill it in using a [regex template.](https://docs.python.org/3/library/re.html#regular-expression-syntax)
-- Ratelimit avoidance (Cooldown between every code attempt)
-- Can brute force Password Reset page's TOTP/Backup codes.
-- Waits for you to complete the hCaptcha
-- Saves your account token to a file if it succesfully logs in, no lost account just because you accidentally closed the program/browser
-- Automatically prints useful info on session stats like time taken, no. of codes attempted, when the program finishes
-- Blocks analytics URLs such as Cloudflare logging, Discord Science, and Sentry.io
-- Robust easy to read log formatting
-- User friendly
+- Brute forces 6-digit TOTP codes (1 million possible codes) and 8 digit Backup codes (2.82 trillion possible codes)
+- If you know part of a valid backup code, you can fill it in using a [regex template](https://docs.python.org/3/library/re.html#regular-expression-syntax)
+- Avoids rate limiting with a configurable cooldown between each code attempt
+- Can brute force TOTP and backup codes on the password reset page.
+- Waits for you to complete the CAPTCHA, if necessary
+- Saves your account token to a file if the code was correct and it succesfully logs you in (no lost account just because you accidentally closed the program/browser!)
+- Automatically prints useful info such as time taken, number of codes attempted and when the program finishes
+- Blocks analytics URLs such as Cloudflare Analytics, Discord Science and Sentry.io
+- Robust and easy to read log formatting
+- User-friendly and easy to use, with clear status and error messages
 
 # How to use
-Instructions on how to set up and use this program can be found in the new [documentation](https://discord-otp-forcer.codeberg.page/en/user/setup/) or the Wiki tab in the repository.<br>
-Here's a video tutorial: https://www.youtube.com/watch?v=v4skgYVmvQg
+Instructions on how to set up and use this program can be found on the new [documentation site](https://discord-otp-forcer.codeberg.page/en/user/setup/) or the Wiki tab in the repository.<br>
+There is also a [video tutorial](https://www.youtube.com/watch?v=v4skgYVmvQg) if you prefer.
 
-# Dependencies
-- Google Chrome
-- Python >= 3.13
-- All the libraries in `dependencies.txt` and also in `pyproject.toml`
+# Prerequisites
+- A Chromium-based browser (most mainstream ones are supported)
+- Python 3.13 or later
+- All the libraries in `dependencies.txt` (and in `pyproject.toml`)
 
 # Why did I make this?
 In December 2021, I lost access to my passwords and OTP list due to a file syncing issue. I was able to recover most of the credentials, except for my Discord Alt. When I contacted Discord Support, they informed me that due to their security policy, they could not disable 2FA for that account, which while it is understandable, is unfortunate. As a proof-of-concept program, I hacked together this crude script which simply brute forces randomly generated 6 digit numbers to the Discord login's TOTP field.
@@ -40,23 +40,23 @@ In December 2021, I lost access to my passwords and OTP list due to a file synci
 - [nyathea](https://github.com/nyathea) for adding a missing config option ❤️
 - [ultrafunkamsterdam](https://github.com/ultrafunkamsterdam): Creator and former maintainer of the `undetected-chromedriver` library that this program was using before ❤️
 - [mdmintz](https://github.com/mdmintz) for making and maintaining [SeleniumBase](https://github.com/seleniumbase/SeleniumBase) library that this program relies on!
-- [MicXDev](https://codeberg.org/MicXDev): Maintainer of cmd files for Windows!
-- [inbydev](https://codeberg.org/inbydev): Maintainer since February, 2026
+- [MicXDev](https://codeberg.org/MicXDev): Maintainer of batch files for Windows!
+- [inbydev](https://codeberg.org/inbydev): Maintainer since February 2026
 
 ---
 # Disclaimer
     Copyright (C) Contributors 2026
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
+    the Free Software Foundation, either version 3 of the License or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
     GNU Affero General Public License for more details.
 
     You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-Tldr; I am not responsible for anything you do with this script, and I do not condone (but cannot prevent) the usage of this script to hack into accounts which you do not properly own. The onus is on you to not be evil. Read the [License](https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/src/branch/main/LICENSE) for full information on your rights and responsibilities which pertain to this program.
+TL;DR: I am not responsible for anything you do with this script and I do not condone (but cannot prevent) the usage of this script to hack into accounts which you do not properly own. The onus is on you to not be evil. Read the [licence](https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/src/branch/main/LICENSE) for full information on your rights and responsibilities which pertain to this program.
