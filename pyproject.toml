@@ -45,8 +45,7 @@ ignore = ["E701", "F841"]
 
 [tool.ruff.format]
 quote-style = "preserve"
-line-ending = "cr-lf"
-exclude = ["src/lib/types.py"]
+line-ending = "lf"
 
 [tool.ruff]
 line-length = 160
