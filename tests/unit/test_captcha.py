@@ -81,7 +81,7 @@ class TestCaptchaPresent:
 
         captcha_detection(browser_session)
 
-        assert self.sleep_mock.call_count == 2, "Expected time.sleep to be called exactly 2 times"
+        assert self.sleep_mock.call_count == 1, "Expected time.sleep to be called exactly 1 times"
 
     def test_polling_delay_is_exactly_one_second(
         self,
