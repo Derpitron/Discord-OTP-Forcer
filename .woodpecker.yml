@@ -1,0 +1,9 @@
+steps:
+  test:
+    image: ghcr.io/astral-sh/uv:0.11.14-python3.13-alpine3.23
+    commands:
+      - uv sync --frozen
+      - uv run pytest
+    when:
+      branch: main
+      event: [push, pull_request]
