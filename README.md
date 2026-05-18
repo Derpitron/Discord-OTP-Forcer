@@ -2,13 +2,9 @@
 This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8-digit codes with a random delay between each attempt.
 
 [![CI Status](https://ci.codeberg.org/api/badges/Discord-OTP-Forcer/Discord-OTP-Forcer/status.svg?branch=main)](https://ci.codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer)
-
 [![Coverage](https://sonarqube.inby.dev/api/project_badges/measure?project=Discord-OTP-Forcer&metric=coverage&token=sqb_3a612d68bfb01865080a08292cb67ae808d5bf3a)](https://sonarqube.inby.dev/dashboard?id=Discord-OTP-Forcer)
-
 [![Reliability Issues](https://sonarqube.inby.dev/api/project_badges/measure?project=Discord-OTP-Forcer&metric=software_quality_reliability_issues&token=sqb_3a612d68bfb01865080a08292cb67ae808d5bf3a)](https://sonarqube.inby.dev/dashboard?id=Discord-OTP-Forcer)
-
 [![Maintainability Issues](https://sonarqube.inby.dev/api/project_badges/measure?project=Discord-OTP-Forcer&metric=software_quality_maintainability_issues&token=sqb_3a612d68bfb01865080a08292cb67ae808d5bf3a)](https://sonarqube.inby.dev/dashboard?id=Discord-OTP-Forcer)
-
 [![Security Issues](https://sonarqube.inby.dev/api/project_badges/measure?project=Discord-OTP-Forcer&metric=software_quality_security_issues&token=sqb_3a612d68bfb01865080a08292cb67ae808d5bf3a)](https://sonarqube.inby.dev/dashboard?id=Discord-OTP-Forcer)
 
 ![Screenshot of how the program looks running with the logs](./docs/assets/readme/normal-log.png)
