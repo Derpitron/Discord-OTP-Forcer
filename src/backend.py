@@ -155,6 +155,8 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
                 wait.until(EC.presence_of_element_located(password_field)).send_keys(config.account.password)
             case ProgramMode.Reset:
                 wait.until(EC.presence_of_element_located(password_field)).send_keys(config.account.newPassword)
+            case _ as unreachable:
+                assert_never(unreachable)
         wait.until(EC.presence_of_element_located(password_field)).send_keys(Keys.RETURN)
     except TimeoutException:
         logger.critical(
@@ -170,11 +172,9 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
 
     captcha_detection(session)
 
-    wait_for_verify_else: WebDriverWait[WebDriver] = WebDriverWait(driver, 7)
-
     # Select the method
     try:
-        wait_for_verify_else.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
+        wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
 
         match config.program.codeMode:
             case CodeMode_Normal():
@@ -187,13 +187,25 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
         match config.program.codeMode:
             case CodeMode_Backup():
                 logger.critical(
-                    "Cannot use backup mode - you likely have no backup codes left."
-                    "If the 'Verify with something else' button did actually appear,"
-                    "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues and create an issue."
+                    "Cannot use backup mode - you likely have no backup codes left. "
+                    "If you think this is a bug, "
+                    "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
                 )
                 sys.exit(1)
             case CodeMode_Normal():
-                pass
+                logger.critical(
+                    "Cannot use normal mode - you likely have not an Authenticator App linked on your account. "
+                    "If you think this is a bug, "
+                    "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                )
+                sys.exit(1)
+            case _:
+                logger.critical(
+                    "Cannot use backup mode with regex mode - you likely have no backup codes left. "
+                    "If you think this is a bug, "
+                    "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                )
+                sys.exit(1)
 
     # Check if the code field exists
     try:
