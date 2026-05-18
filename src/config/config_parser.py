@@ -13,6 +13,16 @@ from src.lib.types import (
 )
 
 
+def _parse_code_mode(code_mode: str) -> CodeMode_Normal | CodeMode_Backup:
+    match code_mode:
+        case "Normal":
+            return CodeMode_Normal()
+        case "Backup":
+            return CodeMode_Backup()
+        case _:
+            return CodeMode_Backup(code_mode)
+
+
 def load_configuration(account_config_path: str, program_config_path: str) -> Config:
     """
     Parses the config files into our Python objects.
@@ -50,19 +60,10 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
 
     # need a custom parser for this cus of custom types.
     # If the user gives a custom regex here i'll assume it's a backup code.
-    # fmt: off
+
     programConfig = ProgramConfig(
         programMode=ProgramMode[(program_config_dict["programMode"])],
-
-        codeMode=(
-            CodeMode_Normal()
-            if program_config_dict["codeMode"] == "Normal"
-            else (
-                CodeMode_Backup()
-                if program_config_dict["codeMode"] == "Backup"
-                else CodeMode_Backup(program_config_dict["codeMode"])
-            )
-        ),
+        codeMode=_parse_code_mode(program_config_dict["codeMode"]),
         checkUpdates=check_updates if check_updates is not None else False,
         browser=Browser[(program_config_dict["browser"])],
         headless=program_config_dict["headless"],
@@ -79,5 +80,5 @@ def load_configuration(account_config_path: str, program_config_path: str) -> Co
             program_config_dict["ratelimitedAttemptDelayMax"],
         ),
     )
-    # fmt: on
+
     return Config(account=accountConfig, program=programConfig)
