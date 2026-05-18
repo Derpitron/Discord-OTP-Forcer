@@ -5,18 +5,20 @@ steps:
       - uv sync --frozen --extra testing
       - uv run coverage run -m pytest
       - uv run coverage report -m
-      - uv run coverage xml
+      - uv run coverage xml -o coverage.xml
     when:
       branch: main
       event: [push, pull_request]
 
-  codecov:
-    image: woodpeckerci/plugin-codecov:2.3.1
-    settings:
-      files:
-        - coverage.xml
-      token:
-        from_secret: codecov_token
+  sonarqube:
+    image: sonarsource/sonar-scanner-cli:12.1.0.3225_8.0.1
+    environment:
+      SONAR_HOST_URL:
+        from_secret: sonar_host_url
+      SONAR_TOKEN:
+        from_secret: sonar_token
+    commands:
+      - sonar-scanner
     when:
       branch: main
       event: [push, pull_request]
