@@ -16,7 +16,7 @@ steps:
       SONAR_HOST_URL:
         from_secret: sonar_host_url
       SONAR_TOKEN:
-        from_secret: sonar_token
+        from_secret: sonar_token2
     commands:
       - sonar-scanner
     when:
