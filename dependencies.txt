@@ -1,5 +1,5 @@
-seleniumbase==4.48.4
+seleniumbase==4.50.3
 PyYAML==6.0.3
-stackprinter==0.2.12
+stackprinter==0.2.13
 loguru==0.7.3
 regex-string-generator==0.1.0
