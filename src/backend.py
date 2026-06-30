@@ -158,7 +158,7 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
             case _ as unreachable:
                 assert_never(unreachable)
         wait.until(EC.presence_of_element_located(password_field)).send_keys(Keys.RETURN)
-    except TimeoutException:
+    except TimeoutException as email_or_password_field_not_located:
         logger.critical(
             "Could not locate the email or password field on the page."
             "This may be caused by a low 'elementLoadTolerance' value in your config/program.yml file."
@@ -174,16 +174,39 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
 
     # Select the method
     try:
-        wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
-
-        match config.program.codeMode:
-            case CodeMode_Normal():
-                wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use your authenticator app')]"))).click()
-            case CodeMode_Backup():
-                wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use a backup code')]"))).click()
-                time.sleep(11)
-                wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'use a backup code')]"))).click()
-    except TimeoutException:
+        short_wait = WebDriverWait(driver, 1)
+        short_wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Verify with something else')]"))).click()
+        try:
+            match config.program.codeMode:
+                case CodeMode_Normal():
+                    wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use your authenticator app')]"))).click()
+                case CodeMode_Backup():
+                    wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Use a backup code')]"))).click()
+                    time.sleep(11)
+                    wait_longer.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'use a backup code')]"))).click()
+        except TimeoutException:
+            match config.program.codeMode:
+                case CodeMode_Backup():
+                    logger.critical(
+                        "Cannot use backup mode - you likely have no backup codes left. "
+                        "If you think this is a bug, "
+                        "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                    )
+                case CodeMode_Normal():
+                    logger.critical(
+                        "Cannot use normal mode - you likely have not an Authenticator App linked on your account. "
+                        "If you think this is a bug, "
+                        "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                    )
+                case _:
+                    logger.critical(
+                        "Cannot use backup mode with regex mode - you likely have no backup codes left. "
+                        "If you think this is a bug, "
+                        "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                    )
+            sys.exit(1)
+    except TimeoutException as only_normal_code_mode_found:
+        logger.debug("Only found one TOTP method, proceeding with it")
         match config.program.codeMode:
             case CodeMode_Backup():
                 logger.critical(
@@ -193,12 +216,19 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
                 )
                 sys.exit(1)
             case CodeMode_Normal():
-                logger.critical(
-                    "Cannot use normal mode - you likely have not an Authenticator App linked on your account. "
-                    "If you think this is a bug, "
-                    "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
-                )
-                sys.exit(1)
+                try:
+                    # TODO: maybe do this a little better later
+                    code_field_6_digit: tuple[ByType, str] = (By.XPATH, "//*[@placeholder='6-digit authentication code']")
+                    wait.until(EC.presence_of_element_located(code_field_6_digit))
+                    logger.debug("Code field with '6-digit authentication code' placeholder found, no need to select mode")
+                except TimeoutException:
+                    # TODO: Need to document or test more this
+                    logger.critical(
+                        "Cannot use normal mode - Unknown error on exception 'only_normal_code_mode_found'. "
+                        "please report this on https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new "
+                        "so the developers can fix it."
+                    )
+                    sys.exit(1)
             case _:
                 logger.critical(
                     "Cannot use backup mode with regex mode - you likely have no backup codes left. "
