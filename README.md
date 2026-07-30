@@ -1,5 +1,5 @@
 # Discord-OTP-Forcer
-This is a Selenium and Python based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8-digit codes with a random delay between each attempt.
+This is a Selenium and Python-based Discord TOTP forcer. It attempts to brute force randomly generated 6 or 8-digit codes with a random delay between each attempt.
 
 [![CI Status](https://ci.codeberg.org/api/badges/Discord-OTP-Forcer/Discord-OTP-Forcer/status.svg?branch=main)](https://ci.codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer)
 ![Coverage](https://sonarqube.inby.dev/api/project_badges/measure?project=Discord-OTP-Forcer&metric=coverage&token=sqb_fadf95f949be09b5bac7a88c05e9bd18f6fcf820)
@@ -15,10 +15,9 @@ This is a Selenium and Python based Discord TOTP forcer. It attempts to brute fo
 > This program has now shifted to a community-based maintainership model. Anyone can contribute by forking the project, submitting pull requests, creating tutorials or updating documentation. However, no guarantee is provided regarding its security or functionality.
 
 # Features
-- Brute forces 6-digit TOTP codes (1 million possible codes) and 8 digit Backup codes (2.82 trillion possible codes)
-- If you know part of a valid backup code, you can fill it in using a [regex template](https://docs.python.org/3/library/re.html#regular-expression-syntax)
+- Can brute force 6-digit TOTP codes (1 million possible codes) or 8-digit backup codes (2.82 trillion possible codes) on both the standard login page and the password reset page
+- If you know part of a valid backup code, you can fill it in using a [regular expression template](https://docs.python.org/3/library/re.html#regular-expression-syntax)
 - Avoids rate limiting with a configurable cooldown between each code attempt
-- Can brute force TOTP and backup codes on the password reset page
 - Waits for you to complete the CAPTCHA, if necessary
 - Saves your account token to a file if the code was correct and it succesfully logs you in (no lost account just because you accidentally closed the program/browser!)
 - Automatically prints useful info such as time taken, number of codes attempted and when the program finishes
@@ -36,7 +35,7 @@ There is also a [video tutorial](https://www.youtube.com/watch?v=v4skgYVmvQg) if
 - All the libraries in `dependencies.txt` (and in `pyproject.toml`)
 
 # Why did I make this?
-In December 2021, I lost access to my passwords and OTP list due to a file syncing issue. I was able to recover most of the credentials, except for my Discord Alt. When I contacted Discord Support, they informed me that due to their security policy, they could not disable 2FA for that account, which while it is understandable, is unfortunate. As a proof-of-concept program, I hacked together this crude script which simply brute forces randomly generated 6 digit numbers to the Discord login's TOTP field.
+In December 2021, I lost access to my passwords and OTP list due to a file syncing issue. I was able to recover most of the credentials, except for my Discord Alt. When I contacted Discord Support, they informed me that due to their security policy, they could not disable 2FA for that account, which while it is understandable, is unfortunate. As a proof-of-concept program, I hacked together this crude script which simply brute forces randomly generated 6-digit numbers to the Discord login's TOTP field.
 
 # Credits
 - [Derpitron](https://codeberg.org/derpitron): Creator and Maintainer from April, 2022 to March, 2026
