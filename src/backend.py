@@ -239,7 +239,8 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
 
     # Check if the code field exists
     try:
-        code_field: tuple[ByType, str] = (By.CLASS_NAME, "input__0f084")
+        # TODO: detect when this code field is not found correctly
+        code_field: tuple[ByType, str] = (By.CLASS_NAME, "input__75098")
         wait.until(EC.presence_of_element_located(code_field))
     except TimeoutException:
         msg: str
