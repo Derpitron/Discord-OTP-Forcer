@@ -244,6 +244,7 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
         wait.until(EC.presence_of_element_located(code_field))
     except TimeoutException:
         msg: str
+        # TODO: And only show this error messages when it actually can't log in on the account / the password reset token IS expired
         match config.program.programMode:
             case ProgramMode.Login:
                 msg = "Could not log in to your account. Is your email and password correct? You may have to reset your password. Check the wiki/docs for more information."
