@@ -1,11 +1,12 @@
 """Tests for the captcha detection module (src.auth.captcha)"""
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 from selenium.common.exceptions import TimeoutException
 
 from src.auth.captcha import captcha_detection
-from src.lib.types import BrowserSession, Config, ProgramConfig, AccountConfig
+from src.lib.types import AccountConfig, BrowserSession, Config, ProgramConfig
 
 
 @pytest.fixture

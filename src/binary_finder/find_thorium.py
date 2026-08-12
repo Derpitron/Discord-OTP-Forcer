@@ -1,7 +1,10 @@
 from platform import system
-from src.lib.types import BinaryPath
-from .binary_finder import find_binary, build_linux_candidates, build_macos_candidates, build_windows_candidates
+
 from seleniumbase.fixtures import constants as sb_constants
+
+from src.lib.types import BinaryPath
+
+from .binary_finder import build_linux_candidates, build_macos_candidates, build_windows_candidates, find_binary
 
 _BINARIES_WINDOWS: list[str] = ["thorium.exe", "thorium-browser.exe"]
 _BINARIES_LINUX: list[str] = ["thorium-browser", "thorium"]

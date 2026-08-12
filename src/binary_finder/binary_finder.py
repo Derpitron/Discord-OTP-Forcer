@@ -1,7 +1,8 @@
+from os import environ
 from pathlib import Path
 from shutil import which
+
 from src.lib.types import BinaryPath
-from os import environ
 
 
 def build_windows_candidates(

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, StrEnum
-from typing import TypeVar, TypedDict, NewType
+from typing import NewType, TypedDict, TypeVar
+
 from selenium.webdriver.remote.webdriver import WebDriver
 
 """

@@ -1,26 +1,25 @@
 from selenium.common.exceptions import (
     NoSuchElementException,
-    TimeoutException,
     StaleElementReferenceException,
+    TimeoutException,
 )
 from selenium.webdriver.common.by import By, ByType
 from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from src.lib.types import (
+    CodeError,
     CodeStatusFound,
     CodeStatusNotFound,
     CodeStatusResult,
-    CodeError,
     InvalidCode,
+    NetworkOffline,
     RateLimited,
     ServiceUnavailable,
     TokenExpired,
     UnknownError,
-    NetworkOffline,
 )
-
 
 _CODE_STATUS_FALLBACK_XPATHS: frozenset[str] = frozenset(
     {

@@ -1,15 +1,16 @@
 from yaml import safe_load as load
-from src.config.config_validator import validate_program_config, validate_account_config
+
+from src.config.config_validator import validate_account_config, validate_program_config
 from src.lib.types import (
     AccountConfig,
     Browser,
+    CensoredStr,
     CodeMode_Backup,
     CodeMode_Normal,
     Config,
     ProgramConfig,
-    ProgramMode,
     ProgramConfigDict,
-    CensoredStr,
+    ProgramMode,
 )
 
 

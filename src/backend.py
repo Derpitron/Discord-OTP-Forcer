@@ -1,29 +1,29 @@
 # Import dependencies and libraries
 import secrets
-import time
 import sys
 import threading
-from pprint import pformat
+import time
 from pathlib import Path
+from pprint import pformat
 from typing import assert_never
 
 from loguru import logger
-
-from seleniumbase import Driver
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By, ByType
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.remote.webelement import WebElement as Element
 from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.remote.webelement import WebElement as Element
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from seleniumbase import Driver
 
+from src.binary_finder.find_chromium import find_chromium_binary, register_chromium_browser
+from src.binary_finder.find_thorium import find_thorium_binary, register_thorium_browser
+
+from .auth.captcha import captcha_detection
+from .auth.code_errors import get_code_status, parse_code_error
 from .lib.codegen import generate_random_code
 from .lib.exceptions import InvalidCredentialError
-from .auth.code_errors import parse_code_error, get_code_status
-from src.binary_finder.find_thorium import find_thorium_binary, register_thorium_browser
-from src.binary_finder.find_chromium import find_chromium_binary, register_chromium_browser
-from .auth.captcha import captcha_detection
 from .lib.types import (
     BinaryPath,
     Browser,
@@ -34,16 +34,15 @@ from .lib.types import (
     CodeStatusFound,
     CodeStatusNotFound,
     Config,
-    ProgramMode,
-    SessionStats,
     InvalidCode,
+    NetworkOffline,
+    ProgramMode,
     RateLimited,
     ServiceUnavailable,
+    SessionStats,
     TokenExpired,
     UnknownError,
-    NetworkOffline,
 )
-
 
 logger.level(name="SENSITIVE", no=15, color="<m><b>")
 
@@ -393,7 +392,6 @@ def try_codes(session: BrowserSession) -> None:
 
     except KeyboardInterrupt:
         logger.critical("Stopping the program on KeyboardInterrupt!")
-        pass
 
     sessionStats.elapsedTimeSeconds = time.time() - start_time
     logger.critical("Program finished!")

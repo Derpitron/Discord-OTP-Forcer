@@ -1,14 +1,15 @@
 import json
-from loguru import logger
+
 import requests
+from loguru import logger
 
 from .types import (
-    LocalVersion,
     CodebergVersion,
-    VersionCheckError,
+    LocalVersion,
+    NetworkError,
     TomlNotFound,
     TomlParseError,
-    NetworkError,
+    VersionCheckError,
 )
 
 _session = requests.Session()

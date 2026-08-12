@@ -1,20 +1,21 @@
 import re
-import yaml
 from collections.abc import Sequence
-from loguru import logger
 from re import Match, Pattern
 from typing import Any, assert_never
 
+import yaml
+from loguru import logger
+
 from src.lib.types import (
-    ProgramMode,
     Browser,
-    ValidationOk,
-    ValidationError,
-    ValidationResult,
-    FileRef,
     FileRead,
     FileReadError,
     FileReadResult,
+    FileRef,
+    ProgramMode,
+    ValidationError,
+    ValidationOk,
+    ValidationResult,
     YamlParsed,
     YamlParseError,
     YamlParseResult,

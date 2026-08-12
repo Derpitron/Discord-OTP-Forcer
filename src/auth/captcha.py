@@ -1,12 +1,11 @@
 import time
 
 from loguru import logger
-
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By, ByType
 from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
 
 from src.lib.types import BrowserSession, Config
 
