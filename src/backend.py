@@ -161,13 +161,13 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
         logger.critical(
             "Could not locate the email or password field on the page."
             "This may be caused by a low 'elementLoadTolerance' value in your config/program.yml file."
-            "Try increasing it to 5, 7 or even higher if your internet connection or computer is slow."
+            "Try increasing it to 5 or 7. (Or even higher if your internet connection or computer is slow.)"
         )
-        logger.critical("If that does not fix the issue, go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues to ask for help.")
+        logger.critical("If that does not fix the issue, please create a new issue at codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new to ask for help.")
         sys.exit(1)
 
     wait.until(EC.presence_of_element_located(password_field)).send_keys(Keys.RETURN)
-    logger.debug("Found and entered basic login fields")
+    logger.debug("Found and filled in basic login fields")
 
     captcha_detection(session)
 
@@ -189,19 +189,19 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
                     logger.critical(
                         "Cannot use backup mode - you likely have no backup codes left. "
                         "If you think this is a bug, "
-                        "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                        "please go to codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
                     )
                 case CodeMode_Normal():
                     logger.critical(
-                        "Cannot use normal mode - you likely have not an Authenticator App linked on your account. "
+                        "Cannot use normal mode - it's likely that you do not have an authenticator app linked to your Discord account. "
                         "If you think this is a bug, "
-                        "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                        "please go to codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
                     )
                 case _:
                     logger.critical(
                         "Cannot use backup mode with regex mode - you likely have no backup codes left. "
                         "If you think this is a bug, "
-                        "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                        "please go to codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
                     )
             sys.exit(1)
     except TimeoutException as only_normal_code_mode_found:
@@ -211,7 +211,7 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
                 logger.critical(
                     "Cannot use backup mode - you likely have no backup codes left. "
                     "If you think this is a bug, "
-                    "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                    "please go to codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
                 )
                 sys.exit(1)
             case CodeMode_Normal():
@@ -224,15 +224,15 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
                     # TODO: Need to document or test more this
                     logger.critical(
                         "Cannot use normal mode - Unknown error on exception 'only_normal_code_mode_found'. "
-                        "please report this on https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new "
-                        "so the developers can fix it."
+                        "please report this by creating an issue at codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new "
+                        "so that the developers can look into the issue and fix it."
                     )
                     sys.exit(1)
             case _:
                 logger.critical(
                     "Cannot use backup mode with regex mode - you likely have no backup codes left. "
                     "If you think this is a bug, "
-                    "please go to https://codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
+                    "please go to codeberg.org/Discord-OTP-Forcer/Discord-OTP-Forcer/issues/new and create an issue."
                 )
                 sys.exit(1)
 
@@ -246,11 +246,11 @@ def bootstrap_code_page(session: BrowserSession) -> BrowserSession:
         # TODO: And only show this error messages when it actually can't log in on the account / the password reset token IS expired
         match config.program.programMode:
             case ProgramMode.Login:
-                msg = "Could not log in to your account. Is your email and password correct? You may have to reset your password. Check the wiki/docs for more information."
+                msg = "Could not log in to your account. Is your email and password correct? You may have to reset your password. Check the wiki/docs at discord-otp-forcer.codeberg.page/en/user/setup for more information."
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
             case ProgramMode.Reset:
-                msg = "Your password reset token may have expired. Refresh it and fill it in your config/account.yml file. See https://discord-otp-forcer.codeberg.page/en/user/setup/#how-to-get-your-reset-token for more information."
+                msg = "Your password reset token may have expired. Generate a new one and fill it in your config/account.yml file. See discord-otp-forcer.codeberg.page/en/user/setup/#how-to-get-your-reset-token for more information."
                 logger.critical(msg)
                 raise InvalidCredentialError(msg)
 
