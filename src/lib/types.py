@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, StrEnum
-from typing import NewType, TypedDict, TypeVar
+from typing import NewType, TypedDict
 
 from selenium.webdriver.remote.webdriver import WebDriver
 
@@ -12,15 +12,6 @@ Naming convention here:
 PascalCase for classes, types, kinds, enum-possibilities
 camelCase for objects, variables, instances, members
 """
-
-T = TypeVar("T")
-
-
-# Not used anymore
-def unwrap(x: T | None) -> T:
-    if x is None:
-        raise TypeError("Expected actual variable, got None")
-    return x
 
 
 class ProgramMode(Enum):
