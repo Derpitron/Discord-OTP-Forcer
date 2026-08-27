@@ -44,6 +44,7 @@ _RATE_LIMIT_MESSAGES: frozenset[str] = frozenset(
 _SERVICE_UNAVAILABLE_MESSAGES: frozenset[str] = frozenset(
     {
         "POST /auth/mfa/totp [503]",
+        "POST /auth/mfa/backup [503]",
         "503: Service Unavailable",
     }
 )
