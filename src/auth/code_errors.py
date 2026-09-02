@@ -45,6 +45,7 @@ _SERVICE_UNAVAILABLE_MESSAGES: frozenset[str] = frozenset(
     {
         "POST /auth/mfa/totp [503]",
         "POST /auth/mfa/backup [503]",
+        "POST /auth/reset [503]",
         "503: Service Unavailable",
     }
 )
