@@ -267,7 +267,8 @@ def try_codes(session: BrowserSession) -> None:
     config: Config = session.config
 
     wait_60s: WebDriverWait[WebDriver] = WebDriverWait(driver, 60)
-    wait: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance * 3)
+    user_wait: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance)
+    user_wait_longer: WebDriverWait[WebDriver] = WebDriverWait(driver, config.program.elementLoadTolerance * 3)
 
     # Set up statistics counters
     sessionStats: SessionStats = SessionStats(0, 0, 0, 0, 0, 0)
@@ -319,11 +320,11 @@ def try_codes(session: BrowserSession) -> None:
 
             # Attempt the code
             try:
-                code_field_element = wait.until(EC.element_to_be_clickable(code_field))
+                code_field_element = user_wait_longer.until(EC.element_to_be_clickable(code_field))
                 code_field_element.clear()
                 code_field_element.send_keys(random_code)
                 time.sleep(secrets.choice(sleep_duration_range))
-                submit_button_element = wait.until(EC.element_to_be_clickable(submit_button))
+                submit_button_element = user_wait_longer.until(EC.element_to_be_clickable(submit_button))
                 submit_button_element.click()
                 if isinstance(config.program.codeMode, CodeMode_Backup):
                     sessionStats.attemptedBackupCodeCount += 1
@@ -339,18 +340,24 @@ def try_codes(session: BrowserSession) -> None:
             try:
                 # CRITICAL PATH
                 # We want to know immediately if the homepage is present or not
-                login_test: Element = driver.find_element(*user_homepage)
+                login_test: Element = user_wait.until(EC.presence_of_element_located(user_homepage))
                 if login_test:
-                    while True:
+                    logger.debug("Homepage found, trying to extract token")
+                    for i in range(100):
+                        logger.debug(f"Attempt {i + 1} of trying to extract token")
                         token = driver.execute_script("return window.localStorage.getItem('token');")
                         if token is not None:
-                            logger.info("FOUND YOUR ACCOUNT'S TOKEN SAVE IT AND DO NOT LOG OUT OF DISCORD")
+                            logger.info("FOUND YOUR ACCOUNT'S TOKEN. SAVE IT AND DO NOT LOG OUT OF DISCORD!")
                             logger.success(token)
                             with open("secret/token.txt", "a+") as f:
                                 f.write(token + "\n")
                             break
+                        time.sleep(0.5)
+
+                    if token is None:
+                        logger.warning("Token not found but logged in successfully.")
                     break
-            except NoSuchElementException as login_didnt_work:
+            except (NoSuchElementException, TimeoutException) as login_didnt_work:
                 timer_code_taking_long = threading.Timer(15.0, _code_taking_long)
                 timer_code_taking_long.start()
 
