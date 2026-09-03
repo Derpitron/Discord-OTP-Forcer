@@ -4,10 +4,10 @@
 	function lockProperty(obj, prop) {
 		if (!obj) return;
 
-		var desc;
+		let desc;
 		try {
 			desc = Object.getOwnPropertyDescriptor(obj, prop);
-		} catch (e) {
+		} catch {
 			return;
 		}
 
@@ -22,7 +22,7 @@
 				enumerable: desc.enumerable,
 				configurable: false,
 			});
-		} catch (e) {
+		} catch {
 			// ignore
 		}
 	}
@@ -30,12 +30,16 @@
 	try {
 		lockProperty(window, "localStorage");
 		lockProperty(window, "sessionStorage");
-	} catch (e) {}
+	} catch {
+		// ignore
+	}
 
 	try {
 		if (typeof Window !== "undefined" && Window.prototype) {
 			lockProperty(Window.prototype, "localStorage");
 			lockProperty(Window.prototype, "sessionStorage");
 		}
-	} catch (e) {}
+	} catch {
+		// ignore
+	}
 })();
